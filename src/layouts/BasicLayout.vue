@@ -20,11 +20,6 @@
 
 <script setup lang="ts">
 import GlobalHeader from "@/components/GlobalHeader.vue";
-import { helloUsingGet } from '@/api/ceshiguanli.ts'
-
-helloUsingGet().then((res) => {
-  console.log(res)
-})
 
 </script>
 

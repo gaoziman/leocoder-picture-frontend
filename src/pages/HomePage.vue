@@ -1,163 +1,176 @@
 <template>
   <div id="homePage">
-    <header class="header">
-      <img class="logo" src="../assets/logo.png" alt="Leo哥云图库" />
-      <h1>欢迎来到Leo智存协作云图库</h1>
-      <p class="subtitle">打造专业的云端资源管理平台，轻松存储、分享与协作，让每一张图片创造更高价值！</p>
-    </header>
-    <main class="main-content">
-      <div class="content feature">
-        <h2>🌟 主要功能</h2>
-        <ul>
-          <li>🔍 快速搜索：快速定位知识点和资源。</li>
-          <li>📁 云图库：随时随地访问你的项目资源。</li>
-          <li>📘 学习资料：提供高效的学习资源和工具。</li>
-          <li>🚀 项目指南：一站式的学习与项目实践方案。</li>
-        </ul>
-      </div>
-      <div class="content benefits">
-        <h2>🎯 平台亮点</h2>
-        <div class="benefit-list">
-          <div class="benefit-item">
-            <h3>🌐 高效协作</h3>
-            <p>团队成员可以快速协作，分享和管理资源。</p>
-          </div>
-          <div class="benefit-item">
-            <h3>💾 数据安全</h3>
-            <p>通过加密技术保护您的数据免受外部威胁。</p>
-          </div>
-          <div class="benefit-item">
-            <h3>📈 高效提升</h3>
-            <p>随时随地学习资源，帮助你提升技能，完成目标。</p>
-          </div>
-        </div>
-      </div>
-      <div class="cta">
-        <p>赶快加入 Leo哥云图库，开启你的知识探索之旅！</p>
-<!--        <router-link to="/user/login">-->
-<!--          <button class="start-button">立即登录</button>-->
-<!--        </router-link>-->
-      </div>
-    </main>
+    <!-- 搜索框 -->
+    <div class="search-bar">
+      <a-input-search
+        placeholder="从海量图片中搜索"
+        v-model:value="searchParams.searchText"
+        enter-button="搜索"
+        size="large"
+        @search="doSearch"
+      />
+    </div>
   </div>
+
+
+  <!-- 分类 + 标签 -->
+  <a-tabs v-model:activeKey="selectedCategory" @change="doSearch">
+    <a-tab-pane key="all" tab="全部" />
+    <a-tab-pane v-for="category in categoryList" :key="category" :tab="category" />
+  </a-tabs>
+  <div class="tag-bar">
+    <span style="margin-right: 8px">标签：</span>
+    <a-space :size="[0, 8]" wrap>
+      <a-checkable-tag
+        v-for="(tag, index) in tagList"
+        :key="tag"
+        v-model:checked="selectedTagList[index]"
+        @change="doSearch"
+      >
+        {{ tag }}
+      </a-checkable-tag>
+    </a-space>
+  </div>
+
+  <!-- 图片列表 -->
+  <a-list
+    :grid="{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4, xl: 5, xxl: 6 }"
+    :data-source="dataList"
+    :pagination="pagination"
+    :loading="loading"
+    style="margin-top: 20px"
+  >
+    <template #renderItem="{ item: picture }">
+      <a-list-item style="padding: 0">
+        <!-- 单张图片 -->
+        <a-card hoverable @click="doClickPicture(picture)">
+          <template #cover>
+            <img style="height: 180px; object-fit: cover" :alt="picture.name" :src="picture.url" />
+          </template>
+          <a-card-meta :title="picture.name">
+            <template #description>
+              <a-flex>
+                <a-tag color="green">
+                  {{ picture.category ?? '默认' }}
+                </a-tag>
+                <a-tag v-for="tag in picture.tags" :key="tag">
+                  {{ tag }}
+                </a-tag>
+              </a-flex>
+            </template>
+          </a-card-meta>
+        </a-card>
+      </a-list-item>
+    </template>
+  </a-list>
 </template>
 
 <script setup lang="ts">
-// 页面逻辑不需要修改，专注于展示
+// 数据
+import { computed, onMounted, reactive, ref } from 'vue'
+import { message } from 'ant-design-vue'
+import {
+  editPictureUsingPost,
+  listPictureTagCategoryUsingGet,
+  listPictureVoByPageUsingPost,
+} from '@/api/tupianguanli.ts'
+import { useRouter } from 'vue-router'
+
+const dataList = ref([])
+const total = ref(0)
+const loading = ref(true)
+
+// 搜索条件
+const searchParams = reactive<API.PictureQueryRequest>({
+  pageNum: 1,
+  pageSize: 12,
+  sortField: 'createTime',
+  sortOrder: 'descend',
+})
+
+// 分页参数
+const pagination = computed(() => {
+  return {
+    current: searchParams.pageNum ?? 1,
+    pageSize: searchParams.pageSize ?? 10,
+    total: total.value,
+    // 切换页号时，会修改搜索参数并获取数据
+    onChange: (page, pageSize) => {
+      searchParams.pageNum = page
+      searchParams.pageSize = pageSize
+      fetchData()
+    },
+  }
+})
+
+// 获取数据
+const fetchData = async () => {
+  loading.value = true
+  // 转换搜索参数
+  const params = {
+    ...searchParams,
+    tags: [],
+  }
+  if (selectedCategory.value !== 'all') {
+    params.category = selectedCategory.value
+  }
+  selectedTagList.value.forEach((useTag, index) => {
+    if (useTag) {
+      params.tags.push(tagList.value[index])
+    }
+  })
+  const res = await listPictureVoByPageUsingPost(params)
+  if (res.data.data) {
+    dataList.value = res.data.data.records ?? []
+    total.value = res.data.data.total ?? 0
+  } else {
+    message.error('获取数据失败，' + res.data.message)
+  }
+  loading.value = false
+}
+
+const doSearch = () => {
+  // 重置搜索条件
+  searchParams.pageNum = 1
+  fetchData()
+}
+
+const categoryList = ref<string[]>([])
+const selectedCategory = ref<string>('all')
+const tagList = ref<string[]>([])
+const selectedTagList = ref<string[]>([])
+
+// 获取标签和分类选项
+const getTagCategoryOptions = async () => {
+  const res = await listPictureTagCategoryUsingGet()
+  if (res.data.code === 200 && res.data.data) {
+    // 转换成下拉选项组件接受的格式
+    categoryList.value = res.data.data.categoryList ?? []
+    tagList.value = res.data.data.tagList ?? []
+  } else {
+    message.error('加载分类标签失败，' + res.data.message)
+  }
+}
+
+const router = useRouter()
+// 跳转至图片详情
+const doClickPicture = (picture) => {
+  router.push({
+    path: `/picture/${picture.id}`,
+  })
+}
+
+// 页面加载时请求一次
+onMounted(() => {
+  getTagCategoryOptions()
+  fetchData()
+})
 </script>
 
 <style scoped>
 /* 页面基础样式 */
-#homePage {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  font-family: Arial, sans-serif;
-}
-
-/* 头部样式 */
-.header {
-  text-align: center;
-  padding: 20px;
-  background-color: #f0f4ff;
-}
-
-.logo {
-  width: 120px;
-  margin-bottom: 16px;
-}
-
-.subtitle {
-  color: #555;
-  font-size: 16px;
-  margin-top: 8px;
-}
-
-/* 主内容区域 */
-.main-content {
-  flex: 1;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(180deg, #ffffff, #e6f7ff);
-}
-
-.content {
-  max-width: 800px;
-  margin-bottom: 40px;
-}
-
-.feature ul {
-  list-style: none;
-  padding: 0;
-}
-
-.feature li {
-  margin: 10px 0;
-  font-size: 16px;
-  color: #666;
-}
-
-/* 亮点部分 */
-.benefits {
-  text-align: center;
-}
-
-.benefit-list {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-}
-
-.benefit-item {
-  max-width: 200px;
-  margin: 10px;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.benefit-item h3 {
-  font-size: 18px;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.benefit-item p {
-  font-size: 14px;
-  color: #555;
-}
-
-/* CTA 区域 */
-.cta {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.start-button {
-  background-color: #007bff;
-  color: white;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.start-button:hover {
-  background-color: #0056b3;
-}
-
-/* 页脚 */
-.footer {
-  text-align: center;
-  padding: 10px;
-  background-color: #f0f4ff;
-  color: #888;
-  font-size: 14px;
+#homePage .search-bar {
+  max-width: 480px;
+  margin: 0 auto 16px;
 }
 </style>

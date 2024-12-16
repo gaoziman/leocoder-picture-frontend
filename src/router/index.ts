@@ -5,6 +5,9 @@ import UserRegisterPage from '@/pages/user/UserRegisterPage.vue'
 import UserManagePage from '@/pages/admin/UserManagePage.vue'
 import ACCESS_ENUM from '@/access/accessEnum.ts'
 import NoAuth from '@/pages/404/NoAuth.vue'
+import AddPicturePage from '@/pages/picture/AddPicturePage.vue'
+import PictureManagePage from '@/pages/admin/PictureManagePage.vue'
+import PictureDetailPage from '@/pages/picture/PictureDetailPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,7 +17,7 @@ const router = createRouter({
       name: '主页',
       component: HomePage,
       meta: {
-        title: '首页'
+        title: '首页',
       },
     },
     {
@@ -22,7 +25,7 @@ const router = createRouter({
       name: '用户登录',
       component: UserLoginPage,
       meta: {
-        title: '用户登录'
+        title: '用户登录',
       },
     },
     {
@@ -30,7 +33,7 @@ const router = createRouter({
       name: '用户注册',
       component: UserRegisterPage,
       meta: {
-        title: '用户注册'
+        title: '用户注册',
       },
     },
     {
@@ -39,8 +42,24 @@ const router = createRouter({
       component: UserManagePage,
       meta: {
         access: ACCESS_ENUM.ADMIN,
-        title : '用户管理'
+        title: '用户管理',
       },
+    },
+    {
+      path: '/add_picture',
+      name: '创建图片',
+      component: AddPicturePage,
+    },
+    {
+      path: '/admin/pictureManage',
+      name: '图片管理',
+      component: PictureManagePage,
+    },
+    {
+      path: '/picture/:id',
+      name: '图片详情',
+      component: PictureDetailPage,
+      props: true,
     },
     {
       path: '/noAuth',

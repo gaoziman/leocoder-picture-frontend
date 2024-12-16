@@ -3,6 +3,16 @@ declare namespace API {
     id?: number
   }
 
+  type getPictureByIdUsingGETParams = {
+    /** id */
+    id?: number
+  }
+
+  type getPictureVOByIdUsingGETParams = {
+    /** id */
+    id?: number
+  }
+
   type getUserByIdUsingGETParams = {
     /** id */
     id?: number
@@ -24,12 +34,106 @@ declare namespace API {
     userRole?: string
   }
 
+  type PagePicture_ = {
+    current?: number
+    pages?: number
+    records?: Picture[]
+    size?: number
+    total?: number
+  }
+
+  type PagePictureVO_ = {
+    current?: number
+    pages?: number
+    records?: PictureVO[]
+    size?: number
+    total?: number
+  }
+
   type PageUserVO_ = {
     current?: number
     pages?: number
     records?: UserVO[]
     size?: number
     total?: number
+  }
+
+  type Picture = {
+    category?: string
+    createTime?: string
+    editTime?: string
+    id?: number
+    introduction?: string
+    isDelete?: number
+    name?: string
+    picFormat?: string
+    picHeight?: number
+    picScale?: number
+    picSize?: number
+    picWidth?: number
+    tags?: string
+    updateTime?: string
+    url?: string
+    userId?: number
+  }
+
+  type PictureEditRequest = {
+    category?: string
+    id?: number
+    introduction?: string
+    name?: string
+    tags?: string[]
+  }
+
+  type PictureQueryRequest = {
+    category?: string
+    id?: number
+    introduction?: string
+    name?: string
+    pageNum?: number
+    pageSize?: number
+    picFormat?: string
+    picHeight?: number
+    picScale?: number
+    picSize?: number
+    picWidth?: number
+    searchText?: string
+    sortField?: string
+    sortOrder?: string
+    tags?: string[]
+    userId?: number
+  }
+
+  type PictureTagCategory = {
+    categoryList?: string[]
+    tagList?: string[]
+  }
+
+  type PictureUpdateRequest = {
+    category?: string
+    id?: number
+    introduction?: string
+    name?: string
+    tags?: string[]
+  }
+
+  type PictureVO = {
+    category?: string
+    createTime?: string
+    editTime?: string
+    id?: number
+    introduction?: string
+    name?: string
+    picFormat?: string
+    picHeight?: number
+    picScale?: number
+    picSize?: number
+    picWidth?: number
+    tags?: string[]
+    updateTime?: string
+    url?: string
+    user?: UserVO
+    userId?: number
   }
 
   type ResultBoolean_ = {
@@ -50,9 +154,39 @@ declare namespace API {
     message?: string
   }
 
+  type ResultPagePicture_ = {
+    code?: number
+    data?: PagePicture_
+    message?: string
+  }
+
+  type ResultPagePictureVO_ = {
+    code?: number
+    data?: PagePictureVO_
+    message?: string
+  }
+
   type ResultPageUserVO_ = {
     code?: number
     data?: PageUserVO_
+    message?: string
+  }
+
+  type ResultPicture_ = {
+    code?: number
+    data?: Picture
+    message?: string
+  }
+
+  type ResultPictureTagCategory_ = {
+    code?: number
+    data?: PictureTagCategory
+    message?: string
+  }
+
+  type ResultPictureVO_ = {
+    code?: number
+    data?: PictureVO
     message?: string
   }
 
@@ -72,6 +206,15 @@ declare namespace API {
     code?: number
     data?: UserVO
     message?: string
+  }
+
+  type testDownloadFileUsingGETParams = {
+    /** filepath */
+    filepath?: string
+  }
+
+  type uploadPictureUsingPOSTParams = {
+    id?: number
   }
 
   type User = {

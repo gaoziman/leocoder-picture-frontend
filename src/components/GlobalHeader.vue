@@ -38,7 +38,7 @@
 </template>
 <script lang="ts" setup>
 import { computed, h, ref } from 'vue'
-import { AppstoreOutlined, UserOutlined, GlobalOutlined,LogoutOutlined } from '@ant-design/icons-vue'
+import { AppstoreOutlined, UserOutlined, GlobalOutlined,LogoutOutlined ,FormOutlined,FileJpgOutlined} from '@ant-design/icons-vue'
 import { MenuProps, message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/user'
@@ -54,10 +54,22 @@ const originItems = [
     title: '主页',
   },
   {
+    key: '/add_picture',
+    icon: ()=>h(FormOutlined),
+    label: '创建图片',
+    title: '创建图片',
+  },
+  {
     key: '/admin/userManage',
     icon: () => h(UserOutlined),
     label: '用户管理',
     title: '用户管理',
+  },
+  {
+    key: '/admin/pictureManage',
+    icon: ()=>h(FileJpgOutlined),
+    label: '图片管理',
+    title: '图片管理',
   },
   {
     key: 'others',
@@ -69,6 +81,7 @@ const originItems = [
     ),
     title: '知识导航',
   },
+
 ]
 
 

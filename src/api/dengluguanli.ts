@@ -13,7 +13,7 @@ export async function getLoginUserUsingGet(options?: { [key: string]: any }) {
 /** 用户登录 POST /api/user/login */
 export async function userLoginUsingPost(
   body: API.UserLoginRequest,
-  options?: { [key: string]: any },
+  options?: { [key: string]: any }
 ) {
   return request<API.ResultLoginUserVO_>('/api/user/login', {
     method: 'POST',
@@ -36,7 +36,7 @@ export async function userLogoutUsingPost(options?: { [key: string]: any }) {
 /** 用户注册 POST /api/user/register */
 export async function userRegisterUsingPost(
   body: API.UserRegisterRequest,
-  options?: { [key: string]: any },
+  options?: { [key: string]: any }
 ) {
   return request<API.ResultLong_>('/api/user/register', {
     method: 'POST',

@@ -47,6 +47,4 @@ import GlobalHeader from "@/components/GlobalHeader.vue";
   color: unset;
   background: white;
 }
-
-
 </style>

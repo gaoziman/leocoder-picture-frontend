@@ -33,6 +33,10 @@
           </template>
         </a-dropdown>
       </div>
+      <!-- 未登录状态下显示登录按钮 -->
+      <div v-else>
+        <a-button type="primary" @click="goToLogin">登录</a-button>
+      </div>
     </a-col>
   </a-row>
 </template>
@@ -84,6 +88,9 @@ const originItems = [
 
 ]
 
+const goToLogin = () => {
+  router.push('/user/login') // 跳转到登录页面的路由
+}
 
 // 过滤菜单项
 const filterMenus = (menus = [] as MenuProps['items']) => {

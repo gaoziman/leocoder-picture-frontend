@@ -80,7 +80,7 @@ import { DeleteOutlined, EditOutlined, DownloadOutlined } from '@ant-design/icon
 import { computed, onMounted, ref } from 'vue'
 import { useLoginUserStore } from '@/stores/user'
 import router from '@/router'
-import { downloadImage, formatSize } from '@/api'
+import { downloadImage, formatSize } from '@/utils'
 
 const props = defineProps<{
   id: string | number
@@ -130,6 +130,7 @@ const doDelete = async () => {
   const res = await deletePictureUsingPost({ id })
   if (res.data.code === 200) {
     message.success('删除成功')
+    router.push('/')
   } else {
     message.error('删除失败')
   }

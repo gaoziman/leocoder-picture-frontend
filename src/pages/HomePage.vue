@@ -53,7 +53,7 @@
                 <a-tag color="green">
                   {{ picture.category ?? '默认' }}
                 </a-tag>
-                <a-tag v-for="tag in picture.tags" :key="tag">
+                <a-tag v-for="tag in picture.tags" :key="tag" :color="getTagColor(tag)">
                   {{ tag }}
                 </a-tag>
               </a-flex>
@@ -70,11 +70,11 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import {
-  editPictureUsingPost,
   listPictureTagCategoryUsingGet,
   listPictureVoByPageUsingPost,
 } from '@/api/tupianguanli.ts'
 import { useRouter } from 'vue-router'
+import { getTagColor } from '@/utils/tagColorUtil.ts'
 
 const dataList = ref([])
 const total = ref(0)

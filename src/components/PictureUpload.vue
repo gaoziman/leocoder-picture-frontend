@@ -29,17 +29,29 @@ interface Props {
 const props = defineProps<Props>()
 
 const beforeUpload = (file: UploadProps['fileList'][number]) => {
-  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
-  if (!isJpgOrPng) {
-    message.error('不支持上传该格式的图片，推荐 jpg 或 png')
+  // 定义支持上传的图片格式类型数组
+  const supportedTypes = [
+    'image/jpeg',   // jpeg格式
+    'image/jpg',    // jpg格式（部分浏览器可能识别成jpeg，兼容写上）
+    'image/png',    // png格式
+    'image/webp',   // webp格式
+    'image/heic'    // heic格式（需浏览器或前端处理支持）
+  ]
+
+  // 检查文件类型是否在支持列表中
+  const isSupportedType = supportedTypes.includes(file.type)
+  if (!isSupportedType) {
+    message.error('不支持上传该格式的图片，推荐 jpg、jpeg、png、webp、heic 格式')
   }
+
+  // 校验图片大小
   const isLt2M = file.size / 1024 / 1024 < 2
   if (!isLt2M) {
     message.error('不能上传超过 2M 的图片')
   }
-  return isJpgOrPng && isLt2M
-}
 
+  return isSupportedType && isLt2M
+}
 const loading = ref<boolean>(false)
 
 /**

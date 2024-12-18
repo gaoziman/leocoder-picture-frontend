@@ -8,6 +8,7 @@ import NoAuth from '@/pages/404/NoAuth.vue'
 import AddPicturePage from '@/pages/picture/AddPicturePage.vue'
 import PictureManagePage from '@/pages/admin/PictureManagePage.vue'
 import PictureDetailPage from '@/pages/picture/PictureDetailPage.vue'
+import UserProfile from '@/pages/user/UserProfile.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -60,6 +61,12 @@ const router = createRouter({
       name: '图片详情',
       component: PictureDetailPage,
       props: true,
+    },
+    {
+      path: '/user/profile',
+      name: 'UserProfile',
+      component: UserProfile,
+      meta: { title: '个人中心' },
     },
     {
       path: '/noAuth',

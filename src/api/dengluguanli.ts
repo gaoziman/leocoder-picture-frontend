@@ -47,3 +47,33 @@ export async function userRegisterUsingPost(
     ...(options || {}),
   })
 }
+
+/** 修改用户信息 POST /api/user/updateUserInfo */
+export async function updateUserInfoUsingPost(
+  body: API.UserInfoRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.ResultBoolean_>('/api/user/updateUserInfo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+/** 修改用户密码 POST /api/user/updateUserPassword */
+export async function updateUserPasswordUsingPost(
+  body: API.UserPasswordRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.ResultBoolean_>('/api/user/updateUserPassword', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}

@@ -256,9 +256,22 @@ declare namespace API {
     userRole?: string
   }
 
+  type UserInfoRequest = {
+    id?: number
+    userAvatar?: string
+    userName?: string
+    userProfile?: string
+  }
+
   type UserLoginRequest = {
     userAccount?: string
     userPassword?: string
+  }
+
+  type UserPasswordRequest = {
+    checkPassword?: string
+    newPassword?: string
+    oldPassword?: string
   }
 
   type UserQueryRequest = {

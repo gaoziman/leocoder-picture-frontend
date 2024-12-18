@@ -17,12 +17,8 @@ export async function testDownloadFileUsingGet(
   })
 }
 
-/** testUploadFile POST /api/file/test/upload */
-export async function testUploadFileUsingPost(
-  body: {},
-  file?: File,
-  options?: { [key: string]: any }
-) {
+/** 文件上传 上传文件到腾讯云对象存储 POST /api/file/upload */
+export async function uploadFileUsingPost(body: {}, file?: File, options?: { [key: string]: any }) {
   const formData = new FormData()
 
   if (file) {
@@ -45,7 +41,7 @@ export async function testUploadFileUsingPost(
     }
   })
 
-  return request<API.ResultString_>('/api/file/test/upload', {
+  return request<API.ResultString_>('/api/file/upload', {
     method: 'POST',
     data: formData,
     requestType: 'form',

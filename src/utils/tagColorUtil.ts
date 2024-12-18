@@ -16,7 +16,7 @@ export const getTagColor = (tag: string): string => {
     简历: 'magenta',
     创意: 'volcano',
     头像: 'gold',
-    临时: 'lime',
+    临时: 'black',
   }
   // 如果标签存在映射颜色，则返回，否则默认返回 'default'
   return tagColorMap[tag] || 'default'

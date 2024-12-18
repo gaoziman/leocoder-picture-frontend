@@ -50,7 +50,7 @@
           <a-card-meta :title="picture.name">
             <template #description>
               <a-flex>
-                <a-tag color="green">
+                <a-tag :color="getCategoryColor(picture.category)">
                   {{ picture.category ?? '默认' }}
                 </a-tag>
                 <a-tag v-for="tag in picture.tags" :key="tag" :color="getTagColor(tag)">
@@ -74,7 +74,7 @@ import {
   listPictureVoByPageUsingPost,
 } from '@/api/tupianguanli.ts'
 import { useRouter } from 'vue-router'
-import { getTagColor } from '@/utils/tagColorUtil.ts'
+import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
 
 const dataList = ref([])
 const total = ref(0)

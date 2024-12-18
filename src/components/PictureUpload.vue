@@ -31,11 +31,11 @@ const props = defineProps<Props>()
 const beforeUpload = (file: UploadProps['fileList'][number]) => {
   // 定义支持上传的图片格式类型数组
   const supportedTypes = [
-    'image/jpeg',   // jpeg格式
-    'image/jpg',    // jpg格式（部分浏览器可能识别成jpeg，兼容写上）
-    'image/png',    // png格式
-    'image/webp',   // webp格式
-    'image/heic'    // heic格式（需浏览器或前端处理支持）
+    'image/jpeg', // jpeg格式
+    'image/jpg', // jpg格式（部分浏览器可能识别成jpeg，兼容写上）
+    'image/png', // png格式
+    'image/webp', // webp格式
+    'image/heic', // heic格式（需浏览器或前端处理支持）
   ]
 
   // 检查文件类型是否在支持列表中
@@ -70,14 +70,10 @@ const handleUpload = async ({ file }: any) => {
     } else {
       message.error('图片上传失败，' + res.data.message)
     }
-  } catch (error) {
-    message.error('图片上传失败')
   } finally {
     loading.value = false
   }
 }
-
-const params = props.picture ? { id: props.picture.id } : {}
 </script>
 
 <style scoped>

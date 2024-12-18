@@ -50,16 +50,19 @@ const router = createRouter({
       path: '/add_picture',
       name: '创建图片',
       component: AddPicturePage,
+      meta: { title: '创建图片' },
     },
     {
       path: '/admin/pictureManage',
       name: '图片管理',
       component: PictureManagePage,
+      meta: { title: '图片管理' },
     },
     {
       path: '/picture/:id',
       name: '图片详情',
       component: PictureDetailPage,
+      meta: { title: '图片详情' },
       props: true,
     },
     {

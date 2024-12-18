@@ -22,11 +22,13 @@
           <a-descriptions-item label="简介">
             {{ picture.introduction ?? '-' }}
           </a-descriptions-item>
-          <a-descriptions-item label="分类">
-            {{ picture.category ?? '默认' }}
+          <a-descriptions-item label="分类" >
+            <a-tag  :color="getCategoryColor(picture.category)">
+              {{ picture.category ?? '默认' }}
+            </a-tag>
           </a-descriptions-item>
           <a-descriptions-item label="标签">
-            <a-tag v-for="tag in picture.tags" :key="tag">
+            <a-tag v-for="tag in picture.tags" :key="tag" :color="getTagColor(tag)">
               {{ tag }}
             </a-tag>
           </a-descriptions-item>
@@ -81,6 +83,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useLoginUserStore } from '@/stores/user'
 import router from '@/router'
 import { downloadImage, formatSize } from '@/utils'
+import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
 
 const props = defineProps<{
   id: string | number

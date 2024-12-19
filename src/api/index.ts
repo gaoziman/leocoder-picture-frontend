@@ -4,12 +4,14 @@
 // API 唯一标识：
 import * as wenjianshangchuan from './wenjianshangchuan'
 import * as ceshiguanli from './ceshiguanli'
+import * as yonghudianzan from './yonghudianzan'
 import * as tupianguanli from './tupianguanli'
 import * as yonghuguanli from './yonghuguanli'
 import * as dengluguanli from './dengluguanli'
 export default {
   wenjianshangchuan,
   ceshiguanli,
+  yonghudianzan,
   tupianguanli,
   yonghuguanli,
   dengluguanli,

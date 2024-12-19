@@ -1,7 +1,15 @@
 <template>
   <a-flex justify="space-between">
     <h2>图片管理</h2>
-    <a-button type="primary" href="/add_picture" target="_blank">+ 创建图片</a-button>
+    <a-space>
+      <!-- 批量删除按钮 -->
+      <a-button type="primary" danger @click="handleBatchDelete" :disabled="selectedRowKeys.length === 0">
+        批量删除
+      </a-button>
+      <a-button type="primary" href="/add_picture" target="_blank">+ 创建图片</a-button>
+      <a-button type="primary" href="/add_picture/batch" target="_blank" ghost>+ 批量创建图片</a-button>
+    </a-space>
+
   </a-flex>
   <a-form layout="inline" :model="searchParams" @finish="doSearch" style="margin-bottom: 20px">
     <a-form-item label="关键词" name="searchText">
@@ -39,6 +47,8 @@
     :data-source="dataList"
     :pagination="pagination"
     :scroll="{ x: 2000 }"
+    :row-selection="rowSelection"
+    rowKey="id"
     :expand-column-width="100"
     @change="doTableChange"
   >
@@ -112,8 +122,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { deletePictureUsingPost, doPictureReviewUsingPost, listPictureByPageUsingPost } from '@/api/tupianguanli.ts'
-import { message } from 'ant-design-vue'
+import {
+  deleteBatchPictureUsingPost,
+  deletePictureUsingPost,
+  doPictureReviewUsingPost,
+  listPictureByPageUsingPost
+} from '@/api/tupianguanli.ts'
+import { message, Modal } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import wrapperRaf from 'ant-design-vue/es/_util/raf'
 import cancel = wrapperRaf.cancel
@@ -196,6 +211,10 @@ const columns = [
 // 数据
 const dataList = ref([])
 const total = ref(0)
+
+// 用于存储选中的行的 ID
+const selectedRowKeys = ref<string[]>([])
+
 
 // 搜索条件
 const searchParams = reactive<API.PictureQueryRequest>({
@@ -283,6 +302,61 @@ const handleReview = async (record: API.Picture, reviewStatus: number) => {
   } else {
     message.error('审核操作失败，' + res.data.message)
   }
+}
+
+// 表格的 rowSelection 配置
+const rowSelection = {
+  selectedRowKeys: selectedRowKeys,
+  onChange: (keys: string[]) => {
+    selectedRowKeys.value = keys
+  },
+  onSelect: (record: any, selected: boolean) => {
+    // 单选逻辑
+    if (selected) {
+      selectedRowKeys.value.push(record.id)
+    } else {
+      selectedRowKeys.value = selectedRowKeys.value.filter((key) => key !== record.id)
+    }
+  },
+  onSelectAll: (selected: boolean, selectedRows: any[]) => {
+    // 全选逻辑
+    if (selected) {
+      selectedRowKeys.value = selectedRows.map((row) => row.id)
+    } else {
+      selectedRowKeys.value = []
+    }
+  },
+}
+
+
+// 批量删除逻辑
+const handleBatchDelete = () => {
+  Modal.confirm({
+    title: '确认删除',
+    content: `你确定要删除选中的 ${selectedRowKeys.value.length} 条记录吗？`,
+    okText: '确认',
+    cancelText: '取消',
+    onOk: async () => {
+      try {
+        const res = await deleteBatchPictureUsingPost({
+          ids: selectedRowKeys.value, // 传递选中的 ID 数组
+        })
+        if (res.data.code === 200) {
+          message.success('批量删除成功')
+          // 判断是否需要跳转到上一页
+          if (dataList.value.length === selectedRowKeys.value.length && searchParams.pageNum > 1) {
+            searchParams.pageNum -= 1 // 跳转到上一页
+          }
+          selectedRowKeys.value = [] // 清空选中状态
+          fetchData() // 刷新数据
+        } else {
+          message.error('批量删除失败：' + res.data.message)
+        }
+      } catch (error) {
+        message.error('批量删除失败，请重试')
+      }
+    },
+  })
 }
 </script>
 

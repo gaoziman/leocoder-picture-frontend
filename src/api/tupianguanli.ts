@@ -17,6 +17,21 @@ export async function deletePictureUsingPost(
   })
 }
 
+/** 批量删除图片 POST /api/picture/deleteBatchPicture */
+export async function deleteBatchPictureUsingPost(
+  body: API.DeleteBatchRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.ResultBoolean_>('/api/picture/deleteBatchPicture', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** 编辑图片（给用户使用） POST /api/picture/edit */
 export async function editPictureUsingPost(
   body: API.PictureEditRequest,
@@ -167,6 +182,21 @@ export async function uploadPictureUsingPost(
     },
     data: formData,
     requestType: 'form',
+    ...(options || {}),
+  })
+}
+
+/** uploadPictureByBatch POST /api/picture/upload/batch */
+export async function uploadPictureByBatchUsingPost(
+  body: API.PictureUploadByBatchRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.ResultInt_>('/api/picture/upload/batch', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
     ...(options || {}),
   })
 }

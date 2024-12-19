@@ -1,4 +1,13 @@
 declare namespace API {
+  type CancelLikeRequest = {
+    id?: number
+    pictureId?: number
+  }
+
+  type DeleteBatchRequest = {
+    ids?: number[]
+  }
+
   type DeleteRequest = {
     id?: number
   }
@@ -21,6 +30,11 @@ declare namespace API {
   type getUserVOByIdUsingGETParams = {
     /** id */
     id?: number
+  }
+
+  type LikeRequest = {
+    id?: number
+    pictureId?: number
   }
 
   type LoginUserVO = {
@@ -130,9 +144,17 @@ declare namespace API {
     tags?: string[]
   }
 
+  type PictureUploadByBatchRequest = {
+    count?: number
+    namePrefix?: string
+    searchText?: string
+    source?: string
+  }
+
   type PictureUploadRequest = {
     fileUrl?: string
     id?: number
+    picName?: string
   }
 
   type PictureVO = {
@@ -156,11 +178,19 @@ declare namespace API {
     url?: string
     user?: UserVO
     userId?: number
+    likeCount?: number
+    isLikeCount?: number
   }
 
   type ResultBoolean_ = {
     code?: number
     data?: boolean
+    message?: string
+  }
+
+  type ResultInt_ = {
+    code?: number
+    data?: number
     message?: string
   }
 
@@ -238,6 +268,7 @@ declare namespace API {
   type uploadPictureUsingPOSTParams = {
     fileUrl?: string
     id?: number
+    picName?: string
   }
 
   type User = {

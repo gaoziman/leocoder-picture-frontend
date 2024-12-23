@@ -186,7 +186,7 @@ export async function uploadPictureUsingPost(
   })
 }
 
-/** uploadPictureByBatch POST /api/picture/upload/batch */
+/** 批量导入图片 POST /api/picture/upload/batch */
 export async function uploadPictureByBatchUsingPost(
   body: API.PictureUploadByBatchRequest,
   options?: { [key: string]: any }

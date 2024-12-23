@@ -1,11 +1,46 @@
 declare namespace API {
   type CancelLikeRequest = {
     id?: number
+    likeType?: number
     pictureId?: number
+  }
+
+  type CommentAddRequest = {
+    content?: string
+    parentId?: number
+    pictureId?: number
+    userId?: number
+  }
+
+  type CommentQueryRequest = {
+    id?: string
+    pageNum?: number
+    pageSize?: number
+    pictureId?: string
+    sortField?: string
+    sortOrder?: string
+    userId?: string
+  }
+
+  type CommentVO = {
+    children?: CommentVO[]
+    content?: string
+    createTime?: string
+    id?: number
+    likeCount?: number
+    liked?: boolean
+    parentId?: number
+    pictureId?: number
+    userId?: number
   }
 
   type DeleteBatchRequest = {
     ids?: number[]
+  }
+
+  type deleteCommentUsingPOSTParams = {
+    /** requestParam */
+    requestParam: string
   }
 
   type DeleteRequest = {
@@ -32,8 +67,17 @@ declare namespace API {
     id?: number
   }
 
+  type IPageCommentVO_ = {
+    current?: number
+    pages?: number
+    records?: CommentVO[]
+    size?: number
+    total?: number
+  }
+
   type LikeRequest = {
     id?: number
+    likeType?: number
     pictureId?: number
   }
 
@@ -79,6 +123,7 @@ declare namespace API {
     id?: number
     introduction?: string
     isDelete?: number
+    likeCount?: number
     name?: string
     picFormat?: string
     picHeight?: number
@@ -163,6 +208,8 @@ declare namespace API {
     editTime?: string
     id?: number
     introduction?: string
+    isLiked?: number
+    likeCount?: number
     name?: string
     picFormat?: string
     picHeight?: number
@@ -178,8 +225,6 @@ declare namespace API {
     url?: string
     user?: UserVO
     userId?: number
-    likeCount?: number
-    isLikeCount?: number
   }
 
   type ResultBoolean_ = {
@@ -191,6 +236,12 @@ declare namespace API {
   type ResultInt_ = {
     code?: number
     data?: number
+    message?: string
+  }
+
+  type ResultIPageCommentVO_ = {
+    code?: number
+    data?: IPageCommentVO_
     message?: string
   }
 

@@ -42,7 +42,7 @@ export const usePictureStore = defineStore('picture', () => {
     try {
       if (!current.isLiked) {
         // 点赞
-        const res = await likeUsingPost({ pictureId })
+        const res = await likeUsingPost({ pictureId ,likeType : 0})
         if (res.data.code === 200) {
           current.likeCount++
           current.isLiked = true
@@ -51,7 +51,7 @@ export const usePictureStore = defineStore('picture', () => {
         }
       } else {
         // 取消点赞
-        const res = await cancelLikeUsingPost({ pictureId })
+        const res = await cancelLikeUsingPost({ pictureId,likeType : 0})
         if (res.data.code === 200) {
           current.likeCount--
           current.isLiked = false

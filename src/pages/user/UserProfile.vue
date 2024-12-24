@@ -1,334 +1,157 @@
 <template>
   <div class="profile-page">
-    <!-- 背景区域 -->
-    <div class="profile-background"></div>
-    <!-- 主要内容区域 -->
-    <a-card class="profile-card" :bordered="false">
-      <div class="profile-header">
-        <h2>个人中心</h2>
-        <p>完善个人信息，让大家更好地认识你</p>
-      </div>
+    <!-- 背景部分 -->
+    <div class="profile-header">
+      <a-card class="profile-card">
+        <a-row gutter="20" align="middle">
+          <!-- 左侧用户信息 -->
+          <a-col flex="auto">
+            <a-row gutter="20">
+              <a-col>
+                <a-avatar :size="100" :src="userInfo.avatar" />
+              </a-col>
+              <a-col>
+                <h2 class="profile-nickname">{{ userInfo.nickname }}</h2>
+                <p class="profile-bio">{{ userInfo.profile || '分享思想，留下痕迹。' }}</p>
+              </a-col>
+            </a-row>
+          </a-col>
+        </a-row>
 
-      <!-- Tab区域 -->
-      <a-tabs v-model:activeKey="activeTab" centered>
-        <!-- 基本信息 Tab -->
-        <a-tab-pane key="1" tab="基本信息">
-          <a-form :model="formState" layout="vertical" class="profile-form">
-            <!-- 头像上传 -->
-            <a-form-item class="avatar-upload">
-              <a-upload
-                list-type="picture-card"
-                :show-upload-list="false"
-                :custom-request="handleUpload"
-                :before-upload="beforeUpload"
-                @change="handleAvatarChange"
-              >
-                <img
-                  v-if="formState.userAvatar"
-                  :src="formState.userAvatar"
-                  alt="avatar"
-                  class="avatar"
-                />
-                <div v-else>
-                  <plus-outlined />
-                  <div style="margin-top: 8px">上传头像</div>
-                </div>
-              </a-upload>
-            </a-form-item>
-
-            <!-- 用户信息 -->
-            <a-form-item label="用户名">
-              <a-input v-model:value="formState.userName" placeholder="请输入用户名" />
-            </a-form-item>
-            <a-form-item label="个人简介">
-              <a-textarea
-                v-model:value="formState.userProfile"
-                rows="4"
-                placeholder="请输入个人简介"
-              />
-            </a-form-item>
-
-            <!-- 保存按钮 -->
-            <div class="form-actions">
-              <a-button type="primary" @click="handleSubmit">保存修改</a-button>
+        <!-- 积分等信息 -->
+        <a-row class="profile-stats" align="middle" justify="start" gutter="16">
+          <a-col v-for="(stat, index) in stats" :key="index" class="stat-wrapper">
+            <div class="stat-item">
+              <span class="stat-label">{{ stat.label }}</span>
+              <span class="stat-value">{{ stat.value }}</span>
             </div>
-          </a-form>
-        </a-tab-pane>
-
-        <!-- 修改密码 Tab -->
-        <a-tab-pane key="2" tab="修改密码">
-          <a-form
-            :model="passwordState"
-            layout="vertical"
-            class="password-form"
-            :rules="passwordRules"
-            ref="passwordFormRef"
-          >
-            <a-form-item label="旧密码" name="oldPassword">
-              <a-input-password
-                v-model:value="passwordState.oldPassword"
-                placeholder="请输入原始密码"
-              />
-            </a-form-item>
-            <a-form-item label="新密码" name="newPassword">
-              <a-input-password
-                v-model:value="passwordState.newPassword"
-                placeholder="请输入新密码"
-              />
-            </a-form-item>
-            <a-form-item
-              label="确认密码"
-              name="checkPassword"
-            >
-              <a-input-password
-                v-model:value="passwordState.checkPassword"
-                placeholder="请确认新密码"
-              />
-            </a-form-item>
-
-            <!-- 保存按钮 -->
-            <div class="form-actions">
-              <a-button type="primary" @click="handleChangePassword">修改密码</a-button>
-            </div>
-          </a-form>
-        </a-tab-pane>
-      </a-tabs>
-    </a-card>
+            <!-- 竖线分隔符 -->
+            <span v-if="index < stats.length - 1" class="divider">|</span>
+          </a-col>
+          <!-- 右侧修改资料按钮 -->
+          <a-col flex="420px" class="edit-profile-container">
+            <a-button type="primary" @click="goToEditProfile">修改资料</a-button>
+          </a-col>
+        </a-row>
+      </a-card>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref } from 'vue'
-import { message, type UploadProps } from 'ant-design-vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
+import { ref, onMounted } from 'vue'
 import { useLoginUserStore } from '@/stores/user'
-import { uploadFileUsingPost } from '@/api/wenjianshangchuan.ts'
-import { updateUserInfoUsingPost, updateUserPasswordUsingPost } from '@/api/dengluguanli.ts'
-import { useRouter } from 'vue-router'
 
-const router = useRouter()
+const userInfo = ref({
+  avatar: '',
+  nickname: '',
+  profile: '',
+})
+
+const stats = ref([
+  { label: '积分', value: 1 },
+  { label: '获赞', value: 999 },
+  { label: '关注', value: 999 },
+  { label: '粉丝', value: 999 },
+])
+
 const loginUserStore = useLoginUserStore()
 
-const activeTab = ref('1') // Tab 默认选中
-
-const passwordFormRef = ref()
-
-
-// 表单校验规则
-const passwordRules = {
-  oldPassword: [{ required: true, message: '请输入原始密码！', trigger: 'blur' }],
-  newPassword: [
-    { required: true, message: '请输入新密码！', trigger: 'blur' },
-    { min: 8, message: '新密码不能少于8个字符！', trigger: 'blur' },
-  ],
-  checkPassword: [
-    { required: true, message: '请确认新密码！', trigger: 'blur' },
-    { min: 8, message: '确认密码不能少于8个字符！', trigger: 'blur' },
-  ],
-}
-
-// 表单状态 - 基本信息
-const formState = reactive({
-  userAvatar: '', // 用户头像地址
-  userName: '', // 用户名
-  userProfile: '', // 个人简介
-})
-
-// 修改密码表单状态
-const passwordState = reactive({
-  oldPassword: '', // 原始密码
-  newPassword: '', // 新密码
-  checkPassword: '', // 确认密码
-})
-
-// 头像上传处理
-const handleAvatarChange = (info: any) => {
-  if (info.file.status === 'done') {
-    formState.avatarUrl = info.file.response.url
-    message.success('头像上传成功！')
-  } else if (info.file.status === 'error') {
-    message.error('头像上传失败，请重试！')
-  }
-}
-
-// 保存基本信息
-const handleSubmit = async () => {
-  const data = {
-    userAvatar: formState.userAvatar,
-    userName: formState.userName,
-    userProfile: formState.userProfile,
-  }
-  const res = await updateUserInfoUsingPost(data)
-  if (res.data.code === 200 && res.data.data) {
-    message.success('信息修改成功')
-    loginUserStore.fetchLoginUser()
-  } else {
-    message.error('信息修改失败，' + res.data.message)
-  }
-}
-
-// 修改密码
-const handleChangePassword = () => {
-  passwordFormRef.value
-    .validate() // 校验表单
-    .then(async () => {
-      const data = {
-        oldPassword: passwordState.oldPassword,
-        newPassword: passwordState.newPassword,
-        checkPassword: passwordState.checkPassword,
-      }
-
-      try {
-        const res = await updateUserPasswordUsingPost(data)
-
-        // 检查返回值，确保 code 和 data 存在
-        if (res?.data?.code === 200 && res?.data?.data) {
-          message.success('密码修改成功')
-          router.push('/user/login') // 跳转到登录页面
-        } else {
-          message.error ((res?.data?.message || '未知错误'))
-        }
-      } catch (error) {
-        console.error('接口调用失败:', error)
-        message.error('系统错误，密码修改失败！')
-      }
-    })
-    .catch((error) => {
-      console.log('校验失败:', error)
-      message.error('请检查输入内容是否正确！')
-    })
-}
-
-const initInfo = () => {
-  formState.userName = loginUserStore.loginUser.userName
-  formState.userProfile = loginUserStore.loginUser.userProfile
-  formState.userAvatar = loginUserStore.loginUser.userAvatar
-}
-
-const beforeUpload = (file: UploadProps['fileList'][number]) => {
-  // 定义支持上传的图片格式类型数组
-  const supportedTypes = [
-    'image/jpeg', // jpeg格式
-    'image/jpg', // jpg格式（部分浏览器可能识别成jpeg，兼容写上）
-    'image/png', // png格式
-    'image/webp', // webp格式
-    'image/heic', // heic格式（需浏览器或前端处理支持）
-  ]
-
-  // 检查文件类型是否在支持列表中
-  const isSupportedType = supportedTypes.includes(file.type)
-  if (!isSupportedType) {
-    message.error('不支持上传该格式的图片，推荐 jpg、jpeg、png、webp、heic 格式')
-  }
-
-  // 校验图片大小
-  const isLt2M = file.size / 1024 / 1024 < 2
-  if (!isLt2M) {
-    message.error('不能上传超过 2M 的图片')
-  }
-
-  return isSupportedType && isLt2M
-}
-const loading = ref<boolean>(false)
-
-/**
- * 上传
- * @param file
- */
-const handleUpload = async ({ file }: any) => {
-  loading.value = true
-  try {
-    const res = await uploadFileUsingPost({}, file)
-    if (res.data.code === 200 && res.data.data) {
-      message.success('图片上传成功')
-      formState.userAvatar = res.data.data
-    } else {
-      message.error('图片上传失败，' + res.data.message)
-    }
-  } catch (error) {
-    message.error('图片上传失败')
-  } finally {
-    loading.value = false
-  }
-}
-
 onMounted(() => {
-  initInfo()
+  userInfo.value = {
+    avatar: loginUserStore.loginUser.userAvatar,
+    nickname: loginUserStore.loginUser.userName,
+    profile: loginUserStore.loginUser.userProfile,
+  }
+
+  stats.value = [
+    { label: '积分', value: loginUserStore.loginUser.points || 999 },
+    { label: '获赞', value: loginUserStore.loginUser.likes || 999 },
+    { label: '关注', value: loginUserStore.loginUser.following || 999 },
+    { label: '粉丝', value: loginUserStore.loginUser.followers || 999 },
+  ]
 })
+
+const goToEditProfile = () => {
+  window.location.href = '/user/info'
+}
 </script>
 
 <style scoped>
 .profile-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: linear-gradient(180deg, #e0f7fa, #4f8ad6);
   min-height: 100vh;
-  background-color: #f0f2f5;
-  position: relative;
-}
-
-.profile-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 40%;
-  background: linear-gradient(135deg, #409eff, #66b1ff);
-  border-bottom-left-radius: 50% 20%;
-  border-bottom-right-radius: 50% 20%;
-  z-index: 0;
-}
-
-.profile-card {
-  position: relative;
-  width: 100%;
-  max-width: 800px;
-  background: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  z-index: 1;
-  padding: 24px;
+  padding-top: 20px; /* 减小顶部间距 */
 }
 
 .profile-header {
+  padding: 0;
   text-align: center;
-  margin-bottom: 20px;
 }
 
-.profile-header h2 {
+.profile-card {
+  margin: 0 auto;
+  max-width: 900px; /* 宽度调整为更宽 */
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.profile-nickname {
   font-size: 24px;
-  color: #333;
-  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 4px;
 }
 
-.profile-header p {
+.profile-bio {
+  font-size: 14px;
+  color: #666666;
+  margin-top: 4px;
+}
+
+.profile-stats {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* 靠左对齐 */
+}
+
+.stat-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.stat-item {
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.stat-label {
+  margin-right: 6px;
+  font-weight: normal;
   color: #888;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.divider {
+  margin: 0 8px;
+  color: #ccc;
   font-size: 14px;
 }
 
-.avatar-upload {
-  text-align: center;
-}
-
-.avatar {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.info-section,
-.password-form {
+.edit-profile-container {
+  text-align: right;
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.form-actions {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.form-actions button {
-  width: 150px;
+  align-items: center;
+  justify-content: flex-end;
 }
 </style>

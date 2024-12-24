@@ -4,23 +4,22 @@
     <a-col :sm="24" :md="16" :xl="18">
       <a-card title="图片预览">
         <!-- 操作区（红色框位置） -->
-        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px">
           <!-- 点赞按钮 -->
-          <a-button type="link" @click="handleLike" style="display: flex; align-items: center;">
+          <a-button type="link" @click="handleLike" style="display: flex; align-items: center">
             <component :is="isLiked ? LikeFilled : LikeOutlined" />
-            <span style="margin-left: 4px;">{{ likeCount }}</span>
+            <span style="margin-left: 4px">{{ likeCount }}</span>
           </a-button>
 
           <!-- 收藏按钮 -->
-          <a-button type="link" style="display: flex; align-items: center;">
-            <StarOutlined />
-            <span style="margin-left: 4px;">收藏</span>
+          <a-button type="link" @click="handleFavorite" style="display: flex; align-items: center">
+            <component :is="isFavorited ? StarFilled : StarOutlined" />
+            <span style="margin-left: 4px">{{ favoriteCount }}</span>
           </a-button>
-
           <!-- 分享按钮 -->
-          <a-button type="link" style="display: flex; align-items: center;">
+          <a-button type="link" style="display: flex; align-items: center">
             <ShareAltOutlined />
-            <span style="margin-left: 4px;">分享</span>
+            <span style="margin-left: 4px">分享</span>
           </a-button>
         </div>
         <!-- 图片内容 -->
@@ -97,25 +96,33 @@
 </template>
 
 <script setup lang="ts">
-import { deletePictureUsingPost, getPictureVoByIdUsingGet } from '@/api/tupianguanli.ts'
+import { deletePictureUsingPost } from '@/api/tupianguanli.ts'
 import { message } from 'ant-design-vue'
-import { DeleteOutlined, EditOutlined, DownloadOutlined,LikeOutlined, LikeFilled,StarOutlined,ShareAltOutlined } from '@ant-design/icons-vue'
+import {
+  DeleteOutlined,
+  EditOutlined,
+  DownloadOutlined,
+  LikeOutlined,
+  LikeFilled,
+  StarOutlined,
+  StarFilled,
+  HeartOutlined,
+  HeartFilled,
+  ShareAltOutlined,
+} from '@ant-design/icons-vue'
 
 import { computed, onMounted, ref } from 'vue'
 import { useLoginUserStore } from '@/stores/user'
 import router from '@/router'
 import { downloadImage, formatSize } from '@/utils'
 import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
-import { cancelLikeUsingPost, likeUsingPost } from '@/api/yonghudianzan.ts'
-import { usePictureStore } from '@/stores/picture'
+import { usePictureStore} from '@/stores/picture'
+
 const pictureStore = usePictureStore()
+
 const props = defineProps<{
   id: string | number
 }>()
-
-// const picture = ref<API.PictureVO>({})
-// const likeCount = ref(0) // 当前图片的点赞数
-// const isLiked = ref(false) // 当前用户是否已点赞
 
 
 onMounted(() => {
@@ -127,27 +134,20 @@ const picture = computed(() => pictureStore.pictureDetail[props.id] || {})
 const likeCount = computed(() => pictureStore.pictureData[props.id]?.likeCount || 0)
 const isLiked = computed(() => pictureStore.pictureData[props.id]?.isLiked || false)
 
+// 从 Store 中获取当前图片的收藏数据
+const favoriteCount = computed(() => pictureStore.pictureData[props.id]?.favoriteCount || 0);
+const isFavorited = computed(() => pictureStore.pictureData[props.id]?.isFavorited || false);
+
+
 // 点赞/取消点赞
 const handleLike = () => {
   pictureStore.toggleLike(props.id)
 }
 
-// 获取图片详情
-// const fetchPictureDetail = async () => {
-//   try {
-//     const res = await getPictureVoByIdUsingGet({
-//       id: props.id,
-//     })
-//     if (res.data.code === 200 && res.data.data) {
-//       picture.value = res.data.data
-//       isLiked.value = res.data.data.isLiked; // 初始化是否已点赞
-//     } else {
-//       message.error('获取图片详情失败，' + res.data.message)
-//     }
-//   } catch (e: any) {
-//     message.error('获取图片详情失败：' + e.message)
-//   }
-// }
+// 收藏/取消收藏
+const handleFavorite = () => {
+  pictureStore.toggleFavorite(props.id)
+}
 
 const loginUserStore = useLoginUserStore()
 // 是否具有编辑权限
@@ -186,34 +186,7 @@ const doDownload = () => {
   downloadImage(picture.value.url)
 }
 
-// 点赞/取消点赞处理
-// const handleLike = async () => {
-//   try {
-//     if (isLiked.value) {
-//       // 取消点赞
-//       const res = await cancelLikeUsingPost({pictureId: picture.value.id })
-//       if (res.data.code === 200) {
-//         message.success('取消点赞成功')
-//         likeCount.value--
-//         isLiked.value = false
-//       } else {
-//         message.error('取消点赞失败')
-//       }
-//     } else {
-//       // 点赞
-//       const res = await likeUsingPost({ pictureId: picture.value.id })
-//       if (res.data.code === 200) {
-//         message.success('点赞成功')
-//         likeCount.value++
-//         isLiked.value = true
-//       } else {
-//         message.error('点赞失败')
-//       }
-//     }
-//   } catch (e: any) {
-//     message.error('操作失败：' + e.message)
-//   }
-// }
+
 
 </script>
 

@@ -10,6 +10,7 @@ import PictureManagePage from '@/pages/admin/PictureManagePage.vue'
 import PictureDetailPage from '@/pages/picture/PictureDetailPage.vue'
 import UserProfile from '@/pages/user/UserProfile.vue'
 import AddPictureBatchPage from '@/pages/picture/AddPictureBatchPage.vue'
+import UserInfo from '@/pages/user/UserInfo.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -77,6 +78,12 @@ const router = createRouter({
       name: 'UserProfile',
       component: UserProfile,
       meta: { title: '个人中心' },
+    },
+    {
+      path: '/user/info',
+      name: 'UserInfo',
+      component: UserInfo,
+      meta: { title: '修改基本信息' },
     },
     {
       path: '/noAuth',

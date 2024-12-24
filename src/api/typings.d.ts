@@ -47,6 +47,20 @@ declare namespace API {
     id?: number
   }
 
+  type FavoritePictureVO = {
+    category?: string
+    introduction?: string
+    name?: string
+    pictureId?: number
+    tags?: string[]
+    url?: string
+  }
+
+  type FavoriteRequest = {
+    pictureId?: number
+    userId?: number
+  }
+
   type getPictureByIdUsingGETParams = {
     /** id */
     id?: number
@@ -242,6 +256,12 @@ declare namespace API {
   type ResultIPageCommentVO_ = {
     code?: number
     data?: IPageCommentVO_
+    message?: string
+  }
+
+  type ResultListFavoritePictureVO_ = {
+    code?: number
+    data?: FavoritePictureVO[]
     message?: string
   }
 

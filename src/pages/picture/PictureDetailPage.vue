@@ -17,15 +17,18 @@
             <span style="margin-left: 4px">{{ favoriteCount }}</span>
           </a-button>
           <!-- 分享按钮 -->
-          <a-button type="link" style="display: flex; align-items: center">
+          <a-button type="link" style="display: flex; align-items: center"  @click="(e) => doShare(picture, e)">
             <ShareAltOutlined />
-            <span style="margin-left: 4px">分享</span>
+            <span style="margin-left: 4px" >分享</span>
           </a-button>
         </div>
         <!-- 图片内容 -->
         <a-image style="max-height: 600px; object-fit: contain" :src="picture.url" />
       </a-card>
     </a-col>
+
+    <ShareModal ref="shareModalRef" :link="shareLink" />
+
 
     <!-- 图片信息区 -->
     <a-col :sm="24" :md="8" :xl="6">
@@ -96,6 +99,22 @@
 </template>
 
 <script setup lang="ts">
+import ShareModal from '@/components/ShareModal.vue';
+// 分享弹窗引用
+const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null);
+// 分享链接
+const shareLink = ref<string>('');
+
+const doShare = (picture: API.PictureVO, e: Event) => {
+  e.stopPropagation();
+  shareLink.value = `${window.location.protocol}//${window.location.host}/picture/${picture.id}`;
+  if (shareModalRef.value) {
+    shareModalRef.value.openModal();
+  } else {
+    console.error('shareModalRef is not initialized');
+  }
+};
+
 import { deletePictureUsingPost } from '@/api/tupianguanli.ts'
 import { message } from 'ant-design-vue'
 import {
@@ -106,8 +125,6 @@ import {
   LikeFilled,
   StarOutlined,
   StarFilled,
-  HeartOutlined,
-  HeartFilled,
   ShareAltOutlined,
 } from '@ant-design/icons-vue'
 
@@ -123,6 +140,7 @@ const pictureStore = usePictureStore()
 const props = defineProps<{
   id: string | number
 }>()
+
 
 
 onMounted(() => {
@@ -185,8 +203,6 @@ const doDelete = async () => {
 const doDownload = () => {
   downloadImage(picture.value.url)
 }
-
-
 
 </script>
 

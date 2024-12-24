@@ -17,11 +17,17 @@ export async function addFavoriteUsingPost(
   })
 }
 
-
-/** 查询用户的收藏列表 GET /api/favorite/list */
-export async function favoriteListUsingGet(options?: { [key: string]: any }) {
-  return request<API.ResultListFavoritePictureVO_>('/api/favorite/list', {
-    method: 'GET',
+/** 查询用户的收藏列表 POST /api/favorite/list */
+export async function favoriteListUsingPost(
+  body: API.FavoriteQueryRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.ResultPageFavoritePictureVO_>('/api/favorite/list', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
     ...(options || {}),
   })
 }

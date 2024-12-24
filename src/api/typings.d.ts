@@ -50,10 +50,18 @@ declare namespace API {
   type FavoritePictureVO = {
     category?: string
     introduction?: string
+    isFavorited?: number
     name?: string
     pictureId?: number
     tags?: string[]
     url?: string
+  }
+
+  type FavoriteQueryRequest = {
+    pageNum?: number
+    pageSize?: number
+    sortField?: string
+    sortOrder?: string
   }
 
   type FavoriteRequest = {
@@ -106,6 +114,14 @@ declare namespace API {
     userRole?: string
   }
 
+  type PageFavoritePictureVO_ = {
+    current?: number
+    pages?: number
+    records?: FavoritePictureVO[]
+    size?: number
+    total?: number
+  }
+
   type PagePicture_ = {
     current?: number
     pages?: number
@@ -134,6 +150,7 @@ declare namespace API {
     category?: string
     createTime?: string
     editTime?: string
+    favoriteCount?: number
     id?: number
     introduction?: string
     isDelete?: number
@@ -220,8 +237,10 @@ declare namespace API {
     category?: string
     createTime?: string
     editTime?: string
+    favoriteCount?: number
     id?: number
     introduction?: string
+    isFavorited?: number
     isLiked?: number
     likeCount?: number
     name?: string
@@ -259,12 +278,6 @@ declare namespace API {
     message?: string
   }
 
-  type ResultListFavoritePictureVO_ = {
-    code?: number
-    data?: FavoritePictureVO[]
-    message?: string
-  }
-
   type ResultLoginUserVO_ = {
     code?: number
     data?: LoginUserVO
@@ -274,6 +287,12 @@ declare namespace API {
   type ResultLong_ = {
     code?: number
     data?: number
+    message?: string
+  }
+
+  type ResultPageFavoritePictureVO_ = {
+    code?: number
+    data?: PageFavoritePictureVO_
     message?: string
   }
 

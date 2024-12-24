@@ -1,13 +1,14 @@
 <template>
   <div id="app">
-    <a-config-provider :locale="locale">
+    <ConfigProvider :locale="locale">
       <BasicLayout />
-    </a-config-provider>
+    </ConfigProvider>
   </div>
 </template>
 
 <script setup lang="ts">
-import BasicLayout from '@/layouts/BasicLayout.vue'
-import locale from 'ant-design-vue/es/vc-picker/locale/zh_CN'
+import BasicLayout from '@/layouts/BasicLayout.vue';
+import zhCN from 'ant-design-vue/es/locale/zh_CN';
 
+const locale = zhCN; // 设置为中文
 </script>

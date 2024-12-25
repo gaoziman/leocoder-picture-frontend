@@ -2,6 +2,20 @@
 /* eslint-disable */
 import request from '@/utils/request'
 
+/** 获取图片浏览次数（Redis实时的数据） GET /api/picture/${param0}/viewCount */
+export async function getPictureViewCountUsingGet(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getPictureViewCountUsingGETParams,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params
+  return request<API.ResultLong_>(`/api/picture/${param0}/viewCount`, {
+    method: 'GET',
+    params: { ...queryParams },
+    ...(options || {}),
+  })
+}
+
 /** 删除图片 POST /api/picture/delete */
 export async function deletePictureUsingPost(
   body: API.DeleteRequest,

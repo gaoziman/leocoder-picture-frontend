@@ -2,25 +2,6 @@
 /* eslint-disable */
 import request from '@/utils/request'
 
-/** 取消点赞评论 POST /api/comment/${param0}/unlike */
-export async function unlikeCommentUsingPost(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.unlikeCommentUsingPOSTParams,
-  body: API.CancelLikeRequest,
-  options?: { [key: string]: any }
-) {
-  const { id: param0, ...queryParams } = params
-  return request<API.ResultBoolean_>(`/api/comment/${param0}/unlike`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    params: { ...queryParams },
-    data: body,
-    ...(options || {}),
-  })
-}
-
 /** 新增评论 POST /api/comment/add */
 export async function addCommentUsingPost(
   body: API.CommentAddRequest,
@@ -50,12 +31,12 @@ export async function deleteCommentUsingPost(
   })
 }
 
-/** 点赞评论 POST /api/comment/like */
-export async function likeCommentUsingPost(
-  body: API.LikeRequest,
+/** 分页获取评论列表 POST /api/comment/list/page/vo */
+export async function getCommentPageUsingPost(
+  body: API.CommentQueryRequest,
   options?: { [key: string]: any }
 ) {
-  return request<API.ResultBoolean_>('/api/comment/like', {
+  return request<API.ResultIPageCommentVO_>('/api/comment/list/page/vo', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -65,12 +46,9 @@ export async function likeCommentUsingPost(
   })
 }
 
-/** 分页获取评论列表 POST /api/comment/list/page/vo */
-export async function getCommentPageUsingPost(
-  body: API.CommentQueryRequest,
-  options?: { [key: string]: any }
-) {
-  return request<API.ResultIPageCommentVO_>('/api/comment/list/page/vo', {
+/** 点赞/取消点赞评论 POST /api/comment/toggleLike */
+export async function toggleLikeUsingPost(body: API.LikeRequest, options?: { [key: string]: any }) {
+  return request<API.ResultBoolean_>('/api/comment/toggleLike', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

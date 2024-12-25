@@ -8,7 +8,7 @@ export const usePictureStore = defineStore('picture', () => {
   // 存储图片的完整信息（按图片ID存储）
   const pictureDetail = ref<Record<number, any>>({})
   // 存储图片的点赞数据（按图片ID存储）
-  const pictureData = ref<Record<number, { likeCount: number; isLiked: boolean;favoriteCount: number; isFavorited: boolean }>>({})
+  const pictureData = ref<Record<number, { likeCount: number; isLiked: boolean;favoriteCount: number; isFavorited: boolean; }>>({})
 
   // 获取图片详情，并初始化点赞数据和完整信息
   async function fetchPictureDetail(pictureId: number) {
@@ -45,7 +45,7 @@ export const usePictureStore = defineStore('picture', () => {
     try {
       if (!current.isLiked) {
         // 点赞
-        const res = await likeUsingPost({ pictureId ,likeType : 0})
+        const res = await likeUsingPost({ pictureId ,likeType : 0,isLiked : true})
         if (res.data.code === 200) {
           current.likeCount++
           current.isLiked = true
@@ -54,7 +54,7 @@ export const usePictureStore = defineStore('picture', () => {
         }
       } else {
         // 取消点赞
-        const res = await cancelLikeUsingPost({ pictureId,likeType : 0})
+        const res = await cancelLikeUsingPost({ pictureId,likeType : 0,isLiked :false})
         if (res.data.code === 200) {
           current.likeCount--
           current.isLiked = false

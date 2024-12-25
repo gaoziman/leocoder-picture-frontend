@@ -174,83 +174,21 @@
         </div>
 
         <div class="comment-list">
-          <h3>评论 ({{ comments.length }} 条)</h3>
+          <h3>评论 ({{ totalComments}} 条)</h3>
           <template v-if="comments.length === 0">
             <div class="no-comments">暂无评论</div>
           </template>
           <template v-else>
-            <a-list bordered>
-              <a-list-item v-for="comment in comments" :key="comment.id">
-                <!-- 主评论 -->
-                <div>
-                  <div style="display: flex; align-items: center">
-                    <!-- 头像 -->
-                    <a-avatar
-                      :src="comment.userAvatar || 'https://via.placeholder.com/40'"
-                      size="large"
-                    />
-                    <div style="margin-left: 12px">
-                      <strong>{{ comment.userName }}</strong>
-                    </div>
-                  </div>
-                  <p style="margin-left: 48px; margin-top: 8px">{{ comment.content }}</p>
-                  <div
-                    style="display: flex; align-items: center; margin-left: 48px; margin-top: 8px"
-                  >
-                    <span style="margin-left: 12px; color: #999; font-size: 12px">{{
-                      formatDate(comment.createTime)
-                    }}</span>
-                    <a-button type="text" @click="likeComment(comment.id)">
-                      <component :is="comment.liked ? LikeFilled : LikeOutlined" />
-                      {{ comment.likeCount }}
-                    </a-button>
-                    <a-button type="text" @click="openReplyModal(comment.id)">
-                      <MessageOutlined />
-                      回复
-                    </a-button>
-                  </div>
-                </div>
-                <!-- 子评论 -->
-                <template v-if="comment.children && comment.children.length > 0">
-                  <div style="margin-left: 48px; margin-top: 16px">
-                    <a-list bordered>
-                      <a-list-item v-for="child in comment.children" :key="child.id">
-                        <div style="display: flex; align-items: center">
-                          <a-avatar
-                            :src="child.userAvatar || 'https://via.placeholder.com/40'"
-                            size="small"
-                          />
-                          <div style="margin-left: 12px">
-                            <strong>{{ child.userName }}</strong>
-                          </div>
-                        </div>
-                        <p style="margin-left: 48px; margin-top: 8px">{{ child.content }}</p>
-                        <div
-                          style="
-                            display: flex;
-                            align-items: center;
-                            margin-left: 48px;
-                            margin-top: 8px;
-                          "
-                        >
-                          <span style="margin-left: 12px; color: #999; font-size: 12px">{{
-                            formatDate(child.createTime)
-                          }}</span>
-                          <a-button type="text" @click="likeComment(child.id)">
-                            <component :is="child.liked ? LikeFilled : LikeOutlined" />
-                            {{ child.likeCount }}
-                          </a-button>
-                          <a-button type="text" @click="openReplyModal(child.id)">
-                            <MessageOutlined />
-                            回复
-                          </a-button>
-                        </div>
-                      </a-list-item>
-                    </a-list>
-                  </div>
-                </template>
-              </a-list-item>
-            </a-list>
+            <div>
+              <comment-item
+                v-for="(comment, index) in comments"
+                :key="comment.id"
+                :comment="comment"
+                :level="0"
+                @reply="openReplyModal"
+                @like-updated="handleLikeUpdated"
+              />
+            </div>
           </template>
         </div>
       </a-col>
@@ -315,7 +253,6 @@ import {
   StarOutlined,
   StarFilled,
   ShareAltOutlined,
-  MessageOutlined,
 } from '@ant-design/icons-vue'
 
 import { computed, onMounted, ref } from 'vue'
@@ -325,7 +262,7 @@ import { downloadImage, formatSize } from '@/utils'
 import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
 import { usePictureStore } from '@/stores/picture'
 import { addCommentUsingPost, getCommentPageUsingPost } from '@/api/tupianpinglunguanli.ts'
-import { formatDate } from 'compatx'
+import CommentItem from '@/components/CommentItem.vue'
 
 const pictureStore = usePictureStore()
 
@@ -339,23 +276,9 @@ const replyModalVisible = ref(false) // 回复弹窗可见性
 const currentCommentIndex = ref(null) // 当前回复的评论索引
 
 const comments = ref([
-  // {
-  //   user: 'LonePlayer',
-  //   avatar: 'https://via.placeholder.com/40',
-  //   time: '4个月前',
-  //   content: '老板想自己开个公众号，被我_________',
-  //   likes: 13,
-  //   replies: [],
-  // },
-  // {
-  //   user: 'leocoder',
-  //   avatar: 'https://via.placeholder.com/40',
-  //   time: '4个月前',
-  //   content: '遇到问题解决问题，不知道为什么现在总是劝人知难而退绕一大圈。 看来过来人的建议也不一定都是对的，过来人总是想你把他们走过的路重新走一遍，然后再尝试新的东西。',
-  //   likes: 13,
-  //   replies: [],
-  // },
 ])
+
+const totalComments = ref(0);
 
 onMounted(() => {
   pictureStore.fetchPictureDetail(props.id) // 获取图片详情
@@ -364,14 +287,36 @@ onMounted(() => {
 
 // 加载评论列表
 const loadComments = async () => {
-  const res = await getCommentPageUsingPost({ pageNum: 1, pageSize: 10, pictureId: props.id }) // 请求评论接口
-  console.log('res:' + JSON.stringify(res.data))
+  const res = await getCommentPageUsingPost({
+    pageNum: 1,
+    pageSize: 10,
+    pictureId: props.id,
+  });
+  console.log("resonpse:" + JSON.stringify(res.data));
   if (res.data.code === 200) {
-    comments.value = res.data.data.records || []
+    comments.value = res.data.data.records.map((comment) => ({
+      ...comment,
+      children: comment.children?.map((child) => ({
+        ...child,
+        children: child.children || [], // 确保嵌套层级存在
+        commentCount: comment.commentCount || 0,
+      })) || [],
+    }));
+    // 计算总评论数
+    totalComments.value = calculateTotalComments(comments.value);
   } else {
-    message.error('评论加载失败')
+    message.error('评论加载失败');
   }
-}
+};
+
+const calculateTotalComments = (comments) => {
+  if (!comments || comments.length === 0) {
+    return 0;
+  }
+  return comments.reduce((total, comment) => {
+    return total + 1 + calculateTotalComments(comment.children || []);
+  }, 0);
+};
 
 // 提交评论
 const submitComment = async () => {
@@ -399,8 +344,13 @@ const submitComment = async () => {
 // 添加子评论
 const submitReply = async () => {
   if (!replyInput.value || replyInput.value.trim().length < 4) {
-    message.error('回复内容不能少于 4 个字符！')
-    return
+    message.error('回复内容不能少于 4 个字符！');
+    return;
+  }
+
+  if (!currentCommentIndex.value) {
+    message.error('未找到父评论，请重试！');
+    return;
   }
   // 添加评论
   const res = await addCommentUsingPost({
@@ -426,10 +376,11 @@ const likeComment = (index) => {
 }
 
 // 打开回复框
-const openReplyModal = (index) => {
-  currentCommentIndex.value = index
-  replyModalVisible.value = true
-}
+const openReplyModal = (comment) => {
+  console.log('后来的评论', comment)
+  currentCommentIndex.value = comment.id; // 确保使用 comment.id
+  replyModalVisible.value = true;
+};
 
 // 关闭回复框
 const closeReplyModal = () => {
@@ -500,6 +451,23 @@ const doDelete = async () => {
 const doDownload = () => {
   downloadImage(picture.value.url)
 }
+
+const handleLikeUpdated = (updatedComment) => {
+  // 根据 updatedComment.id 更新本地 comments 数据
+  const updateCommentTree = (comments) => {
+    return comments.map((comment) => {
+      if (comment.id === updatedComment.id) {
+        return updatedComment;
+      }
+      if (comment.children && comment.children.length > 0) {
+        comment.children = updateCommentTree(comment.children);
+      }
+      return comment;
+    });
+  };
+
+  comments.value = updateCommentTree(comments.value);
+};
 </script>
 <style scoped>
 .comment-input-wrapper {

@@ -1,10 +1,4 @@
 declare namespace API {
-  type CancelLikeRequest = {
-    id?: number
-    likeType?: number
-    pictureId?: number
-  }
-
   type CommentAddRequest = {
     content?: string
     parentId?: number
@@ -30,8 +24,11 @@ declare namespace API {
     likeCount?: number
     liked?: boolean
     parentId?: number
+    parentUserName?: string
     pictureId?: number
+    userAvatar?: string
     userId?: number
+    userName?: string
   }
 
   type DeleteBatchRequest = {
@@ -74,6 +71,11 @@ declare namespace API {
     id?: number
   }
 
+  type getPictureViewCountUsingGETParams = {
+    /** id */
+    id: number
+  }
+
   type getPictureVOByIdUsingGETParams = {
     /** id */
     id?: number
@@ -99,6 +101,7 @@ declare namespace API {
 
   type LikeRequest = {
     id?: number
+    isLiked?: boolean
     likeType?: number
     pictureId?: number
   }
@@ -182,8 +185,10 @@ declare namespace API {
 
   type PictureQueryRequest = {
     category?: string
+    favoriteCount?: number
     id?: number
     introduction?: string
+    likeCount?: number
     name?: string
     pageNum?: number
     pageSize?: number
@@ -200,6 +205,7 @@ declare namespace API {
     sortOrder?: string
     tags?: string[]
     userId?: number
+    viewCount?: number
   }
 
   type PictureReviewRequest = {

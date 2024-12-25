@@ -3,10 +3,7 @@
 import request from '@/utils/request'
 
 /** 取消点赞图片 POST /api/like/cancelLike */
-export async function cancelLikeUsingPost(
-  body: API.CancelLikeRequest,
-  options?: { [key: string]: any }
-) {
+export async function cancelLikeUsingPost(body: API.LikeRequest, options?: { [key: string]: any }) {
   return request<API.ResultBoolean_>('/api/like/cancelLike', {
     method: 'POST',
     headers: {

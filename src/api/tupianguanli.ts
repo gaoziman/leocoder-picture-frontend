@@ -92,6 +92,36 @@ export async function listPictureByPageUsingPost(
   })
 }
 
+/** 分页获取图片列表（按热度排序） POST /api/picture/list/page/popular */
+export async function listPopularPicturesUsingPost(
+  body: API.PictureQueryRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.ResultPagePictureVO_>('/api/picture/list/page/popular', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
+/** 分页获取已发布图片列表（封装类） POST /api/picture/list/page/user */
+export async function listPictureVoByUserUsingPost(
+  body: API.PictureQueryRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.ResultPagePictureVO_>('/api/picture/list/page/user', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** 分页获取图片列表（封装类） POST /api/picture/list/page/vo */
 export async function listPictureVoByPageUsingPost(
   body: API.PictureQueryRequest,

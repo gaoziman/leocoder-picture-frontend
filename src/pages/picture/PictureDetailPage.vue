@@ -3,6 +3,15 @@
     <!-- 图片展示区 -->
     <a-col :sm="24" :md="16" :xl="18">
       <a-card title="图片预览">
+        <!-- 判断是否为待审核状态 -->
+        <template v-if="picture.reviewStatus === 0">
+          <a-alert
+            message="待审核"
+            type="warning"
+            show-icon
+            style="margin-bottom: 16px;width: 200px"
+          />
+        </template>
         <!-- 操作区（红色框位置） -->
         <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px">
           <!-- 点赞按钮 -->
@@ -17,7 +26,7 @@
             <span style="margin-left: 4px">{{ favoriteCount }}</span>
           </a-button>
           <!-- 分享按钮 -->
-          <a-button type="link" style="display: flex; align-items: center"  @click="(e) => doShare(picture, e)">
+          <a-button type="link" style="display: flex; align-items: center" :disabled="picture.reviewStatus === 0"  @click="(e) => doShare(picture, e)">
             <ShareAltOutlined />
             <span style="margin-left: 4px" >分享</span>
           </a-button>
@@ -70,6 +79,14 @@
           </a-descriptions-item>
           <a-descriptions-item label="大小">
             {{ formatSize(picture.picSize) }}
+          </a-descriptions-item>
+          <a-descriptions-item label="浏览量：">
+            <template v-if="picture.reviewStatus === 0">
+              图片待审核
+            </template>
+            <template v-else>
+              {{ picture.viewCount || 0 }} 次浏览
+            </template>
           </a-descriptions-item>
         </a-descriptions>
         <a-space wrap>
@@ -159,11 +176,19 @@ const isFavorited = computed(() => pictureStore.pictureData[props.id]?.isFavorit
 
 // 点赞/取消点赞
 const handleLike = () => {
+  if (picture.value.reviewStatus === 0) {
+    message.warning('图片待审核，不能点赞！');
+    return;
+  }
   pictureStore.toggleLike(props.id)
 }
 
 // 收藏/取消收藏
 const handleFavorite = () => {
+  if (picture.value.reviewStatus === 0) {
+    message.warning('图片待审核，不能收藏！');
+    return;
+  }
   pictureStore.toggleFavorite(props.id)
 }
 

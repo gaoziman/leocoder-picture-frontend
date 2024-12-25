@@ -35,7 +35,7 @@ import { useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 
 const formState = reactive<API.UserLoginRequest>({
-  userAccount: 'leocoder',
+  userAccount: 'test',
   userPassword: '12345678',
 })
 

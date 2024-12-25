@@ -169,6 +169,7 @@ declare namespace API {
     updateTime?: string
     url?: string
     userId?: number
+    viewCount?: number
   }
 
   type PictureEditRequest = {
@@ -258,6 +259,7 @@ declare namespace API {
     url?: string
     user?: UserVO
     userId?: number
+    viewCount?: number
   }
 
   type ResultBoolean_ = {

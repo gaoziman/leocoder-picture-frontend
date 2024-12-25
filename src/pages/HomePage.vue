@@ -10,27 +10,45 @@
         @search="doSearch"
       />
     </div>
-  </div>
 
-
-  <!-- 分类 + 标签 -->
-  <a-tabs v-model:activeKey="selectedCategory" @change="doSearch">
-    <a-tab-pane key="all" tab="全部" />
-    <a-tab-pane v-for="category in categoryList" :key="category" :tab="category" />
-  </a-tabs>
-  <div class="tag-bar">
-    <span style="margin-right: 8px">标签：</span>
-    <a-space :size="[0, 8]" wrap>
-      <a-checkable-tag
-        v-for="(tag, index) in tagList"
-        :key="tag"
-        v-model:checked="selectedTagList[index]"
+    <!-- 排序功能 -->
+    <div class="sort-bar">
+      <span style="margin-right: 8px;font-size: 16px">筛选排序：</span>
+      <a-select
+        v-model:value="searchParams.sortField"
+        style="width: 120px"
         @change="doSearch"
       >
-        {{ tag }}
-      </a-checkable-tag>
-    </a-space>
+        <a-select-option value="createTime">最新发布</a-select-option>
+        <a-select-option value="viewCount"> 最多浏览</a-select-option>
+        <a-select-option value="likeCount">最多点赞</a-select-option>
+        <a-select-option value="favoriteCount">最多收藏</a-select-option>
+      </a-select>
+    </div>
+
+    <!-- 分类 + 标签 -->
+    <a-tabs v-model:activeKey="selectedCategory" @change="doSearch">
+      <a-tab-pane key="all" tab="全部" />
+      <a-tab-pane v-for="category in categoryList" :key="category" :tab="category" />
+    </a-tabs>
+    <div class="tag-bar">
+      <span style="margin-right: 8px">标签：</span>
+      <a-space :size="[0, 8]" wrap>
+        <a-checkable-tag
+          v-for="(tag, index) in tagList"
+          :key="tag"
+          v-model:checked="selectedTagList[index]"
+          @change="doSearch"
+        >
+          {{ tag }}
+        </a-checkable-tag>
+      </a-space>
+    </div>
   </div>
+
+
+
+
 
   <!-- 图片列表 -->
   <a-list
@@ -172,5 +190,10 @@ onMounted(() => {
 #homePage .search-bar {
   max-width: 480px;
   margin: 0 auto 16px;
+}
+
+#homePage .sort-bar {
+  margin: 16px 0;
+  text-align: left;
 }
 </style>

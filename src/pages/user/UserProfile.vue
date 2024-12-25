@@ -31,7 +31,7 @@
             <span v-if="index < stats.length - 1" class="divider">|</span>
           </a-col>
           <!-- 右侧修改资料按钮 -->
-          <a-col flex="420px" class="edit-profile-container">
+          <a-col flex="640px" class="edit-profile-container">
             <a-button type="primary" @click="goToEditProfile">修改资料</a-button>
           </a-col>
         </a-row>
@@ -39,11 +39,73 @@
     </div>
 
     <div class="profile-header" style="margin-top: 20px">
-      <a-card class="profile-card">
+      <a-card class="profile-card2">
         <!-- Tab 栏 -->
         <a-tabs v-model:activeKey="activeTab" class="tab-section" @change="handleTabChange">
-          <a-tab-pane key="columns" tab="专栏"></a-tab-pane>
-          <a-tab-pane key="info" tab="资料"></a-tab-pane>
+          <a-tab-pane key="userPictures" tab="发布">
+            <!-- 自己上传的图片 -->
+            <a-list
+              :grid="{ gutter: 24, xs: 1, sm: 2, md: 2, lg: 3, xl: 4, xxl: 4 }"
+              :data-source="userPictures"
+            >
+              <template #renderItem="{ item: picture }">
+                <a-list-item style="padding: 0">
+                  <!-- 单张图片 -->
+                  <a-card hoverable @click="doClickPicture(picture.id)">
+                    <template #cover>
+                      <img style="height: 180px; object-fit: cover" :alt="picture.name" :src="picture.url" />
+                    </template>
+                    <a-card-meta :title="picture.name">
+                      <template #description>
+                        <a-flex>
+                          <a-tag :color="getCategoryColor(picture.category)">
+                            {{ picture.category ?? '默认' }}
+                          </a-tag>
+                          <a-tag v-for="tag in picture.tags" :key="tag" :color="getTagColor(tag)">
+                            {{ tag }}
+                          </a-tag>
+                        </a-flex>
+                      </template>
+                    </a-card-meta>
+                  </a-card>
+                </a-list-item>
+              </template>
+            </a-list>
+            <!-- 分页 -->
+            <a-pagination
+              :total="userPagination.total"
+              :current="userPagination.pageNum"
+              :pageSize="userPagination.pageSize"
+              @change="handlePageChange"
+              @showSizeChange="handlePageSizeChange"
+              showSizeChanger
+              class="pagination"
+            />
+          </a-tab-pane>
+          <a-tab-pane key="info" tab="资料">
+            <div class="profile-info-section">
+              <a-row justify="space-between" align="middle" class="info-header">
+                <!-- 左侧基本信息标题 -->
+                <a-col>
+                  <h3 class="info-title">基本信息</h3>
+                </a-col>
+                <!-- 右侧编辑按钮 -->
+                <a-col>
+                  <a-button type="link" class="edit-button" @click="goToEditProfile">
+                    <EditOutlined />
+                    <a-icon type="edit" style="margin-right: 4px" />编辑
+                  </a-button>
+                </a-col>
+              </a-row>
+              <!-- 信息内容 -->
+              <div class="info-content">
+                <div class="info-item" v-for="item in infoItems" :key="item.label">
+                  <div class="info-label">{{ item.label }}</div>
+                  <div class="info-value">{{ item.value }}</div>
+                </div>
+              </div>
+            </div>
+          </a-tab-pane>
           <a-tab-pane key="favorites" tab="收藏">
             <!-- 收藏页面 -->
             <a-list
@@ -73,40 +135,6 @@
                 </a-list-item>
               </template>
             </a-list>
-
-
-<!--            <a-row gutter="16" class="favorites-list">-->
-<!--              <a-col-->
-<!--                v-for="item in favorites"-->
-<!--                :key="item.pictureId"-->
-<!--                xs="24"-->
-<!--                sm="12"-->
-<!--                md="8"-->
-<!--                lg="6"-->
-<!--                class="favorite-item"-->
-<!--              >-->
-<!--                <a-card hoverable>-->
-<!--                  <img :src="item.url" alt="图片" class="favorite-img" />-->
-<!--                  <div class="favorite-content">-->
-<!--                    <h3>{{ item.name }}</h3>-->
-<!--                    <p>{{ item.introduction || '暂无简介' }}</p>-->
-<!--                    &lt;!&ndash; 渲染分类和标签 &ndash;&gt;-->
-<!--                    <div>-->
-<!--                      <a-tag :color="getCategoryColor(item.category)" v-if="item.category">-->
-<!--                        {{ item.category || '默认分类' }}-->
-<!--                      </a-tag>-->
-<!--                      <a-tag-->
-<!--                        v-for="tag in item.tags"-->
-<!--                        :key="tag"-->
-<!--                        :color="getTagColor(tag)"-->
-<!--                      >-->
-<!--                        {{ tag }}-->
-<!--                      </a-tag>-->
-<!--                    </div>-->
-<!--                  </div>-->
-<!--                </a-card>-->
-<!--              </a-col>-->
-<!--            </a-row>-->
             <!-- 分页 -->
             <a-pagination
               :total="pagination.total"
@@ -131,15 +159,27 @@ import { favoriteListUsingPost } from '@/api/yonghushoucang.ts'
 import { message } from 'ant-design-vue'
 import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
 import { useRouter } from 'vue-router'
+import { listPictureVoByUserUsingPost } from '@/api/tupianguanli.ts'
+import {
+  EditOutlined,
+} from '@ant-design/icons-vue'
 
 const userInfo = ref({
   avatar: '',
   nickname: '',
   profile: '',
 })
-const activeTab = ref('favorites') // 默认选中收藏
+const activeTab = ref('userPictures') // 默认选中收藏
 const favorites = ref([])
+const userPictures = ref([])
 const pagination = ref({
+  total: 0,
+  pageNum: 1,
+  pageSize: 4,
+})
+
+
+const userPagination = ref({
   total: 0,
   pageNum: 1,
   pageSize: 4,
@@ -166,22 +206,57 @@ const fetchFavorites = async () => {
   }
 };
 
-
-const handlePageChange = (page: number) => {
-  pagination.value.pageNum = page
-  fetchFavorites()
+// 获取用户上传的图片
+const  fetchUserPictures = async () => {
+  try {
+    const params = {
+      pageNum: userPagination.value.pageNum,
+      pageSize: userPagination.value.pageSize,
+    };
+    const res = await listPictureVoByUserUsingPost(params);
+    console.log("res:" + JSON.stringify(res.data))
+    if (res.data.code === 200) {
+      userPictures.value = res.data.data.records ?? [];
+      userPagination.value.total = res.data.data.total ?? 0;
+    } else {
+      message.error('获取已发布图片数据失败：' + res.data.message);
+    }
+  } catch (error) {
+    console.error('获取已发布图片数据失败：', error);
+    message.error('系统异常，请稍后再试');
+  }
 }
 
+// 切换页码
+const handlePageChange = (page: number) => {
+  if (activeTab.value === 'favorites'){
+    pagination.value.pageNum = page
+    fetchFavorites()
+  }else if(activeTab.value === 'userPictures'){
+    userPagination.value.pageNum = page
+    fetchUserPictures()
+  }
+}
+
+// 切换每页显示数量
 const handlePageSizeChange = (current: number, size: number) => {
-  pagination.value.pageSize = size; // 更新每页显示数量
-  pagination.value.pageNum = 1; // 重置到第一页
-  fetchFavorites(); // 重新请求数据
+  if (activeTab.value === 'favorites'){
+    pagination.value.pageSize = size; // 更新每页显示数量
+    pagination.value.pageNum = 1; // 重置到第一页e
+    fetchFavorites(); // 重新请求数据
+  } else if (activeTab.value === 'userPictures'){
+    userPagination.value.pageSize = size;
+    userPagination.value.pageNum = 1; // 重置到第一页e
+    fetchUserPictures();
+  }
 };
 
 const handleTabChange = (key: string) => {
   activeTab.value = key
   if (key === 'favorites') {
     fetchFavorites()
+  }else if(key === 'userPictures') {
+    fetchUserPictures()
   }
 }
 const router = useRouter()
@@ -200,6 +275,18 @@ const stats = ref([
   { label: '粉丝', value: 999 },
 ])
 
+// 用户的基本信息
+const infoItems = ref([
+  { label: '用户名', value: '程序员Leo' },
+  { label: '简介', value: '分享思想，留下痕迹。' },
+  { label: '手机', value: '199****3394' },
+  { label: '邮箱', value: '暂无' },
+  { label: '地区', value: '北京市' },
+  { label: '生日', value: '2001-04-19' },
+  { label: '会员编号', value: '12644' },
+])
+
+
 const loginUserStore = useLoginUserStore()
 
 onMounted(() => {
@@ -217,6 +304,7 @@ onMounted(() => {
   ]
 
   fetchFavorites()
+  fetchUserPictures()
 })
 
 const goToEditProfile = () => {
@@ -252,7 +340,7 @@ const goToEditProfile = () => {
 .profile-page {
   background: linear-gradient(180deg, #e0f7fa, #4f8ad6);
   min-height: 100vh;
-  padding-top: 20px; /* 减小顶部间距 */
+  padding-top: 10px; /* 减小顶部间距 */
 }
 
 .profile-header {
@@ -260,14 +348,34 @@ const goToEditProfile = () => {
   text-align: center;
 }
 
-.profile-card {
+/*.profile-card {
   margin: 0 auto;
-  max-width: 900px; /* 宽度调整为更宽 */
+  max-width: 900px; !* 宽度调整为更宽 *!
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 20px;
+}*/
+
+.profile-card {
+  margin: 0 auto;
+  max-width: 1100px; /* 调整宽度 */
+  height: 200px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 16px; /* 减少高度 */
 }
+
+.profile-card2 {
+  margin: 0 auto;
+  max-width: 1100px; /* 调整宽度 */
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 16px; /* 减少高度 */
+}
+
 
 .profile-nickname {
   font-size: 24px;
@@ -284,7 +392,7 @@ const goToEditProfile = () => {
 }
 
 .profile-stats {
-  margin-top: 20px;
+  margin-top: 10px;
   display: flex;
   align-items: center;
   justify-content: flex-start; /* 靠左对齐 */
@@ -336,5 +444,57 @@ a-card {
   overflow: hidden;
   margin-bottom: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.profile-info-section {
+  max-width: 700px;
+  margin: 20px auto;
+  padding: 0; /* 移除多余填充 */
+}
+
+.info-header {
+  margin-bottom: 16px;
+}
+
+.info-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  //margin: 0;
+  margin-left: -260px;
+}
+
+
+.info-item {
+  display: contents; /* 使每一项占据一行 */
+}
+
+.info-content {
+  display: grid;
+  grid-template-columns: 150px auto; /* 左边固定宽度，右边自动扩展 */
+  row-gap: 12px; /* 行间距 */
+  column-gap: 20px; /* 列间距 */
+}
+
+.info-label {
+  font-weight: bold;
+  color: #333;
+  text-align: left; /* 右对齐 */
+  margin-left: -160px;
+}
+
+.info-value {
+  color: #555;
+  text-align: left; /* 左对齐 */
+  margin-left: -160px;
+}
+.edit-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0px;
+  height: 32px;
+  font-size: 15px;
+  color: #1890ff;
+  padding: 0;
 }
 </style>

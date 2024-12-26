@@ -43,7 +43,7 @@
           <a-button
             v-if="level === 0"
             type="text"
-            @click="replyToComment(comment.id)"
+            @click="replyToComment"
             style="padding: 0; height: auto"
           >
             <MessageOutlined />
@@ -69,7 +69,7 @@
         :key="child.id"
         :comment="child"
         :level="level + 1"
-        @reply="$emit('reply', child)"
+        @reply="$emit('reply', $event)"
         @like-updated="$emit('like-updated', $event)"
       />
     </div>
@@ -94,12 +94,12 @@ const props = defineProps({
 
 // 父评论操作逻辑
 const replyToComment = () => {
-  const replyComment = { ...props.comment };
-  if (props.level === 0) {
-    // 父评论的 parentId 应为 null
-    replyComment.parentId = null;
-  }
-  emit('reply', replyComment);
+  emit('reply', {
+    id: props.comment.id, // 当前评论的 ID
+    parentId: props.level === 0 ? null : props.comment.id, // 父评论的 ID
+    userName: props.comment.userName, // 当前评论的用户名
+    level: props.level, // 评论层级
+  });
 };
 
 const formatTime = (time) => {
@@ -166,4 +166,31 @@ a-button:hover {
    padding: 2px 4px;
    border-radius: 4px;
  }
+
+:host {
+  display: block;
+  margin-left: 0;
+}
+
+[style*="margin-left"] {
+  margin-left: 20px !important; /* 根据层级增加缩进 */
+}
+
+.comment-item {
+  padding: 8px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.comment-item .actions {
+  margin-top: 4px;
+  display: flex;
+  gap: 16px;
+}
+
+.comment-item .child-comments {
+  margin-top: 8px;
+  margin-left: 20px;
+  padding-left: 16px;
+  border-left: 2px solid #f0f0f0;
+}
 </style>

@@ -113,56 +113,13 @@
       </a-card>
     </a-col>
 
-    <!--    <a-row :gutter="[16, 16]">
-          &lt;!&ndash; 评论区 &ndash;&gt;
-          <a-col :sm="24" :md="16" :xl="18" class="comment-section">
-            <h3>发表评论</h3>
-            <div class="comment-input-wrapper">
-              <a-textarea
-                v-model:value="commentInput"
-                placeholder="我来说两句..."
-                :maxLength="1000"
-                :rows="5"
-                showCount
-                class="comment-textarea"
-              />
-              <a-button
-                type="primary"
-                class="comment-submit-button"
-                @click="submitComment"
-              >
-                发布
-              </a-button>
-            </div>
-
-            <div class="comment-list">
-              <h3>评论 ({{ comments.length }} 条)</h3>
-              <template v-if="comments.length === 0">
-                <div class="no-comments">暂无评论</div>
-              </template>
-              <template v-else>
-                <a-list bordered>
-                  <a-list-item v-for="(comment, index) in comments" :key="index">
-                    <a-list-item-meta
-                      :avatar="comment.avatar || 'https://via.placeholder.com/40'"
-                      :title="comment.user"
-                      :description="comment.time"
-                    />
-                    <div>{{ comment.content }}</div>
-                  </a-list-item>
-                </a-list>
-              </template>
-            </div>
-          </a-col>
-        </a-row>-->
-
     <a-row :gutter="[16, 16]">
       <a-col :span="24" class="comment-section">
         <div class="comment-input-wrapper">
-          <h3>评论 {{ totalComments}}</h3>
-          <div class="comment-input-container"  ref="commentContainer">
-            <!-- 用户头像 -->
-            <a-avatar :src="picture.user?.userAvatar" size="large" class="user-avatar" />
+          <h3>评论 {{ totalComments }}</h3>
+          <div class="comment-input-container" ref="commentContainer">
+            <!-- 当前登录用户的头像 -->
+            <a-avatar :src="loginUserAvatar" size="large" class="user-avatar" />
 
             <!-- 输入框 -->
             <div class="input-box">
@@ -179,19 +136,11 @@
               <div class="input-toolbar">
                 <!-- 左侧按钮 -->
                 <div class="left-actions">
-                  <a-button
-                    type="text"
-                    class="emoji-button"
-                    @click="toggleEmojiPicker"
-                  >
+                  <a-button type="text" class="emoji-button" @click="toggleEmojiPicker">
                     <MehOutlined />
                   </a-button>
 
-                  <a-button
-                    type="text"
-                    class="upload-button"
-                    @click="openImageUploader"
-                  >
+                  <a-button type="text" class="upload-button" @click="openImageUploader">
                     <CloudUploadOutlined />
                   </a-button>
                 </div>
@@ -206,11 +155,7 @@
                 <!-- 右侧统计与按钮 -->
                 <div class="right-actions">
                   <span class="char-count">{{ commentInput.length }} / 1000</span>
-                  <a-button
-                    type="primary"
-                    class="submit-button"
-                    @click="submitComment"
-                  >
+                  <a-button type="primary" class="submit-button" @click="submitComment">
                     发布
                   </a-button>
                 </div>
@@ -242,31 +187,53 @@
     <!-- 回复框 -->
     <a-modal
       v-model:visible="replyModalVisible"
-      title="回复评论"
+      :title="`回复 ${currentReplyUser}`"
       width="500px"
       centered
       :footer="null"
-      @cancel="closeReplyModal"
+      @close="closeReplyModal"
     >
-      <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
-        <a-textarea
-          v-model:value="replyInput"
-          placeholder="请输入回复内容..."
-          :maxLength="500"
-          :rows="4"
-          showCount
-          style="border-radius: 8px"
-        />
-        <a-button
-          type="primary"
-          block
-          @click="submitReply"
-          style="border-radius: 8px; height: 40px; font-size: 16px"
-        >
-          提交回复
-        </a-button>
-      </div>
+      <CommentInput
+        :userAvatar="loginUserAvatar"
+        :inputValue="parentInputValue"
+        @submit="submitReply"
+        @input-update="updateInput"
+        :resetInput="resetInput"
+      />
+<!--      <comment-input-->
+<!--        :userAvatar="loginUserAvatar"-->
+<!--        :inputValue="parentInputValue"-->
+<!--        @submit="submitReply"-->
+<!--        @input-update="(value) => (parentInputValue.value = value)"-->
+<!--      />-->
     </a-modal>
+    <!--    <a-modal-->
+    <!--      v-model:visible="replyModalVisible"-->
+    <!--      title="回复评论"-->
+    <!--      width="500px"-->
+    <!--      centered-->
+    <!--      :footer="null"-->
+    <!--      @cancel="closeReplyModal"-->
+    <!--    >-->
+    <!--      <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">-->
+    <!--        <a-textarea-->
+    <!--          v-model:value="replyInput"-->
+    <!--          placeholder="请输入回复内容..."-->
+    <!--          :maxLength="500"-->
+    <!--          :rows="4"-->
+    <!--          showCount-->
+    <!--          style="border-radius: 8px"-->
+    <!--        />-->
+    <!--        <a-button-->
+    <!--          type="primary"-->
+    <!--          block-->
+    <!--          @click="submitReply"-->
+    <!--          style="border-radius: 8px; height: 40px; font-size: 16px"-->
+    <!--        >-->
+    <!--          提交回复-->
+    <!--        </a-button>-->
+    <!--      </div>-->
+    <!--    </a-modal>-->
   </a-row>
 </template>
 
@@ -302,7 +269,7 @@ import {
   ShareAltOutlined,
 } from '@ant-design/icons-vue'
 
-import 'emoji-picker-element';
+import 'emoji-picker-element'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useLoginUserStore } from '@/stores/user'
 import router from '@/router'
@@ -311,6 +278,7 @@ import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
 import { usePictureStore } from '@/stores/picture'
 import { addCommentUsingPost, getCommentPageUsingPost } from '@/api/tupianpinglunguanli.ts'
 import CommentItem from '@/components/CommentItem.vue'
+import CommentInput from '@/components/CommentInput.vue'
 
 const pictureStore = usePictureStore()
 
@@ -318,60 +286,96 @@ const props = defineProps<{
   id: string | number
 }>()
 
-const commentInput = ref('') // 主评论框内容
-const replyInput = ref('') // 回复框内容
-const replyModalVisible = ref(false) // 回复弹窗可见性
-const currentCommentIndex = ref(null) // 当前回复的评论索引
+// 主评论框内容
+const commentInput = ref('')
 
-const comments = ref([
-])
+// 回复框内容
+const replyInput = ref('')
 
-const totalComments = ref(0);
-const showEmojiPicker = ref(false);
-const commentContainer = ref(null);
+const resetInput = ref(false);
+
+// 回复弹窗可见性
+const replyModalVisible = ref(false)
+
+// 当前回复的评论索引
+const currentCommentIndex = ref(null)
+
+// 所有评论列表
+const comments = ref([])
+
+// 评论总条数
+const totalComments = ref(0)
+
+// 展示 Emoji Picker
+const showEmojiPicker = ref(false)
+
+// 本地输入框内容
+const commentContainer = ref(null)
+
+// 子组件传递的输入值
+const parentInputValue = ref('')
+
+// 当前回复的用户名
+const currentReplyUser = ref('')
+
+const updateInput = (value) => {
+  parentInputValue.value = value
+}
+
+const loginUserStore = useLoginUserStore()
+
+const loginUserAvatar = computed(() => loginUserStore.loginUser?.userAvatar || '默认头像链接') // 获取登录用户头像
+// 从 Store 中获取当前图片的点赞数据
+const picture = computed(() => pictureStore.pictureDetail[props.id] || {})
+const likeCount = computed(() => pictureStore.pictureData[props.id]?.likeCount || 0)
+const isLiked = computed(() => pictureStore.pictureData[props.id]?.isLiked || false)
+
+// 从 Store 中获取当前图片的收藏数据
+const favoriteCount = computed(() => pictureStore.pictureData[props.id]?.favoriteCount || 0)
+const isFavorited = computed(() => pictureStore.pictureData[props.id]?.isFavorited || false)
+
 
 onMounted(() => {
-  document.addEventListener('click', handleDocumentClick);
+  document.addEventListener('click', handleDocumentClick)
   pictureStore.fetchPictureDetail(props.id) // 获取图片详情
   loadComments()
 })
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleDocumentClick);
-});
+  document.removeEventListener('click', handleDocumentClick)
+})
 
 // 打开或关闭 Emoji Picker
 const toggleEmojiPicker = (event) => {
-  event.stopPropagation();
-  showEmojiPicker.value = !showEmojiPicker.value;
-};
+  event.stopPropagation()
+  showEmojiPicker.value = !showEmojiPicker.value
+}
 
 // 添加 Emoji 到输入框
 const addEmoji = (event) => {
-  const emoji = event.detail.unicode || event.detail.emoji;
-  commentInput.value += emoji; // 添加 Emoji 到评论框
-  showEmojiPicker.value = false; // 选择后自动关闭
-};
+  const emoji = event.detail.unicode || event.detail.emoji
+  commentInput.value += emoji // 添加 Emoji 到评论框
+  showEmojiPicker.value = false // 选择后自动关闭
+}
 
 // 全局点击监听器，用于关闭 Emoji Picker
 const handleDocumentClick = (event) => {
   // 如果 commentContainer 为空，直接返回
   if (!commentContainer.value) {
-    showEmojiPicker.value = false; // 确保 Emoji Picker 被关闭
-    return;
+    showEmojiPicker.value = false // 确保 Emoji Picker 被关闭
+    return
   }
 
-  const isClickInside = commentContainer.value.contains(event.target);
+  const isClickInside = commentContainer.value.contains(event.target)
   if (!isClickInside) {
-    showEmojiPicker.value = false; // 点击空白处关闭
+    showEmojiPicker.value = false // 点击空白处关闭
   }
-};
+}
 
 // 打开图片上传
 const openImageUploader = () => {
-  console.log('图片上传打开');
-};
-
+  console.log('图片上传打开')
+}
 
 // 加载评论列表
 const loadComments = async () => {
@@ -379,31 +383,32 @@ const loadComments = async () => {
     pageNum: 1,
     pageSize: 10,
     pictureId: props.id,
-  });
+  })
   if (res.data.code === 200) {
     comments.value = res.data.data.records.map((comment) => ({
       ...comment,
-      children: comment.children?.map((child) => ({
-        ...child,
-        children: child.children || [], // 确保嵌套层级存在
-        commentCount: comment.commentCount || 0,
-      })) || [],
-    }));
+      children:
+        comment.children?.map((child) => ({
+          ...child,
+          children: child.children || [], // 确保嵌套层级存在
+          commentCount: comment.commentCount || 0,
+        })) || [],
+    }))
     // 计算总评论数
-    totalComments.value = calculateTotalComments(comments.value);
+    totalComments.value = calculateTotalComments(comments.value)
   } else {
-    message.error('评论加载失败');
+    message.error('评论加载失败')
   }
-};
+}
 
 const calculateTotalComments = (comments) => {
   if (!comments || comments.length === 0) {
-    return 0;
+    return 0
   }
   return comments.reduce((total, comment) => {
-    return total + 1 + calculateTotalComments(comment.children || []);
-  }, 0);
-};
+    return total + 1 + calculateTotalComments(comment.children || [])
+  }, 0)
+}
 
 // 提交评论
 const submitComment = async () => {
@@ -428,61 +433,41 @@ const submitComment = async () => {
   }
 }
 
-// 添加子评论
-const submitReply = async () => {
-  if (!replyInput.value || replyInput.value.trim().length < 4) {
-    message.error('回复内容不能少于 4 个字符！');
-    return;
-  }
-
-  if (!currentCommentIndex.value) {
-    message.error('未找到父评论，请重试！');
-    return;
+// 子评论回复
+const submitReply = async (content) => {
+  if (!content.trim()) {
+    console.error('评论内容不能为空！')
+    return
   }
   // 添加评论
   const res = await addCommentUsingPost({
     pictureId: props.id,
-    content: replyInput.value,
+    content: content,
     parentId: currentCommentIndex.value,
   })
   if (res.data.code === 200) {
     message.success('回复成功！')
-    replyInput.value = ''
-    replyModalVisible.value = false
-    currentCommentIndex.value = null
+    parentInputValue.value = ''
+    closeReplyModal(); // 关闭回复框
     await loadComments() // 刷新评论列表
+    // location.reload()
   } else {
     message.error('回复失败，请稍后重试！')
   }
 }
 
-
-// 点赞评论
-const likeComment = (index) => {
-  comments.value[index].likes += 1
-  message.success('点赞成功！')
-}
-
 // 打开回复框
 const openReplyModal = (comment) => {
-  currentCommentIndex.value = comment.id; // 确保使用 comment.id
+  currentCommentIndex.value = comment.id;
+  parentInputValue.value = ''; // 清空子评论框的内容
+  currentReplyUser.value = comment.userName;
   replyModalVisible.value = true;
-};
+}
 
 // 关闭回复框
 const closeReplyModal = () => {
-  replyInput.value = ''
-  replyModalVisible.value = false
+  replyModalVisible.value = false // 隐藏模态框
 }
-
-// 从 Store 中获取当前图片的点赞数据
-const picture = computed(() => pictureStore.pictureDetail[props.id] || {})
-const likeCount = computed(() => pictureStore.pictureData[props.id]?.likeCount || 0)
-const isLiked = computed(() => pictureStore.pictureData[props.id]?.isLiked || false)
-
-// 从 Store 中获取当前图片的收藏数据
-const favoriteCount = computed(() => pictureStore.pictureData[props.id]?.favoriteCount || 0)
-const isFavorited = computed(() => pictureStore.pictureData[props.id]?.isFavorited || false)
 
 // 点赞/取消点赞
 const handleLike = () => {
@@ -502,7 +487,6 @@ const handleFavorite = () => {
   pictureStore.toggleFavorite(props.id)
 }
 
-const loginUserStore = useLoginUserStore()
 // 是否具有编辑权限
 const canEdit = computed(() => {
   const loginUser = loginUserStore.loginUser
@@ -544,17 +528,17 @@ const handleLikeUpdated = (updatedComment) => {
   const updateCommentTree = (comments) => {
     return comments.map((comment) => {
       if (comment.id === updatedComment.id) {
-        return updatedComment;
+        return updatedComment
       }
       if (comment.children && comment.children.length > 0) {
-        comment.children = updateCommentTree(comment.children);
+        comment.children = updateCommentTree(comment.children)
       }
-      return comment;
-    });
-  };
+      return comment
+    })
+  }
 
-  comments.value = updateCommentTree(comments.value);
-};
+  comments.value = updateCommentTree(comments.value)
+}
 </script>
 <style scoped>
 .comment-input-wrapper {
@@ -669,6 +653,7 @@ const handleLikeUpdated = (updatedComment) => {
 .upload-button:hover {
   color: #1890ff;
 }
+
 .emoji-picker {
   position: absolute;
   z-index: 1000;

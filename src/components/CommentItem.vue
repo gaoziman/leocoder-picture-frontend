@@ -42,13 +42,21 @@
             <span style="margin-left: 4px">{{ comment.likeCount }}</span>
           </a-button>
           <a-button
-            v-if="level === 0 || level === 1"
+            v-if="level === 0"
             type="text"
             @click="replyToComment(comment.id)"
             style="padding: 0; height: auto"
           >
             <MessageOutlined />
-            <span style="margin-left: 4px">回复</span>
+            {{ calculateCommentCount(comment) > 0 ? calculateCommentCount(comment) : '评论' }}
+          </a-button>
+          <a-button
+            v-else
+            type="text"
+            @click="replyToComment"
+          >
+            <MessageOutlined />
+            回复
           </a-button>
         </div>
       </div>
@@ -93,7 +101,18 @@ const replyToComment = () => {
 const formatTime = (time) => {
   return dayjs(time).fromNow();
 };
+const calculateCommentCount = (comment) => {
+  if (!comment.children || comment.children.length === 0) {
+    return 0; // 没有子评论
+  }
 
+  let count = comment.children.length;
+  comment.children.forEach((child) => {
+    count += calculateCommentCount(child); // 递归计算子评论数量
+  });
+
+  return count;
+};
 const toggleLike = async () => {
   try {
     // 更新后端

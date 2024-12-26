@@ -158,23 +158,68 @@
 
     <a-row :gutter="[16, 16]">
       <a-col :span="24" class="comment-section">
-        <h3>发表评论</h3>
         <div class="comment-input-wrapper">
-          <a-textarea
-            v-model:value="commentInput"
-            placeholder="我来说两句..."
-            :maxLength="1000"
-            :rows="5"
-            showCount
-            class="comment-textarea"
-          />
-          <a-button type="primary" class="comment-submit-button" @click="submitComment">
-            发布
-          </a-button>
+          <h3>评论 {{ totalComments}}</h3>
+          <div class="comment-input-container"  ref="commentContainer">
+            <!-- 用户头像 -->
+            <a-avatar :src="picture.user?.userAvatar" size="large" class="user-avatar" />
+
+            <!-- 输入框 -->
+            <div class="input-box">
+              <!-- 输入文本 -->
+              <a-textarea
+                v-model:value="commentInput"
+                placeholder="我来说两句..."
+                :maxLength="1000"
+                class="comment-textarea"
+                :rows="3"
+              />
+
+              <!-- 工具栏 -->
+              <div class="input-toolbar">
+                <!-- 左侧按钮 -->
+                <div class="left-actions">
+                  <a-button
+                    type="text"
+                    class="emoji-button"
+                    @click="toggleEmojiPicker"
+                  >
+                    <MehOutlined />
+                  </a-button>
+
+                  <a-button
+                    type="text"
+                    class="upload-button"
+                    @click="openImageUploader"
+                  >
+                    <CloudUploadOutlined />
+                  </a-button>
+                </div>
+
+                <!-- Emoji Picker -->
+                <emoji-picker
+                  v-if="showEmojiPicker"
+                  class="emoji-picker"
+                  @emoji-click="addEmoji"
+                ></emoji-picker>
+
+                <!-- 右侧统计与按钮 -->
+                <div class="right-actions">
+                  <span class="char-count">{{ commentInput.length }} / 1000</span>
+                  <a-button
+                    type="primary"
+                    class="submit-button"
+                    @click="submitComment"
+                  >
+                    发布
+                  </a-button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="comment-list">
-          <h3>评论 ({{ totalComments}} 条)</h3>
           <template v-if="comments.length === 0">
             <div class="no-comments">暂无评论</div>
           </template>
@@ -247,6 +292,8 @@ import { message } from 'ant-design-vue'
 import {
   DeleteOutlined,
   EditOutlined,
+  CloudUploadOutlined,
+  MehOutlined,
   DownloadOutlined,
   LikeOutlined,
   LikeFilled,
@@ -255,7 +302,8 @@ import {
   ShareAltOutlined,
 } from '@ant-design/icons-vue'
 
-import { computed, onMounted, ref } from 'vue'
+import 'emoji-picker-element';
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useLoginUserStore } from '@/stores/user'
 import router from '@/router'
 import { downloadImage, formatSize } from '@/utils'
@@ -279,11 +327,51 @@ const comments = ref([
 ])
 
 const totalComments = ref(0);
+const showEmojiPicker = ref(false);
+const commentContainer = ref(null);
 
 onMounted(() => {
+  document.addEventListener('click', handleDocumentClick);
   pictureStore.fetchPictureDetail(props.id) // 获取图片详情
   loadComments()
 })
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleDocumentClick);
+});
+
+// 打开或关闭 Emoji Picker
+const toggleEmojiPicker = (event) => {
+  event.stopPropagation();
+  showEmojiPicker.value = !showEmojiPicker.value;
+};
+
+// 添加 Emoji 到输入框
+const addEmoji = (event) => {
+  const emoji = event.detail.unicode || event.detail.emoji;
+  commentInput.value += emoji; // 添加 Emoji 到评论框
+  showEmojiPicker.value = false; // 选择后自动关闭
+};
+
+// 全局点击监听器，用于关闭 Emoji Picker
+const handleDocumentClick = (event) => {
+  // 如果 commentContainer 为空，直接返回
+  if (!commentContainer.value) {
+    showEmojiPicker.value = false; // 确保 Emoji Picker 被关闭
+    return;
+  }
+
+  const isClickInside = commentContainer.value.contains(event.target);
+  if (!isClickInside) {
+    showEmojiPicker.value = false; // 点击空白处关闭
+  }
+};
+
+// 打开图片上传
+const openImageUploader = () => {
+  console.log('图片上传打开');
+};
+
 
 // 加载评论列表
 const loadComments = async () => {
@@ -361,6 +449,7 @@ const submitReply = async () => {
     message.success('回复成功！')
     replyInput.value = ''
     replyModalVisible.value = false
+    currentCommentIndex.value = null
     await loadComments() // 刷新评论列表
   } else {
     message.error('回复失败，请稍后重试！')
@@ -376,7 +465,6 @@ const likeComment = (index) => {
 
 // 打开回复框
 const openReplyModal = (comment) => {
-  console.log('后来的评论', comment)
   currentCommentIndex.value = comment.id; // 确保使用 comment.id
   replyModalVisible.value = true;
 };
@@ -488,21 +576,6 @@ const handleLikeUpdated = (updatedComment) => {
   box-shadow: 0 0 5px rgba(24, 144, 255, 0.3);
 }
 
-.comment-submit-button {
-  align-self: flex-end;
-  width: 100px;
-  height: 40px;
-  border-radius: 8px;
-  background-color: #1890ff;
-  color: white;
-  font-size: 16px;
-}
-
-.comment-submit-button:disabled {
-  background-color: #d9d9d9;
-  color: #ffffff;
-}
-
 .comment-list {
   width: 1200px;
   margin-top: 20px;
@@ -513,5 +586,99 @@ const handleLikeUpdated = (updatedComment) => {
   color: #999;
   font-size: 14px;
   margin-top: 20px;
+}
+
+.comment-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.comment-input-container {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.user-avatar {
+  border: 1px solid #e5e5e5;
+  border-radius: 50%;
+}
+
+.input-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-textarea {
+  border-radius: 8px;
+  font-size: 16px;
+  padding: 12px;
+  border: 1px solid #d9d9d9;
+  transition: all 0.3s;
+  resize: none;
+}
+
+.comment-textarea:focus {
+  border-color: #40a9ff;
+  box-shadow: 0 0 5px rgba(24, 144, 255, 0.3);
+}
+
+.input-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.left-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.char-count {
+  font-size: 14px;
+  color: #999;
+}
+
+.submit-button {
+  height: 36px;
+  border-radius: 8px;
+  font-size: 14px;
+  padding: 0 16px;
+}
+
+.emoji-button,
+.upload-button {
+  font-size: 18px;
+  color: #555;
+}
+
+.emoji-button:hover,
+.upload-button:hover {
+  color: #1890ff;
+}
+.emoji-picker {
+  position: absolute;
+  z-index: 1000;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.comment-input-container {
+  position: relative;
 }
 </style>

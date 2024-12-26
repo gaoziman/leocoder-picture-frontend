@@ -92,10 +92,14 @@ const props = defineProps({
   level: Number,
 });
 
-
+// 父评论操作逻辑
 const replyToComment = () => {
-  console.log('当前评论:', props.comment);
-  emit('reply', props.comment);
+  const replyComment = { ...props.comment };
+  if (props.level === 0) {
+    // 父评论的 parentId 应为 null
+    replyComment.parentId = null;
+  }
+  emit('reply', replyComment);
 };
 
 const formatTime = (time) => {

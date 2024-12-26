@@ -177,6 +177,8 @@
                 :level="0"
                 @reply="openReplyModal"
                 @like-updated="handleLikeUpdated"
+                @commentDeleted="loadComments"
+                @delete="handleCommentDelete"
               />
             </div>
           </template>
@@ -207,33 +209,6 @@
 <!--        @input-update="(value) => (parentInputValue.value = value)"-->
 <!--      />-->
     </a-modal>
-    <!--    <a-modal-->
-    <!--      v-model:visible="replyModalVisible"-->
-    <!--      title="回复评论"-->
-    <!--      width="500px"-->
-    <!--      centered-->
-    <!--      :footer="null"-->
-    <!--      @cancel="closeReplyModal"-->
-    <!--    >-->
-    <!--      <div style="padding: 16px; display: flex; flex-direction: column; gap: 12px">-->
-    <!--        <a-textarea-->
-    <!--          v-model:value="replyInput"-->
-    <!--          placeholder="请输入回复内容..."-->
-    <!--          :maxLength="500"-->
-    <!--          :rows="4"-->
-    <!--          showCount-->
-    <!--          style="border-radius: 8px"-->
-    <!--        />-->
-    <!--        <a-button-->
-    <!--          type="primary"-->
-    <!--          block-->
-    <!--          @click="submitReply"-->
-    <!--          style="border-radius: 8px; height: 40px; font-size: 16px"-->
-    <!--        >-->
-    <!--          提交回复-->
-    <!--        </a-button>-->
-    <!--      </div>-->
-    <!--    </a-modal>-->
   </a-row>
 </template>
 
@@ -276,7 +251,7 @@ import router from '@/router'
 import { downloadImage, formatSize } from '@/utils'
 import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
 import { usePictureStore } from '@/stores/picture'
-import { addCommentUsingPost, getCommentPageUsingPost } from '@/api/tupianpinglunguanli.ts'
+import { addCommentUsingPost, deleteCommentUsingPost, getCommentPageUsingPost } from '@/api/tupianpinglunguanli.ts'
 import CommentItem from '@/components/CommentItem.vue'
 import CommentInput from '@/components/CommentInput.vue'
 
@@ -377,6 +352,22 @@ const openImageUploader = () => {
   console.log('图片上传打开')
 }
 
+const handleCommentDelete = (id) => {
+  const deleteFromTree = (comments, id) => {
+    return comments.filter((comment) => {
+      if (comment.id === id) {
+        return false; // 当前评论被移除
+      }
+      if (comment.children) {
+        comment.children = deleteFromTree(comment.children, id); // 递归处理子评论
+      }
+      return true;
+    });
+  };
+
+  comments.value = deleteFromTree(comments.value, id); // 更新评论树
+};
+
 // 加载评论列表
 const loadComments = async () => {
   const res = await getCommentPageUsingPost({
@@ -421,7 +412,7 @@ const submitComment = async () => {
   const res = await addCommentUsingPost({
     pictureId: props.id,
     content: commentInput.value,
-    parentId: currentCommentIndex.value,
+    parentId: null,
   })
   if (res.data.code === 200) {
     message.success('回复成功！')
@@ -467,6 +458,7 @@ const openReplyModal = (comment) => {
 // 关闭回复框
 const closeReplyModal = () => {
   replyModalVisible.value = false // 隐藏模态框
+  currentCommentIndex.value = null; // 重置当前回复的评论索引
 }
 
 // 点赞/取消点赞
@@ -503,7 +495,7 @@ const canEdit = computed(() => {
 const doEdit = () => {
   router.push('/add_picture?id=' + picture.value.id)
 }
-// 删除
+// 删除图片
 const doDelete = async () => {
   const id = picture.value.id
   if (!id) {
@@ -517,6 +509,7 @@ const doDelete = async () => {
     message.error('删除失败')
   }
 }
+
 
 // 处理下载
 const doDownload = () => {

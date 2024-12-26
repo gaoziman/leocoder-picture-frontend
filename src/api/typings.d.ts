@@ -17,7 +17,9 @@ declare namespace API {
   }
 
   type CommentVO = {
+    author?: boolean
     children?: CommentVO[]
+    commentCount?: number
     content?: string
     createTime?: string
     id?: number
@@ -33,11 +35,6 @@ declare namespace API {
 
   type DeleteBatchRequest = {
     ids?: number[]
-  }
-
-  type deleteCommentUsingPOSTParams = {
-    /** requestParam */
-    requestParam: string
   }
 
   type DeleteRequest = {

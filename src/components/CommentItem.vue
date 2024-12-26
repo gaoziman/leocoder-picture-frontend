@@ -1,15 +1,16 @@
 <template>
   <div
     :style="{
-      marginLeft: level === 0 ? '0px' : level === 1 ? '20px' : '40px',
+      marginLeft: level === 0 ? '0px' : '20px',
       marginBottom: '16px',
     }"
+    class="comment-item"
   >
     <!-- 评论信息展示 -->
-    <div style="display: flex; align-items: flex-start; gap: 12px">
+    <div style="display: flex; align-items: flex-start; gap: 12px; position: relative; min-height: 60px;">
       <a-avatar :src="comment.userAvatar" size="large" />
-      <div style="flex: 1">
-        <!-- 父评论逻辑 -->
+      <div style="flex: 1;">
+        <!-- 评论内容 -->
         <div v-if="level === 0">
           <strong style="font-size: 15px; color: #262626;">{{ comment.userName }}</strong>
           <span v-if="comment.author" class="author-tag">作者</span>
@@ -17,7 +18,6 @@
             {{ comment.content }}
           </div>
         </div>
-        <!-- 子评论逻辑 -->
         <div v-else>
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span style="font-size: 15px; color: #262626;">
@@ -60,10 +60,32 @@
           </a-button>
         </div>
       </div>
+
+      <!-- 热评徽章 -->
+      <div v-if="comment.likeCount > 5" class="hot-badge">热评</div>
+
+      <!-- 更多按钮 -->
+      <a-dropdown>
+        <a-button type="text" class="more-options-btn">
+          <EllipsisOutlined />
+        </a-button>
+        <template #overlay>
+          <a-menu>
+            <!-- 如果是当前用户，显示删除 -->
+            <a-menu-item v-if="isOwner" @click="deleteComment">
+              删除
+            </a-menu-item>
+            <!-- 如果不是当前用户，显示举报 -->
+            <a-menu-item v-else @click="reportComment">
+              举报
+            </a-menu-item>
+          </a-menu>
+        </template>
+      </a-dropdown>
     </div>
 
     <!-- 子评论列表 -->
-    <div v-if="comment.children?.length > 0" style="margin-top: 16px">
+    <div v-if="comment.children?.length > 0" class="child-comments">
       <comment-item
         v-for="child in comment.children"
         :key="child.id"
@@ -77,16 +99,19 @@
 </template>
 
 <script setup>
-import { LikeFilled, MessageOutlined,LikeOutlined } from '@ant-design/icons-vue';
+import { LikeFilled, MessageOutlined,LikeOutlined,EllipsisOutlined } from '@ant-design/icons-vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/zh-cn';
-import { toggleLikeUsingPost }  from '@/api/tupianpinglunguanli.ts'
+import { deleteCommentUsingPost, toggleLikeUsingPost } from '@/api/tupianpinglunguanli.ts'
+import { computed } from 'vue'
+import { useLoginUserStore } from '@/stores/user'
+import { message } from 'ant-design-vue'
 
 dayjs.extend(relativeTime);
 dayjs.locale('zh-cn');
 
-const emit = defineEmits(['reply', 'like-updated']);
+const emit = defineEmits(['reply', 'like-updated','delete']);
 const props = defineProps({
   comment: Object,
   level: Number,
@@ -100,6 +125,33 @@ const replyToComment = () => {
     userName: props.comment.userName, // 当前评论的用户名
     level: props.level, // 评论层级
   });
+};
+
+const loginUserStore = useLoginUserStore()
+
+// 是否是当前用户的评论
+const isOwner = computed(() => props.comment.userId === loginUserStore.loginUser.id);
+
+// 删除评论
+const deleteComment = async () => {
+  const  id =  props.comment.id
+    if (!id) {
+      return
+    }
+    const res = await deleteCommentUsingPost({ id })
+    if (res.data.code === 200) {
+      message.success('删除成功')
+      // 执行删除操作后触发事件
+      emit('commentDeleted');
+      emit('delete', props.comment.id); // 通知父组件删除成功
+    } else {
+      message.error('删除失败')
+    }
+};
+
+// 举报评论
+const reportComment = () => {
+  emit('report', props.comment.id);
 };
 
 const formatTime = (time) => {
@@ -179,12 +231,17 @@ a-button:hover {
 .comment-item {
   padding: 8px;
   border-bottom: 1px solid #eaeaea;
+  position: relative; /* 确保子元素绝对定位有效 */
 }
 
-.comment-item .actions {
-  margin-top: 4px;
+.comment-item .action-buttons {
+  position: absolute;
+  top: 0;
+  right: 0;
   display: flex;
-  gap: 16px;
+  align-items: center;
+  flex-direction: column;
+  gap: 8px; /* 控制热评和更多按钮的间距 */
 }
 
 .comment-item .child-comments {
@@ -192,5 +249,34 @@ a-button:hover {
   margin-left: 20px;
   padding-left: 16px;
   border-left: 2px solid #f0f0f0;
+}
+
+.hot-badge {
+  background-color: #f5222d;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.more-options-btn {
+  font-size: 16px;
+}
+.hot-badge {
+  position: absolute;
+  top: -10px;
+  right: 0;
+  background-color: #f5222d;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.more-options-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }
 </style>

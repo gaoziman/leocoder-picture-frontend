@@ -19,14 +19,15 @@ export async function addCommentUsingPost(
 
 /** 删除评论 POST /api/comment/delete} */
 export async function deleteCommentUsingPost(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.deleteCommentUsingPOSTParams,
+  body: API.DeleteRequest,
   options?: { [key: string]: any }
 ) {
-  const { requestParam: param0, ...queryParams } = params
-  return request<API.ResultBoolean_>('/api/comment/delete}', {
+  return request<API.ResultBoolean_>('/api/comment/delete', {
     method: 'POST',
-    params: { ...queryParams },
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
     ...(options || {}),
   })
 }

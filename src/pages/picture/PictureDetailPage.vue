@@ -292,7 +292,6 @@ const loadComments = async () => {
     pageSize: 10,
     pictureId: props.id,
   });
-  console.log("resonpse:" + JSON.stringify(res.data));
   if (res.data.code === 200) {
     comments.value = res.data.data.records.map((comment) => ({
       ...comment,

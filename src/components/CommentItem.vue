@@ -9,26 +9,24 @@
     <div style="display: flex; align-items: flex-start; gap: 12px">
       <a-avatar :src="comment.userAvatar" size="large" />
       <div style="flex: 1">
-        <!-- 用户名与父评论或子评论内容区分 -->
+        <!-- 父评论逻辑 -->
         <div v-if="level === 0">
           <strong style="font-size: 15px; color: #262626;">{{ comment.userName }}</strong>
-          <span v-if="comment.author" style="font-size: 12px; color: #1890ff; margin-left: 8px; border: 1px solid #1890ff; padding: 2px 4px; border-radius: 4px;">
-              作者
-            </span>
+          <span v-if="comment.author" class="author-tag">作者</span>
           <div style="margin-top: 4px; font-size: 15px; color: #262626; line-height: 1.5">
             {{ comment.content }}
           </div>
         </div>
+        <!-- 子评论逻辑 -->
         <div v-else>
           <div style="display: flex; align-items: baseline; gap: 8px">
             <span style="font-size: 15px; color: #262626;">
               {{ comment.userName }}
-              <span v-if="comment.author" style="font-size: 12px; color: #1890ff; margin-left: 8px; border: 1px solid #1890ff; padding: 2px 4px; border-radius: 4px;">
-                作者
-              </span>
+              <span v-if="comment.author" class="author-tag">作者</span>
             </span>
             <span style="font-size: 14px; color: #262626;">
-              回复 <span>{{ comment.parentUserName }} :</span>  <span style="margin-top: 4px; font-size: 15px; color: #262626; line-height: 1.5">{{ comment.content }}</span>
+              回复 <span>{{ comment.parentUserName }} :</span>
+              <span style="margin-top: 4px; font-size: 15px; color: #262626; line-height: 1.5">{{ comment.content }}</span>
             </span>
           </div>
         </div>
@@ -41,14 +39,24 @@
             <component :is="comment.liked ? LikeFilled : LikeOutlined" />
             <span style="margin-left: 4px">{{ comment.likeCount }}</span>
           </a-button>
+          <!-- 父评论操作逻辑 -->
           <a-button
-            v-if="level === 0 || level === 1"
+            v-if="level === 0"
             type="text"
             @click="replyToComment(comment.id)"
             style="padding: 0; height: auto"
           >
             <MessageOutlined />
-            <span style="margin-left: 4px">回复</span>
+            {{ calculateCommentCount(comment) > 0 ? calculateCommentCount(comment) : '评论' }}
+          </a-button>
+          <!-- 一级子评论操作逻辑 -->
+          <a-button
+            v-if="level === 1"
+            type="text"
+            @click="replyToComment"
+          >
+            <MessageOutlined />
+            回复
           </a-button>
         </div>
       </div>
@@ -60,7 +68,7 @@
         v-for="child in comment.children"
         :key="child.id"
         :comment="child"
-        :level="level === 0 ? 1 : 1"
+        :level="level + 1"
         @reply="$emit('reply', child)"
         @like-updated="$emit('like-updated', $event)"
       />
@@ -93,7 +101,18 @@ const replyToComment = () => {
 const formatTime = (time) => {
   return dayjs(time).fromNow();
 };
+const calculateCommentCount = (comment) => {
+  if (!comment.children || comment.children.length === 0) {
+    return 0; // 没有子评论
+  }
 
+  let count = comment.children.length;
+  comment.children.forEach((child) => {
+    count += calculateCommentCount(child); // 递归计算子评论数量
+  });
+
+  return count;
+};
 const toggleLike = async () => {
   try {
     // 更新后端

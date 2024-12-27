@@ -112,6 +112,7 @@ const pagination = computed(() => {
     current: searchParams.pageNum ?? 1,
     pageSize: searchParams.pageSize ?? 10,
     total: total.value,
+    showTotal: (total) => `共 ${total} 条`,
     // 切换页号时，会修改搜索参数并获取数据
     onChange: (page, pageSize) => {
       searchParams.pageNum = page

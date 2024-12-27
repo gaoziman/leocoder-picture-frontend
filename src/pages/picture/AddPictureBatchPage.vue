@@ -20,6 +20,9 @@
           <a-select-option value="baidu">百度</a-select-option>
           <a-select-option value="google">谷歌</a-select-option>
           <a-select-option value="bing">必应</a-select-option>
+          <a-select-option value="wallhaven">wallhaven</a-select-option>
+          <a-select-option value="pexels">pexels</a-select-option>
+          <a-select-option value="haowallpaper">haowallpaper</a-select-option>
         </a-select>
       </a-form-item>
       <a-form-item label="名称前缀" name="namePrefix">

@@ -11,6 +11,8 @@ import PictureDetailPage from '@/pages/picture/PictureDetailPage.vue'
 import UserProfile from '@/pages/user/UserProfile.vue'
 import AddPictureBatchPage from '@/pages/picture/AddPictureBatchPage.vue'
 import UserInfo from '@/pages/user/UserInfo.vue'
+import CategoryManagePage from '@/pages/category/CategoryManagePage.vue'
+import TagManagePage from '@/pages/tag/TagManagePage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -59,6 +61,18 @@ const router = createRouter({
       name: '图片管理',
       component: PictureManagePage,
       meta: { title: '图片管理' },
+    },
+    {
+      path: '/admin/categoryManage',
+      name: '分类管理',
+      component: CategoryManagePage,
+      meta: { title: '分类管理' },
+    },
+    {
+      path: '/admin/taqManage',
+      name: '标签管理',
+      component: TagManagePage,
+      meta: { title: '标签管理' },
     },
     {
       path: '/picture/:id',

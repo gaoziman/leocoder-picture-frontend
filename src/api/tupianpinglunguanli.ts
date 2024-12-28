@@ -17,7 +17,7 @@ export async function addCommentUsingPost(
   })
 }
 
-/** 删除评论 POST /api/comment/delete} */
+/** 删除评论 POST /api/comment/delete */
 export async function deleteCommentUsingPost(
   body: API.DeleteRequest,
   options?: { [key: string]: any }

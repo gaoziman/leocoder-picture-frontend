@@ -46,7 +46,7 @@
 </template>
 <script lang="ts" setup>
 import { computed, h, ref } from 'vue'
-import { AppstoreOutlined, UserOutlined, GlobalOutlined,LogoutOutlined ,FormOutlined,CloudOutlined} from '@ant-design/icons-vue'
+import { AppstoreOutlined, UserOutlined, GlobalOutlined,LogoutOutlined ,FormOutlined,CloudOutlined,FolderOutlined,TagOutlined} from '@ant-design/icons-vue'
 import { MenuProps, message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/user'
@@ -78,6 +78,18 @@ const originItems = [
     icon: ()=>h(CloudOutlined),
     label: '图片管理',
     title: '图片管理',
+  },
+  {
+    key: '/admin/categoryManage',
+    label: '分类管理',
+    title: '分类管理',
+    icon: ()=>h(FolderOutlined),
+  },
+  {
+    key: '/admin/taqManage',
+    label: '标签管理',
+    title: '标签管理',
+    icon: () => h(TagOutlined),
   },
   {
     key: 'others',

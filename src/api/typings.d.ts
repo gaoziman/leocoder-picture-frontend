@@ -1,4 +1,22 @@
 declare namespace API {
+  type Category = {
+    createTime?: string
+    description?: string
+    id?: number
+    name?: string
+    updateTime?: string
+  }
+
+  type CategoryRequest = {
+    description?: string
+    id?: number
+    name?: string
+    pageNum?: number
+    pageSize?: number
+    sortField?: string
+    sortOrder?: string
+  }
+
   type CommentAddRequest = {
     content?: string
     parentId?: number
@@ -114,6 +132,14 @@ declare namespace API {
     userRole?: string
   }
 
+  type PageCategory_ = {
+    current?: number
+    pages?: number
+    records?: Category[]
+    size?: number
+    total?: number
+  }
+
   type PageFavoritePictureVO_ = {
     current?: number
     pages?: number
@@ -134,6 +160,14 @@ declare namespace API {
     current?: number
     pages?: number
     records?: PictureVO[]
+    size?: number
+    total?: number
+  }
+
+  type PageTag_ = {
+    current?: number
+    pages?: number
+    records?: Tag[]
     size?: number
     total?: number
   }
@@ -283,6 +317,12 @@ declare namespace API {
     message?: string
   }
 
+  type ResultListTag_ = {
+    code?: number
+    data?: Tag[]
+    message?: string
+  }
+
   type ResultLoginUserVO_ = {
     code?: number
     data?: LoginUserVO
@@ -292,6 +332,12 @@ declare namespace API {
   type ResultLong_ = {
     code?: number
     data?: number
+    message?: string
+  }
+
+  type ResultPageCategory_ = {
+    code?: number
+    data?: PageCategory_
     message?: string
   }
 
@@ -310,6 +356,12 @@ declare namespace API {
   type ResultPagePictureVO_ = {
     code?: number
     data?: PagePictureVO_
+    message?: string
+  }
+
+  type ResultPageTag_ = {
+    code?: number
+    data?: PageTag_
     message?: string
   }
 
@@ -353,6 +405,25 @@ declare namespace API {
     code?: number
     data?: UserVO
     message?: string
+  }
+
+  type Tag = {
+    createTime?: string
+    description?: string
+    id?: number
+    name?: string
+    updateTime?: string
+  }
+
+  type TagRequest = {
+    description?: string
+    id?: number
+    name?: string
+    pageNum?: number
+    pageSize?: number
+    sortField?: string
+    sortOrder?: string
+    tags?: string[]
   }
 
   type testDownloadFileUsingGETParams = {

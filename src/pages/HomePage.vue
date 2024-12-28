@@ -46,10 +46,6 @@
     </div>
   </div>
 
-
-
-
-
   <!-- 图片列表 -->
   <a-list
     :grid="{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4, xl: 5, xxl: 6 }"
@@ -93,6 +89,8 @@ import {
 } from '@/api/tupianguanli.ts'
 import { useRouter } from 'vue-router'
 import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
+import { listTagsUsingPost } from '@/api/biaoqianguanli.ts'
+import { listCategoryUsingPost } from '@/api/fenleiguanli.ts'
 
 const dataList = ref([])
 const total = ref(0)
@@ -161,11 +159,16 @@ const selectedTagList = ref<string[]>([])
 
 // 获取标签和分类选项
 const getTagCategoryOptions = async () => {
-  const res = await listPictureTagCategoryUsingGet()
+  const res = await listTagsUsingPost({})
   if (res.data.code === 200 && res.data.data) {
-    // 转换成下拉选项组件接受的格式
-    categoryList.value = res.data.data.categoryList ?? []
-    tagList.value = res.data.data.tagList ?? []
+    tagList.value = res.data.data.map((item) => item.name) ?? []
+    selectedTagList.value = tagList.value.map(() => false) // 初始化标签选择状态
+  } else {
+    message.error('加载分类标签失败，' + res.data.message)
+  }
+  const response = await listCategoryUsingPost({})
+  if (response.data.code === 200 && response.data.data) {
+    categoryList.value = response.data.data.records.map((item) => item.name) ?? []
   } else {
     message.error('加载分类标签失败，' + res.data.message)
   }

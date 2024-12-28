@@ -4,8 +4,7 @@
       {{ route.query?.id ? '修改图片' : '创建图片' }}
     </h2>
     <!-- 选择上传方式 -->
-    <a-tabs v-model:activeKey="uploadType"
-    >
+    <a-tabs v-model:activeKey="uploadType">
       <a-tab-pane key="file" tab="文件上传">
         <PictureUpload :picture="picture" :onSuccess="onSuccess" />
       </a-tab-pane>
@@ -14,7 +13,7 @@
       </a-tab-pane>
     </a-tabs>
 
-    <a-form  v-if="picture" layout="vertical" :model="pictureForm" @finish="handleSubmit">
+    <a-form v-if="picture" layout="vertical" :model="pictureForm" @finish="handleSubmit">
       <a-form-item label="名称" name="name">
         <a-input v-model:value="pictureForm.name" placeholder="请输入名称" />
       </a-form-item>
@@ -28,10 +27,11 @@
         />
       </a-form-item>
       <a-form-item label="分类" name="category">
-        <a-auto-complete
+        <a-select
           v-model:value="pictureForm.category"
           :options="categoryOptions"
-          placeholder="请输入分类"
+          placeholder="请选择或输入分类"
+          :filterOption="false"
           allowClear
         />
       </a-form-item>
@@ -39,9 +39,10 @@
         <a-select
           v-model:value="pictureForm.tags"
           :options="tagOptions"
+          placeholder="请选择或输入标签"
           mode="tags"
-          placeholder="请输入标签"
           allowClear
+          @change="handleTagChange"
         />
       </a-form-item>
 
@@ -56,91 +57,104 @@
 
 <script setup lang="ts">
 import PictureUpload from '@/components/PictureUpload.vue'
-import { onMounted, reactive, ref } from 'vue'
+import UrlPictureUpload from '@/components/UrlPictureUpload.vue'
+import { reactive, ref, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import { useRoute, useRouter } from 'vue-router'
-import { editPictureUsingPost, getPictureVoByIdUsingGet, listPictureTagCategoryUsingGet } from '@/api/tupianguanli.ts'
-import UrlPictureUpload from '@/components/UrlPictureUpload.vue'
+import {
+  editPictureUsingPost,
+  getPictureVoByIdUsingGet,
+} from '@/api/tupianguanli.ts'
+import { addTagUsingPost, listTagsUsingPost } from '@/api/biaoqianguanli.ts'
+import { addCategoryUsingPost, listCategoryUsingPost } from '@/api/fenleiguanli.ts'
 
 const uploadType = ref<'file' | 'url'>('file')
-
 const picture = ref<API.PictureVO>()
 const pictureForm = reactive<API.PictureEditRequest>({})
-
-const onSuccess = (newPicture: API.PictureVO) => {
-  picture.value = newPicture
-  pictureForm.name = newPicture.name
-  console.log(JSON.stringify(picture))
-}
-
+const categoryOptions = ref<any[]>([])
+const tagOptions = ref<any[]>([])
+// 保存新增的标签
+const newTags = ref<string[]>([]);
 const router = useRouter()
+const route = useRoute()
 
-/**
- * 提交表单
- * @param values
- */
+// 处理标签变化
+const handleTagChange = (tags: string[]) => {
+  tags.forEach((tag) => {
+    if (!tagOptions.value.some((option) => option.value === tag) && !newTags.value.includes(tag)) {
+      // 将新增的标签保存到 newTags 中
+      newTags.value.push(tag);
+    }
+  });
+};
+// 提交表单
 const handleSubmit = async (values: any) => {
-  const pictureId = picture.value.id
-  if (!pictureId) {
-    return
-  }
+  if (!picture.value?.id) return
+
+  // 同步新增的分类和标签
+  await syncNewTags()
+
   const res = await editPictureUsingPost({
-    id: pictureId,
+    id: picture.value.id,
     ...values,
   })
-  if (res.data.code === 200 && res.data.data) {
+  if (res.data.code === 200) {
     message.success('操作成功')
-    // 跳转到图片详情页
-    router.push({
-      path: `/picture/${pictureId}`,
-    })
+    router.push({ path: `/picture/${picture.value.id}` })
   } else {
-    message.error('创建失败，' + res.data.message)
+    message.error('操作失败: ' + res.data.message)
   }
 }
 
-const categoryOptions = ref<string[]>([])
-const tagOptions = ref<string[]>([])
+// 同步新增的分类和标签到数据库
+const syncNewTags = async () => {
+  if (newTags.value.length > 0) {
+    try {
+      const res = await addTagUsingPost({tags: newTags.value}); // 新增标签到数据库
+      if (res.data.code !== 200) {
+        message.error('同步标签失败: ' + res.data.message);
+      } else {
+        // 成功后将新标签加入 tagOptions
+        newTags.value.forEach(tag => {
+          tagOptions.value.push({ label: tag, value: tag });
+        });
+        // 清空 newTags
+        newTags.value = [];
+      }
+    } catch (error) {
+      message.error('标签同步请求失败');
+    }
+  }
+};
+
 
 // 获取标签和分类选项
 const getTagCategoryOptions = async () => {
-  const res = await listPictureTagCategoryUsingGet()
-  if (res.data.code === 200 && res.data.data) {
-    // 转换成下拉选项组件接受的格式
-    tagOptions.value = (res.data.data.tagList ?? []).map((data: string) => {
-      return {
-        value: data,
-        label: data,
-      }
-    })
-    categoryOptions.value = (res.data.data.categoryList ?? []).map((data: string) => {
-      return {
-        value: data,
-        label: data,
-      }
-    })
-  } else {
-    message.error('加载选项失败，' + res.data.message)
+  const [tagRes, categoryRes] = await Promise.all([listTagsUsingPost({}), listCategoryUsingPost({})])
+
+  if (tagRes.data.code === 200) {
+    tagOptions.value = tagRes.data.data.map((item: any) => ({
+      label: item.name,
+      value: item.name,
+    }))
+  }
+
+  if (categoryRes.data.code === 200) {
+    categoryOptions.value = categoryRes.data.data.records.map((item: any) => ({
+      label: item.name,
+      value: item.name,
+    }))
   }
 }
 
-const route = useRoute()
-
-// 获取老数据
+// 获取图片数据
 const getOldPicture = async () => {
-  // 获取数据
   const id = route.query?.id
   if (id) {
-    const res = await getPictureVoByIdUsingGet({
-      id: id,
-    })
-    if (res.data.code === 200 && res.data.data) {
-      const data = res.data.data
-      picture.value = data
-      pictureForm.name = data.name
-      pictureForm.introduction = data.introduction
-      pictureForm.category = data.category
-      pictureForm.tags = data.tags
+    const res = await getPictureVoByIdUsingGet({ id })
+    if (res.data.code === 200) {
+      Object.assign(pictureForm, res.data.data)
+      picture.value = res.data.data
     }
   }
 }
@@ -149,9 +163,6 @@ onMounted(() => {
   getTagCategoryOptions()
   getOldPicture()
 })
-
-
-
 </script>
 
 <style scoped>

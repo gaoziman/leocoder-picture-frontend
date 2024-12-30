@@ -166,6 +166,21 @@ export async function listPictureVoByPageWithCacheUsingPost(
   })
 }
 
+/** 刷新缓存（仅管理员可用） POST /api/picture/refreshCache */
+export async function refreshCacheUsingPost(
+  body: API.PictureQueryRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.ResultBoolean_>('/api/picture/refreshCache', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** 审核图片 POST /api/picture/review */
 export async function doPictureReviewUsingPost(
   body: API.PictureReviewRequest,

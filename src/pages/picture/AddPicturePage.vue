@@ -66,7 +66,7 @@ import {
   getPictureVoByIdUsingGet,
 } from '@/api/tupianguanli.ts'
 import { addTagUsingPost, listTagsUsingPost } from '@/api/biaoqianguanli.ts'
-import { addCategoryUsingPost, listCategoryUsingPost } from '@/api/fenleiguanli.ts'
+import {listCategoryUsingPost } from '@/api/fenleiguanli.ts'
 
 const uploadType = ref<'file' | 'url'>('file')
 const picture = ref<API.PictureVO>()
@@ -77,6 +77,12 @@ const tagOptions = ref<any[]>([])
 const newTags = ref<string[]>([]);
 const router = useRouter()
 const route = useRoute()
+
+
+const onSuccess = (newPicture: API.PictureVO) => {
+  picture.value = newPicture
+  pictureForm.name = newPicture.name
+}
 
 // 处理标签变化
 const handleTagChange = (tags: string[]) => {

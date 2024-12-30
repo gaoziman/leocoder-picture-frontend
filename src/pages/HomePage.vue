@@ -11,6 +11,8 @@
       />
     </div>
 
+    <a-button  v-if="loginUserStore.loginUser.userRole === 'admin'" type="primary" danger  @click="refreshCache" target="_blank">+ 手动刷新缓存</a-button>
+
     <!-- 排序功能 -->
     <div class="sort-bar">
       <span style="margin-right: 8px;font-size: 16px">筛选排序：</span>
@@ -85,16 +87,23 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import {
   listPictureTagCategoryUsingGet,
-  listPictureVoByPageUsingPost,
+  listPictureVoByPageUsingPost, listPictureVoByPageWithCacheUsingPost, refreshCacheUsingPost
 } from '@/api/tupianguanli.ts'
 import { useRouter } from 'vue-router'
 import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
 import { listTagsUsingPost } from '@/api/biaoqianguanli.ts'
 import { listCategoryUsingPost } from '@/api/fenleiguanli.ts'
-
+import { useLoginUserStore } from '@/stores/user'
 const dataList = ref([])
 const total = ref(0)
 const loading = ref(true)
+
+
+const categoryList = ref<string[]>([])
+const selectedCategory = ref<string>('all')
+const tagList = ref<string[]>([])
+const selectedTagList = ref<string[]>([])
+const loginUserStore = useLoginUserStore()
 
 // 搜索条件
 const searchParams = reactive<API.PictureQueryRequest>({
@@ -136,7 +145,7 @@ const fetchData = async () => {
       params.tags.push(tagList.value[index])
     }
   })
-  const res = await listPictureVoByPageUsingPost(params)
+  const res = await listPictureVoByPageWithCacheUsingPost(params)
   if (res.data.data) {
     dataList.value = res.data.data.records ?? []
     total.value = res.data.data.total ?? 0
@@ -152,10 +161,7 @@ const doSearch = () => {
   fetchData()
 }
 
-const categoryList = ref<string[]>([])
-const selectedCategory = ref<string>('all')
-const tagList = ref<string[]>([])
-const selectedTagList = ref<string[]>([])
+
 
 // 获取标签和分类选项
 const getTagCategoryOptions = async () => {
@@ -180,6 +186,22 @@ const doClickPicture = (picture) => {
   router.push({
     path: `/picture/${picture.id}`,
   })
+}
+
+const refreshCache = async () =>{
+  try {
+    const res = await refreshCacheUsingPost({
+      ...searchParams,
+    })
+    if (res.data.code === 200) {
+      message.success('刷新缓存成功')
+      fetchData() // 刷新数据
+    } else {
+      message.error('刷新缓存失败：' + res.data.message)
+    }
+  } catch (error) {
+    message.error('刷新缓存失败，请重试')
+  }
 }
 
 // 页面加载时请求一次

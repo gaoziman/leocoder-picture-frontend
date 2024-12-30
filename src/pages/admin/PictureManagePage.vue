@@ -8,6 +8,7 @@
       </a-button>
       <a-button type="primary" href="/add_picture" target="_blank">+ 创建图片</a-button>
       <a-button type="primary" href="/add_picture/batch" target="_blank" ghost>+ 批量创建图片</a-button>
+      <a-button type="primary" danger  @click="refreshCache" target="_blank">+ 手动刷新缓存</a-button>
     </a-space>
 
   </a-flex>
@@ -126,7 +127,7 @@ import {
   deleteBatchPictureUsingPost,
   deletePictureUsingPost,
   doPictureReviewUsingPost,
-  listPictureByPageUsingPost
+  listPictureByPageUsingPost, refreshCacheUsingPost
 } from '@/api/tupianguanli.ts'
 import { message, Modal } from 'ant-design-vue'
 import dayjs from 'dayjs'
@@ -358,6 +359,28 @@ const handleBatchDelete = () => {
     },
   })
 }
+
+const refreshCache = async () =>{
+  try {
+    const res = await refreshCacheUsingPost({
+      ...searchParams,
+    })
+    if (res.data.code === 200) {
+      message.success('刷新缓存成功')
+      // 判断是否需要跳转到上一页
+      if (dataList.value.length === selectedRowKeys.value.length && searchParams.pageNum > 1) {
+        searchParams.pageNum -= 1 // 跳转到上一页
+      }
+      selectedRowKeys.value = [] // 清空选中状态
+      fetchData() // 刷新数据
+    } else {
+      message.error('刷新缓存失败：' + res.data.message)
+    }
+  } catch (error) {
+    message.error('刷新缓存失败，请重试')
+  }
+}
+
 </script>
 
 <style scoped></style>

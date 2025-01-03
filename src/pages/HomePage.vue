@@ -49,48 +49,26 @@
   </div>
 
   <!-- 图片列表 -->
-  <a-list
-    :grid="{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4, xl: 5, xxl: 6 }"
-    :data-source="dataList"
-    :pagination="pagination"
-    :loading="loading"
-    style="margin-top: 20px"
-  >
-    <template #renderItem="{ item: picture }">
-      <a-list-item style="padding: 0">
-        <!-- 单张图片 -->
-        <a-card hoverable @click="doClickPicture(picture)">
-          <template #cover>
-            <img style="height: 180px; object-fit: cover" :alt="picture.name" :src="picture.url" />
-          </template>
-          <a-card-meta :title="picture.name">
-            <template #description>
-              <a-flex>
-                <a-tag :color="getCategoryColor(picture.category)">
-                  {{ picture.category ?? '默认' }}
-                </a-tag>
-                <a-tag v-for="tag in picture.tags" :key="tag" :color="getTagColor(tag)">
-                  {{ tag }}
-                </a-tag>
-              </a-flex>
-            </template>
-          </a-card-meta>
-        </a-card>
-      </a-list-item>
-    </template>
-  </a-list>
+  <PictureList :dataList="dataList" :loading="loading"   style="margin-top: 20px"/>
+  <a-pagination
+    style="text-align: right"
+    v-model:pageNum="searchParams.pageNum"
+    v-model:pageSize="searchParams.pageSize"
+    :total="total"
+    @change="onPageChange"
+  />
+
 </template>
 
 <script setup lang="ts">
 // 数据
-import { computed, onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
+import PictureList from '@/components/PictureList.vue'
 import {
-  listPictureTagCategoryUsingGet,
-  listPictureVoByPageUsingPost, listPictureVoByPageWithCacheUsingPost, refreshCacheUsingPost
+  listPictureVoByPageWithCacheUsingPost, refreshCacheUsingPost
 } from '@/api/tupianguanli.ts'
 import { useRouter } from 'vue-router'
-import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
 import { listTagsUsingPost } from '@/api/biaoqianguanli.ts'
 import { listCategoryUsingPost } from '@/api/fenleiguanli.ts'
 import { useLoginUserStore } from '@/stores/user'
@@ -114,20 +92,12 @@ const searchParams = reactive<API.PictureQueryRequest>({
 })
 
 // 分页参数
-const pagination = computed(() => {
-  return {
-    current: searchParams.pageNum ?? 1,
-    pageSize: searchParams.pageSize ?? 10,
-    total: total.value,
-    showTotal: (total) => `共 ${total} 条`,
-    // 切换页号时，会修改搜索参数并获取数据
-    onChange: (page, pageSize) => {
-      searchParams.pageNum = page
-      searchParams.pageSize = pageSize
-      fetchData()
-    },
-  }
-})
+const onPageChange = (page, pageSize) => {
+  searchParams.pageNum = page
+  searchParams.pageSize = pageSize
+  fetchData()
+}
+
 
 // 获取数据
 const fetchData = async () => {

@@ -196,14 +196,6 @@ export async function doPictureReviewUsingPost(
   })
 }
 
-/** 初始化标签分类 GET /api/picture/tag_category */
-export async function listPictureTagCategoryUsingGet(options?: { [key: string]: any }) {
-  return request<API.ResultPictureTagCategory_>('/api/picture/tag_category', {
-    method: 'GET',
-    ...(options || {}),
-  })
-}
-
 /** 更新图片（仅管理员可用） POST /api/picture/update */
 export async function updatePictureUsingPost(
   body: API.PictureUpdateRequest,

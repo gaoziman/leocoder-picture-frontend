@@ -8,7 +8,7 @@
       </a-button>
       <a-button type="primary" href="/add_picture" target="_blank">+ 创建图片</a-button>
       <a-button type="primary" href="/add_picture/batch" target="_blank" ghost>+ 批量创建图片</a-button>
-      <a-button type="primary" danger  @click="refreshCache" target="_blank">+ 手动刷新缓存</a-button>
+<!--      <a-button type="primary" danger  @click="refreshCache" target="_blank">+ 手动刷新缓存</a-button>-->
     </a-space>
 
   </a-flex>
@@ -240,6 +240,7 @@ const pagination = computed(() => {
 const fetchData = async () => {
   const res = await listPictureByPageUsingPost({
     ...searchParams,
+    nullSpaceId: true,
   })
   if (res.data.data) {
     dataList.value = res.data.data.records ?? []

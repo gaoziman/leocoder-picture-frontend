@@ -9,6 +9,7 @@ import * as wenjianshangchuan from './wenjianshangchuan'
 import * as ceshiguanli from './ceshiguanli'
 import * as yonghudianzan from './yonghudianzan'
 import * as tupianguanli from './tupianguanli'
+import * as kongjianguanli from './kongjianguanli'
 import * as biaoqianguanli from './biaoqianguanli'
 import * as yonghuguanli from './yonghuguanli'
 import * as dengluguanli from './dengluguanli'
@@ -20,6 +21,7 @@ export default {
   ceshiguanli,
   yonghudianzan,
   tupianguanli,
+  kongjianguanli,
   biaoqianguanli,
   yonghuguanli,
   dengluguanli,

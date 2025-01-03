@@ -4,7 +4,7 @@
     <a-col :sm="24" :md="16" :xl="18">
       <a-card title="图片预览">
         <!-- 判断是否为待审核状态 -->
-        <template v-if="picture.reviewStatus === 0">
+        <template v-if="picture.reviewStatus === 0 && picture.spaceId == null">
           <a-alert
             message="待审核"
             type="warning"
@@ -13,29 +13,32 @@
           />
         </template>
         <!-- 操作区（红色框位置） -->
-        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px">
-          <!-- 点赞按钮 -->
-          <a-button type="link" @click="handleLike" style="display: flex; align-items: center">
-            <component :is="isLiked ? LikeFilled : LikeOutlined" />
-            <span style="margin-left: 4px">{{ likeCount }}</span>
-          </a-button>
 
-          <!-- 收藏按钮 -->
-          <a-button type="link" @click="handleFavorite" style="display: flex; align-items: center">
-            <component :is="isFavorited ? StarFilled : StarOutlined" />
-            <span style="margin-left: 4px">{{ favoriteCount }}</span>
-          </a-button>
-          <!-- 分享按钮 -->
-          <a-button
-            type="link"
-            style="display: flex; align-items: center"
-            :disabled="picture.reviewStatus === 0"
-            @click="(e) => doShare(picture, e)"
-          >
-            <ShareAltOutlined />
-            <span style="margin-left: 4px">分享</span>
-          </a-button>
-        </div>
+        <template v-if="picture.reviewStatus === 0 && picture.spaceId == null">
+          <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px">
+            <!-- 点赞按钮 -->
+            <a-button type="link" @click="handleLike" style="display: flex; align-items: center">
+              <component :is="isLiked ? LikeFilled : LikeOutlined" />
+              <span style="margin-left: 4px">{{ likeCount }}</span>
+            </a-button>
+
+            <!-- 收藏按钮 -->
+            <a-button type="link" @click="handleFavorite" style="display: flex; align-items: center">
+              <component :is="isFavorited ? StarFilled : StarOutlined" />
+              <span style="margin-left: 4px">{{ favoriteCount }}</span>
+            </a-button>
+            <!-- 分享按钮 -->
+            <a-button
+              type="link"
+              style="display: flex; align-items: center"
+              :disabled="picture.reviewStatus === 0 && picture.spaceId == null"
+              @click="(e) => doShare(picture, e)"
+            >
+              <ShareAltOutlined />
+              <span style="margin-left: 4px">分享</span>
+            </a-button>
+          </div>
+        </template>
         <!-- 图片内容 -->
         <a-image style="max-height: 600px; object-fit: contain" :src="picture.url" />
       </a-card>
@@ -85,7 +88,7 @@
             {{ formatSize(picture.picSize) }}
           </a-descriptions-item>
           <a-descriptions-item label="浏览量：">
-            <template v-if="picture.reviewStatus === 0"> 图片待审核</template>
+            <template v-if="picture.reviewStatus === 0 && picture.spaceId == null"> 图片待审核</template>
             <template v-else> {{ picture.viewCount || 0 }} 次浏览</template>
           </a-descriptions-item>
         </a-descriptions>

@@ -17,17 +17,21 @@
 <script setup lang="ts">
 import { message } from 'ant-design-vue'
 import { ref } from 'vue'
-import { uploadPictureByUrlUsingPost } from '@/api/tupianguanli.ts'
+import { uploadPictureByUrlUsingPost, uploadPictureUsingPost } from '@/api/tupianguanli.ts'
 
 const loading = ref<boolean>(false)
 const fileUrl = ref<string>()
 
+
 interface Props {
   picture?: API.PictureVO
+  spaceId?: number
   onSuccess?: (newPicture: API.PictureVO) => void
 }
 
+// 上传时传递 spaceId
 const props = defineProps<Props>()
+
 /**
  * 上传
  */

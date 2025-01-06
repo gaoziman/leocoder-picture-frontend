@@ -26,15 +26,15 @@
           <template #overlay>
             <a-menu>
               <a-menu-item @click="goToProfile">
-                <UserOutlined />
+                <icon-font type="icon-yonghu" />
                 个人中心
               </a-menu-item>
               <a-menu-item @click="goToMySpace">
-                <UserOutlined />
+                <IconFont type="icon-kongjian" />
                 我的空间
               </a-menu-item>
               <a-menu-item @click="doLogout">
-                <LogoutOutlined />
+                <IconFont type="icon-tuichudenglu2" />
                 退出登录
               </a-menu-item>
             </a-menu>
@@ -50,59 +50,68 @@
 </template>
 <script lang="ts" setup>
 import { computed, h, ref } from 'vue'
-import { AppstoreOutlined, UserOutlined, GlobalOutlined,LogoutOutlined ,FormOutlined,CloudOutlined,FolderOutlined,TagOutlined} from '@ant-design/icons-vue'
-import { MenuProps, message } from 'ant-design-vue'
+import {
+  CloudOutlined,
+  createFromIconfontCN
+} from '@ant-design/icons-vue'
+import { MenuProps } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/user'
 import { userLogoutUsingPost } from '@/api/dengluguanli.ts'
+import { SCRIPT_URL } from '@/constants/url.ts'
+import { Message } from '@arco-design/web-vue'
 
 const loginUserStore = useLoginUserStore()
 const current = ref<string[]>(['home'])
+const IconFont = createFromIconfontCN({
+  scriptUrl: SCRIPT_URL,
+});
 const originItems = [
   {
     key: '/',
-    icon: () => h(AppstoreOutlined),
     label: '主页',
     title: '主页',
+    icon: () => h(IconFont, { type: 'icon-shouye' }),
   },
   {
     key: '/add_picture',
-    icon: ()=>h(FormOutlined),
     label: '创建图片',
     title: '创建图片',
+    icon: () => h(IconFont, { type: 'icon-chuangjian' }),
   },
   {
     key: '/admin/userManage',
-    icon: () => h(UserOutlined),
     label: '用户管理',
     title: '用户管理',
+    icon: () => h(IconFont, { type: 'icon-yonghu1' }),
   },
   {
     key: '/admin/pictureManage',
-    icon: ()=>h(CloudOutlined),
     label: '图片管理',
     title: '图片管理',
+    icon: ()=>h(CloudOutlined),
   },
   {
     key: '/admin/categoryManage',
     label: '分类管理',
     title: '分类管理',
-    icon: ()=>h(FolderOutlined),
+    icon: () => h(IconFont, { type: 'icon-fenlei' }),
   },
   {
     key: '/admin/taqManage',
     label: '标签管理',
     title: '标签管理',
-    icon: () => h(TagOutlined),
+    icon: () => h(IconFont, { type: 'icon-tag' }),
   },
   {
     key: '/admin/spaceManage',
     label: '空间管理',
     title: '空间管理',
+    icon: () => h(IconFont, { type: 'icon-kongjianguanli1' }),
   },
   {
     key: 'others',
-    icon: () => h(GlobalOutlined),
+    icon: () => h(IconFont, { type: 'icon-icon_zhishiku' }),
     label: h(
       'a',
       { href: 'https://gaoziman.github.io/toLeoJavaer/', target: '_blank' },
@@ -155,10 +164,10 @@ const doLogout = async () =>{
     loginUserStore.setLoginUser({
       userName: '未登录',
     })
-    message.success('退出登录成功')
+    Message.success('退出登录成功')
     await router.push('/user/login')
   } else {
-    message.error('退出登录失败，' + res.data.message)
+    Message.error('退出登录失败，' + res.data.message)
   }
 }
 const goToProfile = () => {

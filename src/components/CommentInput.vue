@@ -60,6 +60,7 @@
 import { MehOutlined, CloudUploadOutlined } from '@ant-design/icons-vue';
 import 'emoji-picker-element';
 import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { Message } from '@arco-design/web-vue'
 
 // Props
 const props = defineProps({
@@ -108,7 +109,11 @@ const handleInput = (event) => {
 // 提交事件
 const handleSubmit = () => {
   if (!localInputValue.value.trim()) {
-    console.error('评论内容不能为空！');
+    Message.error('回复内容不能为空！');
+    return;
+  }
+  if (localInputValue.value.length < 4) {
+    Message.error('回复内容不能少于4个字符！');
     return;
   }
   emit('submit', localInputValue.value); // 通知父组件提交评论

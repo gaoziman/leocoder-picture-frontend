@@ -196,7 +196,7 @@ const fetchFavorites = async () => {
     const res = await favoriteListUsingPost(params);
     if (res.data.code === 200) {
       favorites.value = res.data.data.records ?? [];
-      pagination.value.total = res.data.data.total ?? 0;
+      pagination.value.total = Number(res.data.data.total) ?? 0 // 确保是数字;
     } else {
       message.error('获取收藏数据失败：' + res.data.message);
     }
@@ -217,7 +217,7 @@ const  fetchUserPictures = async () => {
     console.log("res:" + JSON.stringify(res.data))
     if (res.data.code === 200) {
       userPictures.value = res.data.data.records ?? [];
-      userPagination.value.total = res.data.data.total ?? 0;
+      userPagination.value.total = Number(res.data.data.total) ?? 0 // 确保是数字;
     } else {
       message.error('获取已发布图片数据失败：' + res.data.message);
     }

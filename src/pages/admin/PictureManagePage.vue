@@ -108,8 +108,8 @@
           >
           <a-popconfirm
             title="你确定要删除这张图片吗?"
-            ok-text="Yes"
-            cancel-text="No"
+            ok-text="确定"
+            cancel-text="取消"
             @confirm="() => doDelete(record.id)"
             @cancel="cancel"
           >
@@ -129,7 +129,7 @@ import {
   doPictureReviewUsingPost,
   listPictureByPageUsingPost, refreshCacheUsingPost
 } from '@/api/tupianguanli.ts'
-import { message, Modal } from 'ant-design-vue'
+import {Modal } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import wrapperRaf from 'ant-design-vue/es/_util/raf'
 import cancel = wrapperRaf.cancel
@@ -139,6 +139,7 @@ import {
   PIC_REVIEW_STATUS_OPTIONS,
 } from '@/constants/picture.ts'
 import { getTagColor } from '@/utils/tagColorUtil.ts'
+import { Message } from '@arco-design/web-vue'
 
 const columns = [
   {
@@ -244,9 +245,9 @@ const fetchData = async () => {
   })
   if (res.data.data) {
     dataList.value = res.data.data.records ?? []
-    total.value = res.data.data.total ?? 0
+    total.value = Number(res.data.data.total) ?? 0 // 确保是数字
   } else {
-    message.error('获取数据失败，' + res.data.message)
+    Message.error('获取数据失败，' + res.data.message)
   }
 }
 
@@ -276,7 +277,7 @@ const doDelete = async (id: string) => {
   }
   const res = await deletePictureUsingPost({ id })
   if (res.data.code === 200) {
-    message.success('删除成功')
+    Message.success('删除成功')
     // 删除成功后检查是否需要调整页码
     if (dataList.value.length === 1 && searchParams.pageNum > 1) {
       searchParams.pageNum -= 1 // 回到上一页
@@ -284,7 +285,7 @@ const doDelete = async (id: string) => {
     // 刷新数据
     await fetchData()
   } else {
-    message.error('删除失败')
+    Message.error('删除失败')
   }
 }
 
@@ -298,11 +299,11 @@ const handleReview = async (record: API.Picture, reviewStatus: number) => {
     reviewMessage,
   })
   if (res.data.code === 200) {
-    message.success('审核操作成功')
+    Message.success('审核操作成功')
     // 重新获取列表
     fetchData()
   } else {
-    message.error('审核操作失败，' + res.data.message)
+    Message.error('审核操作失败，' + res.data.message)
   }
 }
 
@@ -344,7 +345,7 @@ const handleBatchDelete = () => {
           ids: selectedRowKeys.value, // 传递选中的 ID 数组
         })
         if (res.data.code === 200) {
-          message.success('批量删除成功')
+          Message.success('批量删除成功')
           // 判断是否需要跳转到上一页
           if (dataList.value.length === selectedRowKeys.value.length && searchParams.pageNum > 1) {
             searchParams.pageNum -= 1 // 跳转到上一页
@@ -352,10 +353,10 @@ const handleBatchDelete = () => {
           selectedRowKeys.value = [] // 清空选中状态
           fetchData() // 刷新数据
         } else {
-          message.error('批量删除失败：' + res.data.message)
+          Message.error('批量删除失败：' + res.data.message)
         }
       } catch (error) {
-        message.error('批量删除失败，请重试')
+        Message.error('批量删除失败，请重试')
       }
     },
   })
@@ -367,7 +368,7 @@ const refreshCache = async () =>{
       ...searchParams,
     })
     if (res.data.code === 200) {
-      message.success('刷新缓存成功')
+      Message.success('刷新缓存成功')
       // 判断是否需要跳转到上一页
       if (dataList.value.length === selectedRowKeys.value.length && searchParams.pageNum > 1) {
         searchParams.pageNum -= 1 // 跳转到上一页
@@ -375,10 +376,10 @@ const refreshCache = async () =>{
       selectedRowKeys.value = [] // 清空选中状态
       fetchData() // 刷新数据
     } else {
-      message.error('刷新缓存失败：' + res.data.message)
+      Message.error('刷新缓存失败：' + res.data.message)
     }
   } catch (error) {
-    message.error('刷新缓存失败，请重试')
+    Message.error('刷新缓存失败，请重试')
   }
 }
 

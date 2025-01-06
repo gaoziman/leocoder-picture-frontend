@@ -7,12 +7,20 @@
     class="comment-item"
   >
     <!-- 评论信息展示 -->
-    <div style="display: flex; align-items: flex-start; gap: 12px; position: relative; min-height: 60px;">
+    <div
+      style="
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        position: relative;
+        min-height: 60px;
+      "
+    >
       <a-avatar :src="comment.userAvatar" size="large" />
-      <div style="flex: 1;">
+      <div style="flex: 1">
         <!-- 评论内容 -->
         <div v-if="level === 0">
-          <strong style="font-size: 15px; color: #262626;">{{ comment.userName }}</strong>
+          <strong style="font-size: 15px; color: #262626">{{ comment.userName }}</strong>
           <span v-if="comment.author" class="author-tag">作者</span>
           <div style="margin-top: 4px; font-size: 15px; color: #262626; line-height: 1.5">
             {{ comment.content }}
@@ -20,13 +28,15 @@
         </div>
         <div v-else>
           <div style="display: flex; align-items: baseline; gap: 8px">
-            <span style="font-size: 15px; color: #262626;">
+            <span style="font-size: 15px; color: #262626">
               {{ comment.userName }}
               <span v-if="comment.author" class="author-tag">作者</span>
             </span>
-            <span style="font-size: 14px; color: #262626;">
+            <span style="font-size: 14px; color: #262626">
               回复 <span>{{ comment.parentUserName }} :</span>
-              <span style="margin-top: 4px; font-size: 15px; color: #262626; line-height: 1.5">{{ comment.content }}</span>
+              <span style="margin-top: 4px; font-size: 15px; color: #262626; line-height: 1.5">{{
+                comment.content
+              }}</span>
             </span>
           </div>
         </div>
@@ -50,11 +60,7 @@
             {{ calculateCommentCount(comment) > 0 ? calculateCommentCount(comment) : '评论' }}
           </a-button>
           <!-- 一级子评论操作逻辑 -->
-          <a-button
-            v-if="level === 1"
-            type="text"
-            @click="replyToComment"
-          >
+          <a-button v-if="level === 1" type="text" @click="replyToComment">
             <MessageOutlined />
             回复
           </a-button>
@@ -72,13 +78,9 @@
         <template #overlay>
           <a-menu>
             <!-- 如果是当前用户，显示删除 -->
-            <a-menu-item v-if="isOwner" @click="deleteComment">
-              删除
-            </a-menu-item>
+            <a-menu-item v-if="isOwner" @click="deleteComment"> 删除 </a-menu-item>
             <!-- 如果不是当前用户，显示举报 -->
-            <a-menu-item v-else @click="reportComment">
-              举报
-            </a-menu-item>
+            <a-menu-item v-else @click="reportComment"> 举报 </a-menu-item>
           </a-menu>
         </template>
       </a-dropdown>
@@ -99,23 +101,23 @@
 </template>
 
 <script setup>
-import { LikeFilled, MessageOutlined,LikeOutlined,EllipsisOutlined } from '@ant-design/icons-vue';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import 'dayjs/locale/zh-cn';
+import { LikeFilled, MessageOutlined, LikeOutlined, EllipsisOutlined } from '@ant-design/icons-vue'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import 'dayjs/locale/zh-cn'
 import { deleteCommentUsingPost, toggleLikeUsingPost } from '@/api/tupianpinglunguanli.ts'
 import { computed } from 'vue'
 import { useLoginUserStore } from '@/stores/user'
-import { message } from 'ant-design-vue'
+import { Message } from '@arco-design/web-vue'
 
-dayjs.extend(relativeTime);
-dayjs.locale('zh-cn');
+dayjs.extend(relativeTime)
+dayjs.locale('zh-cn')
 
-const emit = defineEmits(['reply', 'like-updated','delete']);
+const emit = defineEmits(['reply', 'like-updated', 'delete'])
 const props = defineProps({
   comment: Object,
   level: Number,
-});
+})
 
 // 父评论操作逻辑
 const replyToComment = () => {
@@ -124,76 +126,76 @@ const replyToComment = () => {
     parentId: props.level === 0 ? null : props.comment.id, // 父评论的 ID
     userName: props.comment.userName, // 当前评论的用户名
     level: props.level, // 评论层级
-  });
-};
+  })
+}
 
 const loginUserStore = useLoginUserStore()
 
 // 是否是当前用户的评论
-const isOwner = computed(() => props.comment.userId === loginUserStore.loginUser.id);
+const isOwner = computed(() => props.comment.userId === loginUserStore.loginUser.id)
 
 // 删除评论
 const deleteComment = async () => {
-  const  id =  props.comment.id
-    if (!id) {
-      return
-    }
-    const res = await deleteCommentUsingPost({ id })
-    if (res.data.code === 200) {
-      message.success('删除成功')
-      // 执行删除操作后触发事件
-      emit('commentDeleted');
-      emit('delete', props.comment.id); // 通知父组件删除成功
-    } else {
-      message.error('删除失败')
-    }
-};
+  const id = props.comment.id
+  if (!id) {
+    return
+  }
+  const res = await deleteCommentUsingPost({ id })
+  if (res.data.code === 200) {
+    Message.success('删除成功')
+    // 执行删除操作后触发事件
+    emit('commentDeleted')
+    emit('delete', props.comment.id) // 通知父组件删除成功
+  } else {
+    Message.error('删除失败')
+  }
+}
 
 // 举报评论
 const reportComment = () => {
-  emit('report', props.comment.id);
-};
+  emit('report', props.comment.id)
+}
 
 const formatTime = (time) => {
-  return dayjs(time).fromNow();
-};
+  return dayjs(time).fromNow()
+}
 const calculateCommentCount = (comment) => {
   if (!comment.children || comment.children.length === 0) {
-    return 0; // 没有子评论
+    return 0 // 没有子评论
   }
 
-  let count = comment.children.length;
+  let count = comment.children.length
   comment.children.forEach((child) => {
-    count += calculateCommentCount(child); // 递归计算子评论数量
-  });
+    count += calculateCommentCount(child) // 递归计算子评论数量
+  })
 
-  return count;
-};
+  return count
+}
 const toggleLike = async () => {
   try {
     // 更新后端
-    const newLikedStatus = !props.comment.liked;
+    const newLikedStatus = !props.comment.liked
     // 判断当前状态，计算需要传递的 `isLiked` 值
-    const isLiked = !props.comment.liked; // 当前状态取反
-    const delta = newLikedStatus ? 1 : -1;
+    const isLiked = !props.comment.liked // 当前状态取反
+    const delta = newLikedStatus ? 1 : -1
 
-    const res = await toggleLikeUsingPost({
+    await toggleLikeUsingPost({
       pictureId: props.comment.id,
       likeType: 1, // 评论点赞类型
       delta,
-      isLiked
-    });
+      isLiked,
+    })
 
     // 本地更新状态
-    props.comment.liked = newLikedStatus;
-    props.comment.likeCount += delta;
+    props.comment.liked = newLikedStatus
+    props.comment.likeCount += delta
 
     // 通知父组件更新
-    emit('like-updated', props.comment);
+    emit('like-updated', props.comment)
   } catch (error) {
-    console.error('点赞失败', error);
+    console.error('点赞失败', error)
   }
-};
+}
 </script>
 
 <style scoped>
@@ -210,21 +212,22 @@ a-button {
 a-button:hover {
   color: #1890ff;
 }
- .author-tag {
-   font-size: 12px;
-   color: #1890ff;
-   margin-left: 8px;
-   border: 1px solid #1890ff;
-   padding: 2px 4px;
-   border-radius: 4px;
- }
+
+.author-tag {
+  font-size: 12px;
+  color: #1890ff;
+  margin-left: 8px;
+  border: 1px solid #1890ff;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
 
 :host {
   display: block;
   margin-left: 0;
 }
 
-[style*="margin-left"] {
+[style*='margin-left'] {
   margin-left: 20px !important; /* 根据层级增加缩进 */
 }
 
@@ -263,6 +266,7 @@ a-button:hover {
 .more-options-btn {
   font-size: 16px;
 }
+
 .hot-badge {
   position: absolute;
   top: -10px;

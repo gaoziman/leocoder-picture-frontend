@@ -32,7 +32,7 @@ import { reactive } from 'vue'
 import { userLoginUsingPost } from '@/api/dengluguanli.ts'
 import { useLoginUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
-import { message } from 'ant-design-vue'
+import { Message } from '@arco-design/web-vue'
 
 const formState = reactive<API.UserLoginRequest>({
   userAccount: 'leocoder',
@@ -51,13 +51,13 @@ const handleSubmit = async (values: any) => {
   // 登录成功，把登录态保存到全局状态中
   if (res.data.code === 200 && res.data.data) {
     await loginUserStore.fetchLoginUser()
-    message.success('登录成功')
+    Message.success('登录成功')
     router.push({
       path: '/',
       replace: true,
     })
   } else {
-    message.error('登录失败，' + res.data.message)
+    Message.error('登录失败，' + res.data.message)
   }
 }
 

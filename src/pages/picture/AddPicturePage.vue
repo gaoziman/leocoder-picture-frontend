@@ -63,7 +63,6 @@
 import PictureUpload from '@/components/PictureUpload.vue'
 import UrlPictureUpload from '@/components/UrlPictureUpload.vue'
 import { reactive, ref, onMounted, computed } from 'vue'
-import { message } from 'ant-design-vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   editPictureUsingPost,
@@ -71,6 +70,7 @@ import {
 } from '@/api/tupianguanli.ts'
 import { addTagUsingPost, listTagsUsingPost } from '@/api/biaoqianguanli.ts'
 import {listCategoryUsingPost } from '@/api/fenleiguanli.ts'
+import { Message } from '@arco-design/web-vue'
 
 const uploadType = ref<'file' | 'url'>('file')
 const picture = ref<API.PictureVO>()
@@ -115,10 +115,10 @@ const handleSubmit = async (values: any) => {
     ...values,
   })
   if (res.data.code === 200) {
-    message.success('操作成功')
+    Message.success('操作成功')
     router.push({ path: `/picture/${picture.value.id}` })
   } else {
-    message.error('操作失败: ' + res.data.message)
+    Message.error('操作失败: ' + res.data.message)
   }
 }
 
@@ -128,7 +128,7 @@ const syncNewTags = async () => {
     try {
       const res = await addTagUsingPost({tags: newTags.value}); // 新增标签到数据库
       if (res.data.code !== 200) {
-        message.error('同步标签失败: ' + res.data.message);
+        Message.error('同步标签失败: ' + res.data.message);
       } else {
         // 成功后将新标签加入 tagOptions
         newTags.value.forEach(tag => {
@@ -138,7 +138,7 @@ const syncNewTags = async () => {
         newTags.value = [];
       }
     } catch (error) {
-      message.error('标签同步请求失败');
+      Message.error('标签同步请求失败');
     }
   }
 };

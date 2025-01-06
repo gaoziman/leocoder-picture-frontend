@@ -99,12 +99,13 @@
 
 <script lang="ts" setup>
 import { onMounted, reactive, ref } from 'vue'
-import { message, type UploadProps } from 'ant-design-vue'
+import {type UploadProps } from 'ant-design-vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { useLoginUserStore } from '@/stores/user'
 import { uploadFileUsingPost } from '@/api/wenjianshangchuan.ts'
 import { updateUserInfoUsingPost, updateUserPasswordUsingPost } from '@/api/dengluguanli.ts'
 import { useRouter } from 'vue-router'
+import { Message } from '@arco-design/web-vue'
 
 const router = useRouter()
 const loginUserStore = useLoginUserStore()
@@ -145,9 +146,9 @@ const passwordState = reactive({
 const handleAvatarChange = (info: any) => {
   if (info.file.status === 'done') {
     formState.avatarUrl = info.file.response.url
-    message.success('头像上传成功！')
+    Message.success('头像上传成功！')
   } else if (info.file.status === 'error') {
-    message.error('头像上传失败，请重试！')
+    Message.error('头像上传失败，请重试！')
   }
 }
 
@@ -160,10 +161,10 @@ const handleSubmit = async () => {
   }
   const res = await updateUserInfoUsingPost(data)
   if (res.data.code === 200 && res.data.data) {
-    message.success('信息修改成功')
+    Message.success('信息修改成功')
     loginUserStore.fetchLoginUser()
   } else {
-    message.error('信息修改失败，' + res.data.message)
+    Message.error('信息修改失败，' + res.data.message)
   }
 }
 
@@ -183,19 +184,19 @@ const handleChangePassword = () => {
 
         // 检查返回值，确保 code 和 data 存在
         if (res?.data?.code === 200 && res?.data?.data) {
-          message.success('密码修改成功')
+          Message.success('密码修改成功')
           router.push('/user/login') // 跳转到登录页面
         } else {
-          message.error ((res?.data?.message || '未知错误'))
+          Message.error ((res?.data?.message || '未知错误'))
         }
       } catch (error) {
         console.error('接口调用失败:', error)
-        message.error('系统错误，密码修改失败！')
+        Message.error('系统错误，密码修改失败！')
       }
     })
     .catch((error) => {
       console.log('校验失败:', error)
-      message.error('请检查输入内容是否正确！')
+      Message.error('请检查输入内容是否正确！')
     })
 }
 
@@ -218,13 +219,13 @@ const beforeUpload = (file: UploadProps['fileList'][number]) => {
   // 检查文件类型是否在支持列表中
   const isSupportedType = supportedTypes.includes(file.type)
   if (!isSupportedType) {
-    message.error('不支持上传该格式的图片，推荐 jpg、jpeg、png、webp、heic 格式')
+    Message.error('不支持上传该格式的图片，推荐 jpg、jpeg、png、webp、heic 格式')
   }
 
   // 校验图片大小
   const isLt4M = file.size / 1024 / 1024 < 4
   if (!isLt4M) {
-    message.error('不能上传超过 4M 的图片')
+    Message.error('不能上传超过 4M 的图片')
   }
 
   return isSupportedType && isLt4M
@@ -240,13 +241,13 @@ const handleUpload = async ({ file }: any) => {
   try {
     const res = await uploadFileUsingPost({}, file)
     if (res.data.code === 200 && res.data.data) {
-      message.success('图片上传成功')
+      Message.success('图片上传成功')
       formState.userAvatar = res.data.data
     } else {
-      message.error('图片上传失败，' + res.data.message)
+      Message.error('图片上传失败，' + res.data.message)
     }
   } catch (error) {
-    message.error('图片上传失败')
+    Message.error('图片上传失败')
   } finally {
     loading.value = false
   }

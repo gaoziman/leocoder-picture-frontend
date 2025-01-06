@@ -44,7 +44,7 @@ import {
   listSpaceLevelUsingGet,
   updateSpaceUsingPost
 } from '@/api/kongjianguanli.ts'
-import { message } from 'ant-design-vue'
+import { Message } from '@arco-design/web-vue'
 const formData = reactive<API.SpaceAddRequest | API.SpaceUpdateRequest>({
   spaceName: '',
   spaceLevel: SPACE_LEVEL_ENUM.COMMON,
@@ -72,13 +72,13 @@ const handleSubmit = async (values: any) => {
     })
   }
   if (res.data.code === 200 && res.data.data) {
-    message.success('操作成功')
+    Message.success('操作成功')
     let path = `/space/${spaceId ?? res.data.data}`
     router.push({
       path,
     })
   } else {
-    message.error('操作失败，' + res.data.message)
+    Message.error('操作失败，' + res.data.message)
   }
   loading.value = false
 }
@@ -92,7 +92,7 @@ const fetchSpaceLevelList = async () => {
   if (res.data.code === 200 && res.data.data) {
     spaceLevelList.value = res.data.data
   } else {
-    message.error('加载空间级别失败，' + res.data.message)
+    Message.error('加载空间级别失败，' + res.data.message)
   }
 }
 // 获取老数据

@@ -17,9 +17,10 @@
 </template>
 
 <script setup lang="ts">
-import { message, type UploadProps } from 'ant-design-vue'
+import {type UploadProps } from 'ant-design-vue'
 import { ref } from 'vue'
 import { uploadPictureUsingPost } from '@/api/tupianguanli.ts'
+import { Message } from '@arco-design/web-vue'
 
 interface Props {
   picture?: API.PictureVO
@@ -70,12 +71,11 @@ const handleUpload = async ({ file }: any) => {
     params.spaceId = props.spaceId;
     const res = await uploadPictureUsingPost(params, {}, file)
     if (res.data.code === 200 && res.data.data) {
-      message.success('图片上传成功')
+      Message.success('图片上传成功')
       // 将上传成功的图片信息传递给父组件
       props.onSuccess?.(res.data.data)
-      console.log(res.data.data)
     } else {
-      message.error('图片上传失败，' + res.data.message)
+      Message.error('图片上传失败，' + res.data.message)
     }
   } finally {
     loading.value = false

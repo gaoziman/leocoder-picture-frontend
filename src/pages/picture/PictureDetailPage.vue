@@ -14,7 +14,7 @@
         </template>
         <!-- 操作区（红色框位置） -->
 
-        <template v-if="picture.reviewStatus === 0 && picture.spaceId == null">
+        <template v-if="picture.spaceId == null">
           <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px">
             <!-- 点赞按钮 -->
             <a-button type="link" @click="handleLike" style="display: flex; align-items: center">
@@ -233,7 +233,6 @@ const doShare = (picture: API.PictureVO, e: Event) => {
 }
 
 import { deletePictureUsingPost } from '@/api/tupianguanli.ts'
-import { message } from 'ant-design-vue'
 import {
   DeleteOutlined,
   EditOutlined,
@@ -257,6 +256,7 @@ import { usePictureStore } from '@/stores/picture'
 import { addCommentUsingPost, deleteCommentUsingPost, getCommentPageUsingPost } from '@/api/tupianpinglunguanli.ts'
 import CommentItem from '@/components/CommentItem.vue'
 import CommentInput from '@/components/CommentInput.vue'
+import { Message } from '@arco-design/web-vue'
 
 const pictureStore = usePictureStore()
 
@@ -391,7 +391,7 @@ const loadComments = async () => {
     // 计算总评论数
     totalComments.value = calculateTotalComments(comments.value)
   } else {
-    message.error('评论加载失败')
+    Message.error('评论加载失败')
   }
 }
 
@@ -407,7 +407,7 @@ const calculateTotalComments = (comments) => {
 // 提交评论
 const submitComment = async () => {
   if (!commentInput.value || commentInput.value.trim().length < 4) {
-    message.error('回复内容不能少于 4 个字符！')
+    Message.error('回复内容不能少于 4 个字符！')
     return
   }
 
@@ -418,21 +418,17 @@ const submitComment = async () => {
     parentId: null,
   })
   if (res.data.code === 200) {
-    message.success('回复成功！')
+    Message.success('回复成功！')
     commentInput.value = ''
     replyModalVisible.value = false
     await loadComments() // 刷新评论列表
   } else {
-    message.error('回复失败，请稍后重试！')
+    Message.error('回复失败，请稍后重试！')
   }
 }
 
 // 子评论回复
 const submitReply = async (content) => {
-  if (!content.trim()) {
-    console.error('评论内容不能为空！')
-    return
-  }
   // 添加评论
   const res = await addCommentUsingPost({
     pictureId: props.id,
@@ -440,13 +436,13 @@ const submitReply = async (content) => {
     parentId: currentCommentIndex.value,
   })
   if (res.data.code === 200) {
-    message.success('回复成功！')
+    Message.success('回复成功！')
     parentInputValue.value = ''
     closeReplyModal(); // 关闭回复框
     await loadComments() // 刷新评论列表
     // location.reload()
   } else {
-    message.error('回复失败，请稍后重试！')
+    Message.error('回复失败，请稍后重试！')
   }
 }
 
@@ -467,7 +463,7 @@ const closeReplyModal = () => {
 // 点赞/取消点赞
 const handleLike = () => {
   if (picture.value.reviewStatus === 0) {
-    message.warning('图片待审核，不能点赞！')
+    Message.warning('图片待审核，不能点赞！')
     return
   }
   pictureStore.toggleLike(props.id)
@@ -476,7 +472,7 @@ const handleLike = () => {
 // 收藏/取消收藏
 const handleFavorite = () => {
   if (picture.value.reviewStatus === 0) {
-    message.warning('图片待审核，不能收藏！')
+    Message.warning('图片待审核，不能收藏！')
     return
   }
   pictureStore.toggleFavorite(props.id)
@@ -506,10 +502,10 @@ const doDelete = async () => {
   }
   const res = await deletePictureUsingPost({ id })
   if (res.data.code === 200) {
-    message.success('删除成功')
+    Message.success('删除成功')
     router.push('/')
   } else {
-    message.error('删除失败')
+    Message.error('删除失败')
   }
 }
 

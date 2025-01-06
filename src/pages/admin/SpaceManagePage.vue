@@ -44,10 +44,25 @@
       </template>
       <template v-else-if="column.key === 'action'">
         <a-space wrap>
-          <a-button type="link" :href="`/add_space?id=${record.id}`" target="_blank">
-            编辑
+          <a-button   :href="`/add_space?id=${record.id}`" target="_blank">
+            <template #icon>
+              <icon-font type="icon-bianji" />
+            </template>编辑
           </a-button>
-          <a-button type="link" danger @click="doDelete(record.id)">删除</a-button>
+          <a-popconfirm
+            title="你确定要删除这个分类吗?"
+            ok-text="确定"
+            cancel-text="取消"
+            @confirm="() => doDelete(record.id)"
+            @cancel="cancel"
+          >
+            <a-button danger size="middle">
+              <template #icon>
+                <icon-font type="icon-a-shanchu1" />
+              </template>
+              删除
+            </a-button>
+          </a-popconfirm>
         </a-space>
       </template>
     </template>
@@ -60,7 +75,15 @@ import dayjs from 'dayjs'
 import { formatSize } from '@/utils'
 import { SPACE_LEVEL_MAP, SPACE_LEVEL_OPTIONS } from '@/constants/space.ts'
 import { listSpaceVoByPageUsingPost } from '@/api/kongjianguanli.ts'
+import wrapperRaf from 'ant-design-vue/es/_util/raf'
+import cancel = wrapperRaf.cancel
+import { SCRIPT_URL } from '@/constants/url.ts'
+import { createFromIconfontCN } from '@ant-design/icons-vue'
+import { message } from 'ant-design-vue'
 
+const IconFont = createFromIconfontCN({
+  scriptUrl: SCRIPT_URL,
+})
 const columns = [
   {
     title: 'id',
@@ -128,7 +151,7 @@ const fetchData = async () => {
   })
   if (res.data.data) {
     dataList.value = res.data.data.records ?? []
-    total.value = res.data.data.total ?? 0
+    total.value = Number(res.data.data.total) ?? 0 // 确保是数字
   } else {
     message.error('获取数据失败，' + res.data.message)
   }

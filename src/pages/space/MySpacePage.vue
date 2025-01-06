@@ -7,7 +7,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { message } from 'ant-design-vue'
 import { useLoginUserStore } from '@/stores/user'
 import { listSpaceVoByPageUsingPost } from '@/api/kongjianguanli.ts'
 
@@ -33,10 +32,10 @@ const checkUserSpace = async () => {
       router.replace(`/space/${space.id}`)
     } else {
       router.replace('/add_space')
-      message.warn('请先创建空间')
+      Message.warn('请先创建空间')
     }
   } else {
-    message.error('加载我的空间失败，' + res.data.message)
+    Message.error('加载我的空间失败，' + res.data.message)
   }
 }
 

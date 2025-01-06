@@ -23,18 +23,25 @@ import { UserOutlined, PictureOutlined } from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/user'
 
+import { createFromIconfontCN } from '@ant-design/icons-vue';
+import { SCRIPT_URL } from '@/constants/url.ts'
+
+const IconFont = createFromIconfontCN({
+  scriptUrl: SCRIPT_URL,
+});
+
 const loginUserStore = useLoginUserStore()
 // 菜单列表
 const menuItems = [
   {
     key: '/',
     label: '公共图库',
-    icon: () => h(PictureOutlined),
+    icon: () => h(IconFont, { type: 'icon-tupianguanli' }),
   },
   {
     key: '/my_space',
     label: '我的空间',
-    icon: () => h(UserOutlined),
+    icon: () => h(IconFont, { type: 'icon-kongjian' }),
   },
 ]
 
@@ -42,21 +49,14 @@ const router = useRouter()
 
 // 当前选中菜单
 const current = ref<string[]>([])
+
 // 监听路由变化，更新当前选中菜单
-// 初始化：读取 `localStorage` 中的当前选中菜单
-onMounted(() => {
-  const savedKey = localStorage.getItem('selectedMenuKey') || '/'
-  current.value = [savedKey]
-  // 刷新后跳转到保存的页面路径
-  if (router.currentRoute.value.path !== savedKey) {
-    router.push(savedKey)
-  }
+router.afterEach((to, from, failure) => {
+  current.value = [to.path]
 })
 
-// 点击菜单项事件：保存到 `localStorage` 并跳转页面
+// 路由跳转事件
 const doMenuClick = ({ key }: { key: string }) => {
-  current.value = [key]
-  localStorage.setItem('selectedMenuKey', key) // 保存选中状态
   router.push({
     path: key,
   })

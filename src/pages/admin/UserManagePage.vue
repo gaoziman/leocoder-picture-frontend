@@ -34,7 +34,19 @@
       </template>
       <template v-else-if="column.key === 'action'">
         <div v-if="record.userRole !== 'admin'">
-          <a-button danger @click="doDelete(record.id)">删除</a-button>
+          <a-popconfirm
+            title="你确定要删除这个用户吗?"
+            ok-text="确定"
+            cancel-text="取消"
+            @confirm="() => doDelete(record.id)"
+            @cancel="cancel"
+          >
+            <a-button danger  size="middle">
+              <template #icon>
+                <icon-font type="icon-a-shanchu1" />
+              </template>
+              删除</a-button>
+          </a-popconfirm>
         </div>
       </template>
     </template>
@@ -45,7 +57,14 @@
 import dayjs from 'dayjs'
 import { deleteUserUsingPost, listUserVoByPageUsingPost } from '@/api/yonghuguanli.ts'
 import { computed, onMounted, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
+import { createFromIconfontCN } from '@ant-design/icons-vue'
+import { SCRIPT_URL } from '@/constants/url.ts'
+import wrapperRaf from 'ant-design-vue/es/_util/raf'
+import cancel = wrapperRaf.cancel
+import { Message } from '@arco-design/web-vue'
+const IconFont = createFromIconfontCN({
+  scriptUrl: SCRIPT_URL,
+});
 
 const columns = [
   {
@@ -108,7 +127,7 @@ const fetchData = async () => {
   })
   if (res.data.data) {
     dataList.value = res.data.data.records ?? []
-    total.value = res.data.data.total ?? 0
+    total.value = Number(res.data.data.total) ?? 0 // 确保是数字
     // 确保当前页码在总页数范围内
     const maxPage = Math.ceil(total.value / searchParams.pageSize)
     if (searchParams.pageNum > maxPage) {
@@ -116,7 +135,7 @@ const fetchData = async () => {
       fetchData() // 再次刷新数据
     }
   } else {
-    message.error('获取数据失败，' + res.data.message)
+    Message.error('获取数据失败，' + res.data.message)
   }
 }
 
@@ -152,15 +171,15 @@ const doDelete = async (id: string) => {
   }
   const res = await deleteUserUsingPost({ id })
   if (res.data.code === 200) {
-    message.success('删除成功')
     // 删除成功后检查是否需要调整页码
     if (dataList.value.length === 1 && searchParams.pageNum > 1) {
       searchParams.pageNum -= 1 // 回到上一页
     }
+    Message.success('删除成功')
     // 刷新数据
     await fetchData()
   } else {
-    message.error('删除失败')
+    Message.error('删除失败')
   }
 }
 </script>

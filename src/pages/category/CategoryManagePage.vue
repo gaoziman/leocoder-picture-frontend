@@ -7,7 +7,7 @@
   </a-flex>
   <a-form layout="inline" :model="searchParams" @finish="doSearch" style="margin-bottom: 20px">
     <a-form-item label="分类名称">
-      <a-input v-model:value="searchParams.name" placeholder="输入分类名称"/>
+      <a-input v-model:value="searchParams.name" placeholder="输入分类名称" />
     </a-form-item>
     <a-form-item>
       <a-button type="primary" html-type="submit">搜索</a-button>
@@ -23,7 +23,7 @@
     <template #bodyCell="{ column, record }">
       <template v-if="column.dataIndex === 'name'">
         <a-space wrap>
-          <a-tag  :color="getCategoryColor(record.name)">{{record.name}}</a-tag>
+          <a-tag :color="getCategoryColor(record.name)">{{ record.name }}</a-tag>
         </a-space>
       </template>
       <template v-if="column.dataIndex === 'createTime'">
@@ -31,44 +31,79 @@
       </template>
       <template v-else-if="column.key === 'action'">
         <a-space>
-          <a-button @click="openModal(record)" >编辑</a-button>
-          <a-button danger @click="doDelete(record.id)">删除</a-button>
+          <a-button @click="openModal(record)">
+            <template #icon>
+              <icon-font type="icon-bianji" />
+            </template>
+            编辑
+          </a-button>
+          <a-popconfirm
+            title="你确定要删除这个分类吗?"
+            ok-text="确定"
+            cancel-text="取消"
+            @confirm="() => doDelete(record.id)"
+            @cancel="cancel"
+          >
+            <a-button danger size="middle">
+              <template #icon>
+                <icon-font type="icon-a-shanchu1" />
+              </template>
+              删除
+            </a-button>
+          </a-popconfirm>
         </a-space>
       </template>
     </template>
   </a-table>
 
-
   <!-- 添加/编辑弹框 -->
-  <a-modal
+  <a-drawer
     v-model:visible="modalVisible"
     :title="editForm.id ? '编辑分类' : '创建分类'"
-    ok-text="保存"
-    cancel-text="取消"
-    @ok="handleSave"
-    @cancel="handleCancel"
+    placement="right"
+    width="400"
+    :destroy-on-close="true"
+    @close="handleCancel"
   >
-    <a-form  ref="formRef" :model="editForm"  :rules="formRules" v-bind="formItemLayout">
+    <a-form ref="formRef" :model="editForm" :rules="formRules" v-bind="formItemLayout">
       <a-form-item label="分类名称" name="name">
         <a-input v-model:value="editForm.name" placeholder="请输入分类名称" style="width: 100%" />
       </a-form-item>
       <a-form-item label="描述">
-        <a-input v-model:value="editForm.description" placeholder="请输入分类描述"  style="width: 100%" />
+        <a-input
+          v-model:value="editForm.description"
+          placeholder="请输入分类描述"
+          style="width: 100%"
+        />
       </a-form-item>
+      <a-space style="margin-top: 20px; justify-content: flex-end; width: 100%">
+        <a-button type="default" @click="handleCancel">取消</a-button>
+        <a-button type="primary" @click="handleSave">保存</a-button>
+      </a-space>
     </a-form>
-  </a-modal>
+  </a-drawer>
 </template>
 
 <script setup lang="ts">
 import {
   deleteCategoryUsingPost,
   updateCategoryUsingPost,
-  listCategoryUsingPost, addCategoryUsingPost
+  listCategoryUsingPost,
+  addCategoryUsingPost,
 } from '@/api/fenleiguanli.ts'
 import { computed, onMounted, reactive, ref } from 'vue'
-import { type FormInstance, message } from 'ant-design-vue'
+import { type FormInstance } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { getCategoryColor } from '@/utils/tagColorUtil.ts'
+import { createFromIconfontCN } from '@ant-design/icons-vue'
+import { SCRIPT_URL } from '@/constants/url.ts'
+import { Message } from '@arco-design/web-vue'
+import wrapperRaf from 'ant-design-vue/es/_util/raf'
+import cancel = wrapperRaf.cancel
+
+const IconFont = createFromIconfontCN({
+  scriptUrl: SCRIPT_URL,
+})
 
 const columns = [
   {
@@ -106,11 +141,10 @@ const searchParams = reactive({
   categoryName: '',
 })
 
-const formRef = ref<FormInstance>();
+const formRef = ref<FormInstance>()
 
 // 弹框相关
 const modalVisible = ref(false)
-
 
 const editForm = reactive({
   id: '',
@@ -119,9 +153,9 @@ const editForm = reactive({
 })
 
 const formItemLayout = {
-  labelCol: { span: 4 },
-  wrapperCol: { span: 16 },
-};
+  labelCol: { span: 6 },
+  wrapperCol: { span: 18 },
+}
 
 // 表单验证规则
 const formRules = {
@@ -135,18 +169,16 @@ const fetchData = async () => {
   })
   if (res.data.data) {
     dataList.value = res.data.data.records ?? []
-    total.value = res.data.data.total ?? 0
+    total.value = Number(res.data.data.total) ?? 0 // 确保是数字
   } else {
-    message.error('获取数据失败，' + res.data.message)
+    Message.error('获取数据失败，' + res.data.message)
   }
 }
-
-
 
 // 打开弹框
 const openModal = (record?: any) => {
   modalVisible.value = true
-  open.value = true;
+  open.value = true
   if (record) {
     // 编辑
     editForm.id = record.id
@@ -162,8 +194,8 @@ const openModal = (record?: any) => {
 
 // 保存逻辑（区分创建和编辑）
 const handleSave = async () => {
-  if (!editForm.name.trim()) {
-    message.error('分类名称不能为空')
+  if (!editForm.name) {
+    Message.error('分类名称不能为空')
     return
   }
 
@@ -175,11 +207,11 @@ const handleSave = async () => {
       description: editForm.description,
     })
     if (res.data.code === 200) {
-      message.success('修改成功')
+      Message.success('修改成功')
       modalVisible.value = false
       fetchData()
     } else {
-      message.error('编辑失败: ' + res.data.message)
+      Message.error('编辑失败: ' + res.data.message)
     }
   } else {
     // 创建逻辑
@@ -188,11 +220,11 @@ const handleSave = async () => {
       description: editForm.description,
     })
     if (res.data.code === 200) {
-      message.success('创建成功')
+      Message.success('创建成功')
       modalVisible.value = false
       fetchData()
     } else {
-      message.error('创建失败: ' + res.data.message)
+      Message.error(res.data.message)
     }
   }
 }
@@ -201,7 +233,6 @@ const handleSave = async () => {
 const handleCancel = () => {
   modalVisible.value = false
 }
-
 
 const pagination = computed(() => ({
   current: searchParams.pageNum,
@@ -227,10 +258,10 @@ const doDelete = async (id: string) => {
   if (!id) return
   const res = await deleteCategoryUsingPost({ id })
   if (res.data.code === 200) {
-    message.success('删除成功')
+    Message.success('删除成功')
     fetchData()
   } else {
-    message.error('删除失败')
+    Message.error('删除失败')
   }
 }
 
@@ -240,10 +271,10 @@ const doEdit = async (record: any) => {
   if (!newName || newName === record.categoryName) return
   const res = await updateCategoryUsingPost({ id: record.id, categoryName: newName })
   if (res.data.code === 200) {
-    message.success('编辑成功')
+    Message.success('编辑成功')
     fetchData()
   } else {
-    message.error('编辑失败')
+    Message.error('编辑失败')
   }
 }
 

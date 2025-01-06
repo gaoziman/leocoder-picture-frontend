@@ -41,9 +41,9 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import { uploadPictureByBatchUsingPost } from '@/api/tupianguanli.ts'
+import { Message } from '@arco-design/web-vue'
 const router = useRouter()
 
 const formData = reactive<API.PictureUploadByBatchRequest>({
@@ -54,12 +54,12 @@ const loading = ref(false)
 
 const handleSubmit = async (values: any) => {
   if (!formData.searchText) {
-    message.error('请填写搜索关键字！')
+    Message.error('请填写搜索关键字！')
     return
   }
 
   if (!formData.source) {
-    message.error('请选择抓取源！')
+    Message.error('请选择抓取源！')
     return
   }
   loading.value = true;
@@ -67,12 +67,12 @@ const handleSubmit = async (values: any) => {
     ...formData,
   })
   if (res.data.code === 200 && res.data.data) {
-    message.success(`创建成功，共 ${res.data.data} 条`)
+    Message.success(`创建成功，共 ${res.data.data} 条`)
     router.push({
       path: '/',
     })
   } else {
-    message.error('创建失败，' + res.data.message)
+    Message.error('创建失败，' + res.data.message)
   }
   loading.value = false;
 }

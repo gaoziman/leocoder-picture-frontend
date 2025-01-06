@@ -7,12 +7,7 @@
 
       <a-layout>
         <!-- 固定侧边栏 -->
-        <a-layout-sider
-          class="sider fixed-sider"
-          width="200"
-          breakpoint="lg"
-          collapsed-width="0"
-        >
+        <a-layout-sider class="sider fixed-sider" width="200" breakpoint="lg" collapsed-width="0">
           <GlobalSider />
         </a-layout-sider>
         <a-layout-content class="content">
@@ -20,11 +15,50 @@
         </a-layout-content>
       </a-layout>
 
-      <a-layout-footer class="footer">
-        <a href="https://gaoziman.github.io/toLeoJavaer/" target="_blank">
-          编程学习 by 程序员Leo
-        </a>
-      </a-layout-footer>
+<!--      <a-layout-footer class="footer">-->
+<!--        <div class="footer-content">-->
+<!--          <div class="footer-links">-->
+<!--            <a href="https://space.bilibili.com/12890453" target="_blank" class="link-with-icon">-->
+<!--              <UserOutlined />-->
+<!--              站长：程序员Leo-->
+<!--            </a>-->
+
+<!--            <a href="https://leocoder.cn" target="_blank" class="link-with-icon">-->
+<!--              <GlobalOutlined />-->
+<!--              知识库</a-->
+<!--            >-->
+<!--          </div>-->
+<!--          <div class="footer-meta">-->
+<!--            <span>© 2025  智云库</span>-->
+<!--            <span>|</span>-->
+<!--            <a href="https://beian.miit.gov.cn/" target="_blank">鄂ICP备2025089543号-1</a>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </a-layout-footer>-->
+
+      <!-- 动态显示的 footer -->
+      <transition name="fade">
+        <a-layout-footer v-if="showFooter" class="footer">
+          <div class="footer-content">
+            <div class="footer-links">
+              <a href="https://juejin.cn/user/2467719176022094/posts" target="_blank" class="link-with-icon">
+                <UserOutlined />
+                站长：程序员Leo
+              </a>
+
+              <a href="https://leocoder.cn" target="_blank" class="link-with-icon">
+                <GlobalOutlined />
+                知识库
+              </a>
+            </div>
+            <div class="footer-meta">
+              <span>© 2025 智云库</span>
+              <span>|</span>
+              <a href="https://beian.miit.gov.cn/" target="_blank">鄂ICP备2025089543号-1</a>
+            </div>
+          </div>
+        </a-layout-footer>
+      </transition>
     </a-layout>
   </div>
 </template>
@@ -32,17 +66,101 @@
 <script setup lang="ts">
 import GlobalHeader from '@/components/GlobalHeader.vue'
 import GlobalSider from '@/components/GlobalSider.vue'
+import { UserOutlined, GlobalOutlined } from '@ant-design/icons-vue'
+import { onMounted, onUnmounted, ref } from 'vue'
+
+
+import { createFromIconfontCN } from '@ant-design/icons-vue';
+import { SCRIPT_URL } from '@/constants/url.ts'
+
+const IconFont = createFromIconfontCN({
+  scriptUrl: SCRIPT_URL,
+});
+// 控制 footer 显示的状态
+const showFooter = ref(false)
+
+// 滚动事件处理函数
+const handleScroll = () => {
+  const scrollTop = window.scrollY || document.documentElement.scrollTop
+  // 当滚动高度超过 200px 时显示 footer
+  showFooter.value = scrollTop > 150
+}
+
+// 页面加载时监听滚动事件
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+
+// 页面卸载时移除滚动事件
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <style scoped>
 #basicLayout .footer {
-  background: #efefef;
-  padding: 16px;
-  position: fixed;
+  background: #f0f2f5; /* 与主页背景颜色一致 */
+  padding: 12px 16px; /* 调整内边距，减少高度 */
+  text-align: center; /* 内容居中对齐 */
+  border-top: 1px solid #d9d9d9; /* 添加顶部边框 */
+  font-size: 14px; /* 调整字体大小 */
+  color: #666; /* 字体颜色 */
+  box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.05); /* 更轻的顶部阴影 */
+  position: fixed; /* 固定底部 */
   bottom: 0;
   left: 0;
   right: 0;
-  text-align: center;
+  z-index: 1000; /* 确保在最上层 */
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between; /* 左右分布 */
+  align-items: center; /* 垂直居中 */
+  flex-wrap: wrap; /* 宽度不足时换行 */
+  padding: 0 16px; /* 左右间距 */
+}
+
+.footer-links {
+  display: flex;
+  gap: 12px; /* 调整图标与文字的间距 */
+  align-items: center; /* 垂直居中 */
+}
+
+.footer-meta {
+  font-size: 14px;
+  color: #999;
+  line-height: 1.6; /* 调整高度一致 */
+  display: flex;
+  justify-content: center; /* 居中对齐 */
+  gap: 8px; /* 增加左右元素间距 */
+}
+
+.link-with-icon {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #666;
+  gap: 6px; /* 原来是 8px，改为 6px */
+}
+
+.link-with-icon:hover {
+  color: #7d8185;
+}
+
+
+.footer-links span,
+.footer-meta span {
+  color: #666;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column; /* 垂直布局 */
+    text-align: center;
+    gap: 6px;
+  }
 }
 
 #basicLayout .content {
@@ -76,10 +194,11 @@ import GlobalSider from '@/components/GlobalSider.vue'
   border-bottom: none !important;
   border-inline-end: none !important;
 }
+
 /* 固定顶部样式 */
 .fixed-header {
   position: fixed;
-  z-index: 1000;
+  z-index: 1400;
   top: 0;
   left: 0;
   right: 0;

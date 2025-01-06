@@ -45,8 +45,8 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { message } from 'ant-design-vue'
 import { userRegisterUsingPost } from '@/api/dengluguanli.ts'
+import { Message } from '@arco-design/web-vue'
 
 const formState = reactive<API.UserRegisterRequest>({
   userAccount: '',
@@ -63,19 +63,19 @@ const router = useRouter()
 const handleSubmit = async (values: any) => {
   // 判断两次输入的密码是否一致
   if (formState.userPassword !== formState.checkPassword) {
-    message.error('二次输入的密码不一致')
+    Message.error('二次输入的密码不一致')
     return
   }
   const res = await userRegisterUsingPost(values)
   // 注册成功，跳转到登录页面
   if (res.data.code === 200 && res.data.data) {
-    message.success('注册成功')
+    Message.success('注册成功')
     router.push({
       path: '/user/login',
       replace: true,
     })
   } else {
-    message.error('注册失败，' + res.data.message)
+    Message.error('注册失败，' + res.data.message)
   }
 }
 

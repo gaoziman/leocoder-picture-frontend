@@ -76,10 +76,7 @@
                 placeholder="请输入新密码"
               />
             </a-form-item>
-            <a-form-item
-              label="确认密码"
-              name="checkPassword"
-            >
+            <a-form-item label="确认密码" name="checkPassword">
               <a-input-password
                 v-model:value="passwordState.checkPassword"
                 placeholder="请确认新密码"
@@ -99,7 +96,7 @@
 
 <script lang="ts" setup>
 import { onMounted, reactive, ref } from 'vue'
-import {type UploadProps } from 'ant-design-vue'
+import { type UploadProps } from 'ant-design-vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { useLoginUserStore } from '@/stores/user'
 import { uploadFileUsingPost } from '@/api/wenjianshangchuan.ts'
@@ -113,7 +110,6 @@ const loginUserStore = useLoginUserStore()
 const activeTab = ref('1') // Tab 默认选中
 
 const passwordFormRef = ref()
-
 
 // 表单校验规则
 const passwordRules = {
@@ -140,6 +136,11 @@ const passwordState = reactive({
   oldPassword: '', // 原始密码
   newPassword: '', // 新密码
   checkPassword: '', // 确认密码
+})
+
+//初始化信息
+onMounted(() => {
+  initInfo()
 })
 
 // 头像上传处理
@@ -187,7 +188,7 @@ const handleChangePassword = () => {
           Message.success('密码修改成功')
           router.push('/user/login') // 跳转到登录页面
         } else {
-          Message.error ((res?.data?.message || '未知错误'))
+          Message.error(res?.data?.message || '未知错误')
         }
       } catch (error) {
         console.error('接口调用失败:', error)
@@ -200,12 +201,14 @@ const handleChangePassword = () => {
     })
 }
 
+// 初始化信息
 const initInfo = () => {
   formState.userName = loginUserStore.loginUser.userName
   formState.userProfile = loginUserStore.loginUser.userProfile
   formState.userAvatar = loginUserStore.loginUser.userAvatar
 }
 
+// 上传文件之前的校验
 const beforeUpload = (file: UploadProps['fileList'][number]) => {
   // 定义支持上传的图片格式类型数组
   const supportedTypes = [
@@ -232,10 +235,7 @@ const beforeUpload = (file: UploadProps['fileList'][number]) => {
 }
 const loading = ref<boolean>(false)
 
-/**
- * 上传
- * @param file
- */
+// 上传文件
 const handleUpload = async ({ file }: any) => {
   loading.value = true
   try {
@@ -252,10 +252,6 @@ const handleUpload = async ({ file }: any) => {
     loading.value = false
   }
 }
-
-onMounted(() => {
-  initInfo()
-})
 </script>
 
 <style scoped>

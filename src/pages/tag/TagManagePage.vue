@@ -136,22 +136,32 @@ const columns = [
 
 const dataList = ref([])
 const total = ref(0)
-const searchParams = reactive({
-  pageNum: 1,
-  pageSize: 5,
-  name: '',
-})
-const formRef = ref<FormInstance>()
-
 // 弹框相关
 const modalVisible = ref(false)
-
+const formRef = ref<FormInstance>()
 const editForm = reactive({
   id: '',
   name: '',
   description: '',
 })
 
+// 搜索条件
+const searchParams = reactive({
+  pageNum: 1,
+  pageSize: 5,
+  name: '',
+})
+
+// 分页相关
+const pagination = computed(() => ({
+  current: searchParams.pageNum,
+  pageSize: searchParams.pageSize,
+  total: total.value,
+  showSizeChanger: true,
+  showTotal: (total) => `共 ${total} 条`,
+}))
+
+// 表单布局
 const formItemLayout = {
   labelCol: { span: 8 },
   wrapperCol: { span: 16 },
@@ -193,14 +203,7 @@ const openModal = (record?: any) => {
   }
 }
 
-const pagination = computed(() => ({
-  current: searchParams.pageNum,
-  pageSize: searchParams.pageSize,
-  total: total.value,
-  showSizeChanger: true,
-  showTotal: (total) => `共 ${total} 条`,
-}))
-
+// 获取标签颜色
 const doTableChange = (page: any) => {
   searchParams.pageNum = page.current
   searchParams.pageSize = page.pageSize

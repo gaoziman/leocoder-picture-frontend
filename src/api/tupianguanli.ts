@@ -16,6 +16,21 @@ export async function getPictureViewCountUsingGet(
   })
 }
 
+/** 获取相邻图片 POST /api/picture/adjacent */
+export async function getAdjacentPicturesUsingPost(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAdjacentPicturesUsingPOSTParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.ResultMapStringLong_>('/api/picture/adjacent', {
+    method: 'POST',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  })
+}
+
 /** 删除图片 POST /api/picture/delete */
 export async function deletePictureUsingPost(
   body: API.DeleteRequest,

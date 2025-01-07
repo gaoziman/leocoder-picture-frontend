@@ -175,6 +175,10 @@ import { listPictureVoByUserUsingPost } from '@/api/tupianguanli.ts'
 import { createFromIconfontCN } from '@ant-design/icons-vue'
 import { SCRIPT_URL } from '@/constants/url.ts'
 
+const router = useRouter()
+const loginUserStore = useLoginUserStore()
+
+// 引入iconfont
 const IconFont = createFromIconfontCN({
   scriptUrl: SCRIPT_URL,
 })
@@ -197,6 +201,24 @@ const userPagination = ref({
   total: 0,
   pageNum: 1,
   pageSize: 8,
+})
+
+onMounted(() => {
+  userInfo.value = {
+    avatar: loginUserStore.loginUser.userAvatar,
+    nickname: loginUserStore.loginUser.userName,
+    profile: loginUserStore.loginUser.userProfile,
+  }
+
+  stats.value = [
+    { label: '积分', value: loginUserStore.loginUser.points || 999 },
+    { label: '获赞', value: loginUserStore.loginUser.likes || 999 },
+    { label: '关注', value: loginUserStore.loginUser.following || 999 },
+    { label: '粉丝', value: loginUserStore.loginUser.followers || 999 },
+  ]
+
+  fetchFavorites()
+  fetchUserPictures()
 })
 
 // 获取收藏数据
@@ -262,6 +284,7 @@ const handlePageSizeChange = (current: number, size: number) => {
   }
 }
 
+// 切换Tab
 const handleTabChange = (key: string) => {
   activeTab.value = key
   if (key === 'favorites') {
@@ -270,7 +293,6 @@ const handleTabChange = (key: string) => {
     fetchUserPictures()
   }
 }
-const router = useRouter()
 
 // 跳转至图片详情
 const doClickPicture = (pictureId: string) => {
@@ -296,26 +318,7 @@ const infoItems = ref([
   { label: '会员编号', value: '12644' },
 ])
 
-const loginUserStore = useLoginUserStore()
-
-onMounted(() => {
-  userInfo.value = {
-    avatar: loginUserStore.loginUser.userAvatar,
-    nickname: loginUserStore.loginUser.userName,
-    profile: loginUserStore.loginUser.userProfile,
-  }
-
-  stats.value = [
-    { label: '积分', value: loginUserStore.loginUser.points || 999 },
-    { label: '获赞', value: loginUserStore.loginUser.likes || 999 },
-    { label: '关注', value: loginUserStore.loginUser.following || 999 },
-    { label: '粉丝', value: loginUserStore.loginUser.followers || 999 },
-  ]
-
-  fetchFavorites()
-  fetchUserPictures()
-})
-
+// 跳转至编辑资料页面
 const goToEditProfile = () => {
   window.location.href = '/user/info'
 }

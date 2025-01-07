@@ -135,16 +135,25 @@ const columns = [
 
 const dataList = ref([])
 const total = ref(0)
+const formRef = ref<FormInstance>()
+
+// 弹框相关
+const modalVisible = ref(false)
+
 const searchParams = reactive({
   pageNum: 1,
   pageSize: 5,
   categoryName: '',
 })
 
-const formRef = ref<FormInstance>()
-
-// 弹框相关
-const modalVisible = ref(false)
+// 分页相关
+const pagination = computed(() => ({
+  current: searchParams.pageNum,
+  pageSize: searchParams.pageSize,
+  total: total.value,
+  showSizeChanger: true,
+  showTotal: (total) => `共 ${total} 条`,
+}))
 
 const editForm = reactive({
   id: '',
@@ -234,14 +243,6 @@ const handleCancel = () => {
   modalVisible.value = false
 }
 
-const pagination = computed(() => ({
-  current: searchParams.pageNum,
-  pageSize: searchParams.pageSize,
-  total: total.value,
-  showSizeChanger: true,
-  showTotal: (total) => `共 ${total} 条`,
-}))
-
 const doTableChange = (page: any) => {
   searchParams.pageNum = page.current
   searchParams.pageSize = page.pageSize
@@ -262,19 +263,6 @@ const doDelete = async (id: string) => {
     fetchData()
   } else {
     Message.error('删除失败')
-  }
-}
-
-// 编辑分类
-const doEdit = async (record: any) => {
-  const newName = prompt('请输入新的分类名称', record.categoryName)
-  if (!newName || newName === record.categoryName) return
-  const res = await updateCategoryUsingPost({ id: record.id, categoryName: newName })
-  if (res.data.code === 200) {
-    Message.success('编辑成功')
-    fetchData()
-  } else {
-    Message.error('编辑失败')
   }
 }
 

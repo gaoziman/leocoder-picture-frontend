@@ -11,17 +11,19 @@
       />
     </div>
 
-
-    <a-button  v-if="loginUserStore.loginUser.userRole === 'admin'" type="primary"  size="middle"   @click="refreshCache" target="_blank">+ 刷新缓存</a-button>
+    <a-button
+      v-if="loginUserStore.loginUser.userRole === 'admin'"
+      type="primary"
+      size="middle"
+      @click="refreshCache"
+      target="_blank"
+      >+ 刷新缓存
+    </a-button>
 
     <!-- 排序功能 -->
     <div class="sort-bar">
-      <span style="margin-right: 8px;font-size: 16px">筛选排序：</span>
-      <a-select
-        v-model:value="searchParams.sortField"
-        style="width: 120px"
-        @change="doSearch"
-      >
+      <span style="margin-right: 8px; font-size: 16px">筛选排序：</span>
+      <a-select v-model:value="searchParams.sortField" style="width: 120px" @change="doSearch">
         <a-select-option value="createTime">最新发布</a-select-option>
         <a-select-option value="viewCount"> 最多浏览</a-select-option>
         <a-select-option value="likeCount">最多点赞</a-select-option>
@@ -50,7 +52,7 @@
   </div>
 
   <!-- 图片列表 -->
-  <PictureList :dataList="dataList" :loading="loading"  source="public"   style="margin-top: 20px"/>
+  <PictureList :dataList="dataList" :loading="loading" source="public" style="margin-top: 20px" />
   <a-pagination
     style="text-align: right"
     v-model:pageNum="searchParams.pageNum"
@@ -58,7 +60,6 @@
     :total="total"
     @change="onPageChange"
   />
-
 </template>
 
 <script setup lang="ts">
@@ -66,17 +67,15 @@
 import { onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import PictureList from '@/components/PictureList.vue'
-import {
-  listPictureVoByPageWithCacheUsingPost, refreshCacheUsingPost
-} from '@/api/tupianguanli.ts'
+import { listPictureVoByPageWithCacheUsingPost, refreshCacheUsingPost } from '@/api/tupianguanli.ts'
 import { useRouter } from 'vue-router'
 import { listTagsUsingPost } from '@/api/biaoqianguanli.ts'
 import { listCategoryUsingPost } from '@/api/fenleiguanli.ts'
 import { useLoginUserStore } from '@/stores/user'
+
 const dataList = ref([])
 const total = ref(0)
 const loading = ref(true)
-
 
 const categoryList = ref<string[]>([])
 const selectedCategory = ref<string>('all')
@@ -99,6 +98,11 @@ const onPageChange = (page, pageSize) => {
   fetchData()
 }
 
+// 页面加载时请求一次
+onMounted(() => {
+  getTagCategoryOptions()
+  fetchData()
+})
 
 // 获取数据
 const fetchData = async () => {
@@ -132,8 +136,6 @@ const doSearch = () => {
   fetchData()
 }
 
-
-
 // 获取标签和分类选项
 const getTagCategoryOptions = async () => {
   const res = await listTagsUsingPost({})
@@ -153,7 +155,7 @@ const getTagCategoryOptions = async () => {
 
 const router = useRouter()
 
-const refreshCache = async () =>{
+const refreshCache = async () => {
   try {
     const res = await refreshCacheUsingPost({
       ...searchParams,
@@ -168,12 +170,6 @@ const refreshCache = async () =>{
     message.error('刷新缓存失败，请重试')
   }
 }
-
-// 页面加载时请求一次
-onMounted(() => {
-  getTagCategoryOptions()
-  fetchData()
-})
 </script>
 
 <style scoped>

@@ -15,7 +15,15 @@
         <!-- 操作区（红色框位置） -->
 
         <template v-if="picture.spaceId == null">
-          <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px">
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 16px;
+              margin-bottom: 16px;
+            "
+          >
             <!-- 点赞按钮 -->
             <a-button type="link" @click="handleLike" style="display: flex; align-items: center">
               <component :is="isLiked ? LikeFilled : LikeOutlined" />
@@ -43,8 +51,33 @@
             </a-button>
           </div>
         </template>
-        <!-- 图片内容 -->
-        <a-image style="max-height: 600px; object-fit: contain" :src="picture.url" />
+        <!-- 图片展示区 -->
+        <div class="image-container">
+          <!-- 上一张图片按钮 -->
+          <div
+            class="image-nav prev"
+            v-if="prevPictureId"
+            @click="navigateToPicture(prevPictureId)"
+          >
+            <LeftOutlined />
+          </div>
+
+          <!-- 图片展示（去除暗色背景） -->
+          <a-image
+            style="max-height: 600px; max-width: 100%; object-fit: contain"
+            :src="picture.url"
+            alt="图片预览"
+          />
+
+          <!-- 下一张图片按钮 -->
+          <div
+            class="image-nav next"
+            v-if="nextPictureId"
+            @click="navigateToPicture(nextPictureId)"
+          >
+            <RightOutlined />
+          </div>
+        </div>
       </a-card>
     </a-col>
 
@@ -93,8 +126,8 @@
           </a-descriptions-item>
           <a-descriptions-item label="浏览量：">
             <template v-if="picture.reviewStatus === 0 && picture.spaceId == null">
-              图片待审核</template
-            >
+              图片待审核
+            </template>
             <template v-else> {{ picture.viewCount || 0 }} 次浏览</template>
           </a-descriptions-item>
         </a-descriptions>
@@ -232,8 +265,8 @@ const doShare = (picture: API.PictureVO, e: Event) => {
     console.error('shareModalRef is not initialized')
   }
 }
-
-import { deletePictureUsingPost } from '@/api/tupianguanli.ts'
+import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
+import { deletePictureUsingPost, getAdjacentPicturesUsingPost } from '@/api/tupianguanli.ts'
 import {
   DeleteOutlined,
   EditOutlined,
@@ -248,22 +281,20 @@ import {
 } from '@ant-design/icons-vue'
 
 import 'emoji-picker-element'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useLoginUserStore } from '@/stores/user'
-import router from '@/router'
 import { downloadImage, formatSize } from '@/utils'
 import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
 import { usePictureStore } from '@/stores/picture'
-import {
-  addCommentUsingPost,
-  getCommentPageUsingPost,
-} from '@/api/tupianpinglunguanli.ts'
+import { addCommentUsingPost, getCommentPageUsingPost } from '@/api/tupianpinglunguanli.ts'
 import CommentItem from '@/components/CommentItem.vue'
 import CommentInput from '@/components/CommentInput.vue'
 import { Message } from '@arco-design/web-vue'
 import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 
 const pictureStore = usePictureStore()
 
@@ -271,11 +302,13 @@ const props = defineProps<{
   id: string | number
 }>()
 
-
 // 是否为个人空间
-const isPersonalSpace = computed(() => route.query.from === 'space');
+const isPersonalSpace = computed(() => route.query.from === 'space')
 // 检查是否从空间跳转
-const isFromSpace = computed(() => route.query?.fromSpace === 'true');
+const isFromSpace = computed(() => route.query?.fromSpace === 'true')
+
+const prevPictureId = ref<number | null>(null)
+const nextPictureId = ref<number | null>(null)
 
 // 主评论框内容
 const commentInput = ref('')
@@ -309,10 +342,6 @@ const parentInputValue = ref('')
 // 当前回复的用户名
 const currentReplyUser = ref('')
 
-const updateInput = (value) => {
-  parentInputValue.value = value
-}
-
 const loginUserStore = useLoginUserStore()
 
 const loginUserAvatar = computed(() => loginUserStore.loginUser?.userAvatar || '默认头像链接') // 获取登录用户头像
@@ -325,15 +354,52 @@ const isLiked = computed(() => pictureStore.pictureData[props.id]?.isLiked || fa
 const favoriteCount = computed(() => pictureStore.pictureData[props.id]?.favoriteCount || 0)
 const isFavorited = computed(() => pictureStore.pictureData[props.id]?.isFavorited || false)
 
-onMounted(() => {
+const searchParams = reactive({
+  sortField: 'createTime', // 默认按照创建时间排序
+  sortOrder: 'descend', // 默认降序
+})
+
+// 页面初始化触发
+onMounted(async () => {
   document.addEventListener('click', handleDocumentClick)
   pictureStore.fetchPictureDetail(props.id) // 获取图片详情
+  await getAdjacentPictures(props.id)
   loadComments()
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleDocumentClick)
 })
+
+// 监听路由变化，切换图片
+watch(
+  () => route.params.id,
+  (newId, oldId) => {
+    if (newId !== oldId) {
+      pictureStore.fetchPictureDetail(newId) // 获取新的图片详情
+      getAdjacentPictures(newId) // 获取相邻图片 ID
+    }
+  },
+)
+
+// 获取上一张下一张图片
+const getAdjacentPictures = async (pictureId) => {
+  const adjacentRes = await getAdjacentPicturesUsingPost({
+    pictureId,
+    sortField: searchParams.sortField,
+    sortOrder: searchParams.sortOrder,
+  })
+  if (adjacentRes.data.code === 200) {
+    prevPictureId.value = adjacentRes.data.data.nextId
+    nextPictureId.value = adjacentRes.data.data.prevId
+  } else {
+    console.error('获取相邻图片失败:', adjacentRes.data.message)
+  }
+}
+
+const updateInput = (value) => {
+  parentInputValue.value = value
+}
 
 // 打开或关闭 Emoji Picker
 const toggleEmojiPicker = (event) => {
@@ -367,6 +433,7 @@ const openImageUploader = () => {
   console.log('图片上传打开')
 }
 
+// 删除评论
 const handleCommentDelete = (id) => {
   const deleteFromTree = (comments, id) => {
     return comments.filter((comment) => {
@@ -407,6 +474,7 @@ const loadComments = async () => {
   }
 }
 
+// 计算总评论数
 const calculateTotalComments = (comments) => {
   if (!comments || comments.length === 0) {
     return 0
@@ -526,6 +594,7 @@ const doDownload = () => {
   downloadImage(picture.value.url)
 }
 
+// 处理点赞更新
 const handleLikeUpdated = (updatedComment) => {
   // 根据 updatedComment.id 更新本地 comments 数据
   const updateCommentTree = (comments) => {
@@ -541,6 +610,11 @@ const handleLikeUpdated = (updatedComment) => {
   }
 
   comments.value = updateCommentTree(comments.value)
+}
+
+// 点击图片跳转到上一页， 下一页
+const navigateToPicture = (pictureId: number) => {
+  router.push(`/picture/${pictureId}`)
 }
 </script>
 <style scoped>
@@ -668,5 +742,52 @@ const handleLikeUpdated = (updatedComment) => {
 
 .comment-input-container {
   position: relative;
+}
+
+.image-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent; /* 去掉背景色 */
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 16px;
+}
+
+.image-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.image-nav:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.image-nav.prev {
+  left: 16px;
+}
+
+.image-nav.next {
+  right: 16px;
+}
+
+a-image {
+  display: block;
+  max-height: 100%;
+  max-width: 100%;
 }
 </style>

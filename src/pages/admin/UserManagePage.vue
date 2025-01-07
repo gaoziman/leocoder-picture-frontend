@@ -41,11 +41,12 @@
             @confirm="() => doDelete(record.id)"
             @cancel="cancel"
           >
-            <a-button danger  size="middle">
+            <a-button danger size="middle">
               <template #icon>
                 <icon-font type="icon-a-shanchu1" />
               </template>
-              删除</a-button>
+              删除
+            </a-button>
           </a-popconfirm>
         </div>
       </template>
@@ -62,9 +63,10 @@ import { SCRIPT_URL } from '@/constants/url.ts'
 import wrapperRaf from 'ant-design-vue/es/_util/raf'
 import cancel = wrapperRaf.cancel
 import { Message } from '@arco-design/web-vue'
+
 const IconFont = createFromIconfontCN({
   scriptUrl: SCRIPT_URL,
-});
+})
 
 const columns = [
   {
@@ -104,12 +106,6 @@ const columns = [
     key: 'action',
   },
 ]
-
-// 页面加载时请求一次
-onMounted(() => {
-  fetchData()
-})
-
 // 数据
 const dataList = ref([])
 const total = ref(0)
@@ -118,6 +114,11 @@ const total = ref(0)
 const searchParams = reactive<API.UserQueryRequest>({
   pageNum: 1,
   pageSize: 4,
+})
+
+// 页面加载时请求一次
+onMounted(() => {
+  fetchData()
 })
 
 // 获取数据

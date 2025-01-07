@@ -3,14 +3,20 @@
     <h2>图片管理</h2>
     <a-space>
       <!-- 批量删除按钮 -->
-      <a-button type="primary" danger @click="handleBatchDelete" :disabled="selectedRowKeys.length === 0">
+      <a-button
+        type="primary"
+        danger
+        @click="handleBatchDelete"
+        :disabled="selectedRowKeys.length === 0"
+      >
         批量删除
       </a-button>
       <a-button type="primary" href="/add_picture" target="_blank">+ 创建图片</a-button>
-      <a-button type="primary" href="/add_picture/batch" target="_blank" ghost>+ 批量创建图片</a-button>
-<!--      <a-button type="primary" danger  @click="refreshCache" target="_blank">+ 手动刷新缓存</a-button>-->
+      <a-button type="primary" href="/add_picture/batch" target="_blank" ghost
+        >+ 批量创建图片</a-button
+      >
+      <!--      <a-button type="primary" danger  @click="refreshCache" target="_blank">+ 手动刷新缓存</a-button>-->
     </a-space>
-
   </a-flex>
   <a-form layout="inline" :model="searchParams" @finish="doSearch" style="margin-bottom: 20px">
     <a-form-item label="关键词" name="searchText">
@@ -60,7 +66,12 @@
       <!-- 标签 -->
       <template v-if="column.dataIndex === 'tags'">
         <a-space wrap>
-          <a-tag v-for="tag in JSON.parse(record.tags || '[]')" :key="tag" :color="getTagColor(tag)">{{ tag }}</a-tag>
+          <a-tag
+            v-for="tag in JSON.parse(record.tags || '[]')"
+            :key="tag"
+            :color="getTagColor(tag)"
+            >{{ tag }}</a-tag
+          >
         </a-space>
       </template>
       <!-- 图片信息 -->
@@ -103,9 +114,9 @@
           >
             拒绝
           </a-button>
-          <a-button  size="small" :href="`/add_picture?id=${record.id}`" target="_blank"
-            >编辑</a-button
-          >
+          <a-button size="small" :href="`/add_picture?id=${record.id}`" target="_blank"
+            >编辑
+          </a-button>
           <a-popconfirm
             title="你确定要删除这张图片吗?"
             ok-text="确定"
@@ -127,9 +138,10 @@ import {
   deleteBatchPictureUsingPost,
   deletePictureUsingPost,
   doPictureReviewUsingPost,
-  listPictureByPageUsingPost, refreshCacheUsingPost
+  listPictureByPageUsingPost,
+  refreshCacheUsingPost,
 } from '@/api/tupianguanli.ts'
-import {Modal } from 'ant-design-vue'
+import { Modal } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import wrapperRaf from 'ant-design-vue/es/_util/raf'
 import cancel = wrapperRaf.cancel
@@ -206,7 +218,7 @@ const columns = [
     key: 'action',
     fixed: 'right',
     width: 80, // 设置固定宽度
-    align: 'center' // 水平居中
+    align: 'center', // 水平居中
   },
 ]
 
@@ -216,7 +228,6 @@ const total = ref(0)
 
 // 用于存储选中的行的 ID
 const selectedRowKeys = ref<string[]>([])
-
 
 // 搜索条件
 const searchParams = reactive<API.PictureQueryRequest>({
@@ -237,6 +248,11 @@ const pagination = computed(() => {
   }
 })
 
+// 页面加载时请求一次
+onMounted(() => {
+  fetchData()
+})
+
 // 获取数据
 const fetchData = async () => {
   const res = await listPictureByPageUsingPost({
@@ -250,11 +266,6 @@ const fetchData = async () => {
     Message.error('获取数据失败，' + res.data.message)
   }
 }
-
-// 页面加载时请求一次
-onMounted(() => {
-  fetchData()
-})
 
 // 获取数据
 const doSearch = () => {
@@ -331,7 +342,6 @@ const rowSelection = {
   },
 }
 
-
 // 批量删除逻辑
 const handleBatchDelete = () => {
   Modal.confirm({
@@ -361,28 +371,6 @@ const handleBatchDelete = () => {
     },
   })
 }
-
-const refreshCache = async () =>{
-  try {
-    const res = await refreshCacheUsingPost({
-      ...searchParams,
-    })
-    if (res.data.code === 200) {
-      Message.success('刷新缓存成功')
-      // 判断是否需要跳转到上一页
-      if (dataList.value.length === selectedRowKeys.value.length && searchParams.pageNum > 1) {
-        searchParams.pageNum -= 1 // 跳转到上一页
-      }
-      selectedRowKeys.value = [] // 清空选中状态
-      fetchData() // 刷新数据
-    } else {
-      Message.error('刷新缓存失败：' + res.data.message)
-    }
-  } catch (error) {
-    Message.error('刷新缓存失败，请重试')
-  }
-}
-
 </script>
 
 <style scoped></style>

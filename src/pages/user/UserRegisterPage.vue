@@ -41,20 +41,19 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { userRegisterUsingPost } from '@/api/dengluguanli.ts'
 import { Message } from '@arco-design/web-vue'
 
+const router = useRouter()
+
 const formState = reactive<API.UserRegisterRequest>({
   userAccount: '',
   userPassword: '12345678',
   checkPassword: '12345678',
 })
-
-const router = useRouter()
 
 /**
  * 提交表单
@@ -78,10 +77,7 @@ const handleSubmit = async (values: any) => {
     Message.error('注册失败，' + res.data.message)
   }
 }
-
-
 </script>
-
 
 <style scoped>
 #userRegisterPage {
@@ -106,5 +102,4 @@ const handleSubmit = async (values: any) => {
   font-size: 13px;
   text-align: right;
 }
-
 </style>

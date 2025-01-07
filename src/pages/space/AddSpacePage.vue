@@ -28,12 +28,9 @@
       {{ spaceLevel.maxCount }}
     </a-typography-paragraph>
   </a-card>
-
 </template>
 
-
 <script setup lang="ts">
-
 import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { SPACE_LEVEL_ENUM, SPACE_LEVEL_OPTIONS } from '@/constants/space.ts'
@@ -42,17 +39,28 @@ import {
   addSpaceUsingPost,
   getSpaceVoByIdUsingGet,
   listSpaceLevelUsingGet,
-  updateSpaceUsingPost
+  updateSpaceUsingPost,
 } from '@/api/kongjianguanli.ts'
 import { Message } from '@arco-design/web-vue'
-const formData = reactive<API.SpaceAddRequest | API.SpaceUpdateRequest>({
-  spaceName: '',
-  spaceLevel: SPACE_LEVEL_ENUM.COMMON,
-})
+
 const loading = ref(false)
 const router = useRouter()
 const route = useRoute()
 const oldSpace = ref<API.SpaceVO>()
+
+// 空间级别列表
+const spaceLevelList = ref<API.SpaceLevel[]>([])
+
+// 表单数据
+const formData = reactive<API.SpaceAddRequest | API.SpaceUpdateRequest>({
+  spaceName: '',
+  spaceLevel: SPACE_LEVEL_ENUM.COMMON,
+})
+
+onMounted(() => {
+  fetchSpaceLevelList()
+  getOldSpace()
+})
 
 // 提交表单
 const handleSubmit = async (values: any) => {
@@ -83,9 +91,6 @@ const handleSubmit = async (values: any) => {
   loading.value = false
 }
 
-
-const spaceLevelList = ref<API.SpaceLevel[]>([])
-
 // 获取空间级别
 const fetchSpaceLevelList = async () => {
   const res = await listSpaceLevelUsingGet()
@@ -111,15 +116,6 @@ const getOldSpace = async () => {
     }
   }
 }
-
-onMounted(() => {
-  fetchSpaceLevelList()
-  getOldSpace()
-})
-
 </script>
 
-
-<style scoped>
-
-</style>
+<style scoped></style>

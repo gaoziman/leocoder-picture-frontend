@@ -18,19 +18,13 @@
 </template>
 
 <script setup lang="ts">
-import { h, onMounted, ref } from 'vue'
-import { UserOutlined, PictureOutlined } from '@ant-design/icons-vue'
+import { h, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/user'
 
-import { createFromIconfontCN } from '@ant-design/icons-vue';
+import { createFromIconfontCN } from '@ant-design/icons-vue'
 import { SCRIPT_URL } from '@/constants/url.ts'
 
-const IconFont = createFromIconfontCN({
-  scriptUrl: SCRIPT_URL,
-});
-
-const loginUserStore = useLoginUserStore()
 // 菜单列表
 const menuItems = [
   {
@@ -44,6 +38,12 @@ const menuItems = [
     icon: () => h(IconFont, { type: 'icon-kongjian' }),
   },
 ]
+
+const IconFont = createFromIconfontCN({
+  scriptUrl: SCRIPT_URL,
+})
+
+const loginUserStore = useLoginUserStore()
 
 const router = useRouter()
 
@@ -63,6 +63,4 @@ const doMenuClick = ({ key }: { key: string }) => {
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

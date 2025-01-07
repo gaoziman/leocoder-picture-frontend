@@ -81,6 +81,15 @@ declare namespace API {
     userId?: number
   }
 
+  type getAdjacentPicturesUsingPOSTParams = {
+    /** pictureId */
+    pictureId: number
+    /** sortField */
+    sortField: string
+    /** sortOrder */
+    sortOrder: string
+  }
+
   type getPictureByIdUsingGETParams = {
     /** id */
     id?: number
@@ -141,6 +150,8 @@ declare namespace API {
     userProfile?: string
     userRole?: string
   }
+
+  type MapStringLong_ = true
 
   type PageCategory_ = {
     current?: number
@@ -358,6 +369,12 @@ declare namespace API {
   type ResultLong_ = {
     code?: number
     data?: number
+    message?: string
+  }
+
+  type ResultMapStringLong_ = {
+    code?: number
+    data?: Record<string, any>
     message?: string
   }
 

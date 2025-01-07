@@ -44,10 +44,11 @@
       </template>
       <template v-else-if="column.key === 'action'">
         <a-space wrap>
-          <a-button   :href="`/add_space?id=${record.id}`" target="_blank">
+          <a-button :href="`/add_space?id=${record.id}`" target="_blank">
             <template #icon>
               <icon-font type="icon-bianji" />
-            </template>编辑
+            </template>
+            编辑
           </a-button>
           <a-popconfirm
             title="你确定要删除这个分类吗?"
@@ -144,6 +145,11 @@ const pagination = computed(() => {
   }
 })
 
+// 页面加载时请求一次
+onMounted(() => {
+  fetchData()
+})
+
 // 获取数据
 const fetchData = async () => {
   const res = await listSpaceVoByPageUsingPost({
@@ -156,11 +162,6 @@ const fetchData = async () => {
     message.error('获取数据失败，' + res.data.message)
   }
 }
-
-// 页面加载时请求一次
-onMounted(() => {
-  fetchData()
-})
 
 // 获取数据
 const doSearch = () => {

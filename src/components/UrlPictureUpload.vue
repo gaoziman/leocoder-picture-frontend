@@ -7,8 +7,8 @@
         placeholder="请输入图片 URL"
       />
       <a-button type="primary" :loading="loading" @click="handleUpload" style="width: 120px"
-        >提交</a-button
-      >
+        >提交
+      </a-button>
     </a-input-group>
     <img v-if="picture?.url" :src="picture?.url" alt="avatar" />
   </div>
@@ -22,7 +22,6 @@ import { Message } from '@arco-design/web-vue'
 const loading = ref<boolean>(false)
 const fileUrl = ref<string>()
 
-
 interface Props {
   picture?: API.PictureVO
   spaceId?: number
@@ -32,9 +31,7 @@ interface Props {
 // 上传时传递 spaceId
 const props = defineProps<Props>()
 
-/**
- * 上传
- */
+// 上传成功的图片信息
 const handleUpload = async () => {
   loading.value = true
   try {

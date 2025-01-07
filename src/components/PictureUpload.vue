@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import {type UploadProps } from 'ant-design-vue'
+import { type UploadProps } from 'ant-design-vue'
 import { ref } from 'vue'
 import { uploadPictureUsingPost } from '@/api/tupianguanli.ts'
 import { Message } from '@arco-design/web-vue'
@@ -29,7 +29,7 @@ import { SCRIPT_URL } from '@/constants/url.ts'
 
 const IconFont = createFromIconfontCN({
   scriptUrl: SCRIPT_URL,
-});
+})
 
 interface Props {
   picture?: API.PictureVO
@@ -39,10 +39,8 @@ interface Props {
 
 const props = defineProps<Props>()
 
-
-
-
-
+const loading = ref<boolean>(false)
+// 图片上传的回调
 const beforeUpload = (file: UploadProps['fileList'][number]) => {
   // 定义支持上传的图片格式类型数组
   const supportedTypes = [
@@ -56,28 +54,24 @@ const beforeUpload = (file: UploadProps['fileList'][number]) => {
   // 检查文件类型是否在支持列表中
   const isSupportedType = supportedTypes.includes(file.type)
   if (!isSupportedType) {
-    message.error('不支持上传该格式的图片，推荐 jpg、jpeg、png、webp、heic 格式')
+    Message.error('不支持上传该格式的图片，推荐 jpg、jpeg、png、webp、heic 格式')
   }
 
   // 校验图片大小，修改为 4M 限制
   const isLt4M = file.size / 1024 / 1024 < 4
   if (!isLt4M) {
-    message.error('不能上传超过 4M 的图片')
+    Message.error('不能上传超过 4M 的图片')
   }
 
   return isSupportedType && isLt4M
 }
-const loading = ref<boolean>(false)
 
-/**
- * 上传
- * @param file
- */
+// 图片上传的处理函数
 const handleUpload = async ({ file }: any) => {
   loading.value = true
   try {
-    const params : API.PictureUploadRequest = props.picture ? { id: props.picture.id } : {}
-    params.spaceId = props.spaceId;
+    const params: API.PictureUploadRequest = props.picture ? { id: props.picture.id } : {}
+    params.spaceId = props.spaceId
     const res = await uploadPictureUsingPost(params, {}, file)
     if (res.data.code === 200 && res.data.data) {
       Message.success('图片上传成功')

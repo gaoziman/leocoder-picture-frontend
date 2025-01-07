@@ -26,7 +26,6 @@
   </div>
 </template>
 
-
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { userLoginUsingPost } from '@/api/dengluguanli.ts'
@@ -34,13 +33,13 @@ import { useLoginUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import { Message } from '@arco-design/web-vue'
 
+const router = useRouter()
+const loginUserStore = useLoginUserStore()
+
 const formState = reactive<API.UserLoginRequest>({
   userAccount: 'leocoder',
   userPassword: '12345678',
 })
-
-const router = useRouter()
-const loginUserStore = useLoginUserStore()
 
 /**
  * 提交表单
@@ -60,11 +59,7 @@ const handleSubmit = async (values: any) => {
     Message.error('登录失败，' + res.data.message)
   }
 }
-
-
 </script>
-
-
 
 <style scoped>
 #userLoginPage {
@@ -89,5 +84,4 @@ const handleSubmit = async (values: any) => {
   font-size: 13px;
   text-align: right;
 }
-
 </style>

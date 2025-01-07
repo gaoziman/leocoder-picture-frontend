@@ -6,9 +6,7 @@
       <a-button type="primary" :href="`/add_picture?spaceId=${id}`" target="_blank">
         + 创建图片
       </a-button>
-      <a-tooltip
-        :title="`占用空间 ${formatSize(space.totalSize)} / ${formatSize(space.maxSize)}`"
-      >
+      <a-tooltip :title="`占用空间 ${formatSize(space.totalSize)} / ${formatSize(space.maxSize)}`">
         <a-progress
           type="circle"
           :percent="((space.totalSize * 100) / space.maxSize).toFixed(1)"
@@ -18,7 +16,7 @@
     </a-space>
   </a-flex>
   <!-- 图片列表 -->
-  <PictureList :dataList="dataList" :loading="loading"  source="space" />
+  <PictureList :dataList="dataList" :loading="loading" source="space" />
   <a-pagination
     style="text-align: right"
     v-model:pageNum="searchParams.pageNum"
@@ -28,7 +26,6 @@
     @change="onPageChange"
   />
 </template>
-
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
@@ -44,27 +41,6 @@ const props = defineProps<{
 }>()
 const space = ref<API.SpaceVO>({})
 
-// 获取空间详情
-const fetchSpaceDetail = async () => {
-  try {
-    const res = await getSpaceVoByIdUsingGet({
-      id: props.id,
-    })
-    if (res.data.code === 200 && res.data.data) {
-      space.value = res.data.data
-      console.log("space。vale：" + JSON.stringify(space.value))
-    } else {
-      message.error('获取空间详情失败，' + res.data.message)
-    }
-  } catch (e: any) {
-    message.error('获取空间详情失败：' + e.message)
-  }
-}
-
-onMounted(() => {
-  fetchSpaceDetail()
-})
-
 // 数据
 const dataList = ref([])
 const total = ref(0)
@@ -77,6 +53,29 @@ const searchParams = reactive<API.PictureQueryRequest>({
   sortField: 'createTime',
   sortOrder: 'descend',
 })
+
+// 页面加载时请求一次
+onMounted(() => {
+  fetchData()
+  fetchSpaceDetail()
+})
+
+// 获取空间详情
+const fetchSpaceDetail = async () => {
+  try {
+    const res = await getSpaceVoByIdUsingGet({
+      id: props.id,
+    })
+    if (res.data.code === 200 && res.data.data) {
+      space.value = res.data.data
+      console.log('space。vale：' + JSON.stringify(space.value))
+    } else {
+      message.error('获取空间详情失败，' + res.data.message)
+    }
+  } catch (e: any) {
+    message.error('获取空间详情失败：' + e.message)
+  }
+}
 
 // 分页参数
 const onPageChange = (page, pageSize) => {
@@ -102,15 +101,6 @@ const fetchData = async () => {
   }
   loading.value = false
 }
-
-// 页面加载时请求一次
-onMounted(() => {
-  fetchData()
-})
-
 </script>
 
-
-<style scoped>
-
-</style>
+<style scoped></style>

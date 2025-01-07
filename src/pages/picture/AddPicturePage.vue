@@ -84,6 +84,12 @@ const spaceId = computed(() => {
   return route.query?.spaceId
 })
 
+onMounted(() => {
+  getTagCategoryOptions()
+  getOldPicture()
+})
+
+// 上传成功回调
 const onSuccess = (newPicture: API.PictureVO) => {
   picture.value = newPicture
   pictureForm.name = newPicture.name
@@ -98,6 +104,7 @@ const handleTagChange = (tags: string[]) => {
     }
   })
 }
+
 // 提交表单
 const handleSubmit = async (values: any) => {
   if (!picture.value?.id) return
@@ -113,7 +120,7 @@ const handleSubmit = async (values: any) => {
   if (res.data.code === 200) {
     Message.success('操作成功')
     router.push({
-      path: `/picture/${picture.value.id}` ,
+      path: `/picture/${picture.value.id}`,
       query: { fromSpace: true }, // 添加 fromSpace 参数
     })
   } else {
@@ -175,11 +182,6 @@ const getOldPicture = async () => {
     }
   }
 }
-
-onMounted(() => {
-  getTagCategoryOptions()
-  getOldPicture()
-})
 </script>
 
 <style scoped>

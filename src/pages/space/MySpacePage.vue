@@ -13,6 +13,11 @@ import { listSpaceVoByPageUsingPost } from '@/api/kongjianguanli.ts'
 const router = useRouter()
 const loginUserStore = useLoginUserStore()
 
+// 在页面加载时检查用户空间
+onMounted(() => {
+  checkUserSpace()
+})
+
 // 检查用户是否有个人空间
 const checkUserSpace = async () => {
   const loginUser = loginUserStore.loginUser
@@ -38,15 +43,6 @@ const checkUserSpace = async () => {
     Message.error('加载我的空间失败，' + res.data.message)
   }
 }
-
-// 在页面加载时检查用户空间
-onMounted(() => {
-  checkUserSpace()
-})
 </script>
 
-
-
-<style scoped>
-
-</style>
+<style scoped></style>

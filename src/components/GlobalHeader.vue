@@ -4,7 +4,7 @@
       <RouterLink to="/">
         <div class="title-bar">
           <img class="logo" src="../assets/logo.png" alt="logo" />
-          <div class="title"> 智存协作云图库 </div>
+          <div class="title">智存协作云图库</div>
         </div>
       </RouterLink>
     </a-col>
@@ -50,9 +50,7 @@
 </template>
 <script lang="ts" setup>
 import { computed, h, ref } from 'vue'
-import {
-  createFromIconfontCN
-} from '@ant-design/icons-vue'
+import { createFromIconfontCN } from '@ant-design/icons-vue'
 import { MenuProps } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/user'
@@ -64,7 +62,7 @@ const loginUserStore = useLoginUserStore()
 const current = ref<string[]>(['home'])
 const IconFont = createFromIconfontCN({
   scriptUrl: SCRIPT_URL,
-});
+})
 const originItems = [
   {
     key: '/',
@@ -118,8 +116,12 @@ const originItems = [
     ),
     title: '知识导航',
   },
-
 ]
+
+// 展示在菜单的路由数组
+const items = computed<MenuProps['items']>(() => filterMenus(originItems))
+
+const router = useRouter()
 
 const goToLogin = () => {
   router.push('/user/login') // 跳转到登录页面的路由
@@ -130,19 +132,13 @@ const filterMenus = (menus = [] as MenuProps['items']) => {
   return menus?.filter((menu) => {
     if (menu.key.startsWith('/admin')) {
       const loginUser = loginUserStore.loginUser
-      if (!loginUser || loginUser.userRole !== "admin") {
+      if (!loginUser || loginUser.userRole !== 'admin') {
         return false
       }
     }
     return true
   })
 }
-
-// 展示在菜单的路由数组
-const items = computed<MenuProps['items']>(() => filterMenus(originItems))
-
-
-const router = useRouter()
 
 // 路由跳转事件
 const doMenuClick = ({ key }: { key: string }) => {
@@ -157,7 +153,7 @@ router.afterEach((to, from, next) => {
 })
 
 // 用户注销
-const doLogout = async () =>{
+const doLogout = async () => {
   const res = await userLogoutUsingPost()
   if (res.data.code === 200) {
     loginUserStore.setLoginUser({
@@ -169,14 +165,16 @@ const doLogout = async () =>{
     Message.error('退出登录失败，' + res.data.message)
   }
 }
+
+// 跳转到个人中心页面
 const goToProfile = () => {
   router.push('/user/profile') // 跳转到个人中心页面
 }
 
-const  goToMySpace = () => {
+// 跳转到我的空间页面
+const goToMySpace = () => {
   router.push('/my_space') // 跳转到我的空间页面
 }
-
 </script>
 
 <style scoped>

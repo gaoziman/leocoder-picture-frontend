@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
-
+const router = useRouter()
 
 interface Props {
   dataList?: API.PictureVO[]
@@ -55,7 +55,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 // 跳转至图片详情
-const router = useRouter()
+
 const doClickPicture = (picture) => {
   const query = props.source === 'space' ? { from: 'space' } : {}
   router.push({

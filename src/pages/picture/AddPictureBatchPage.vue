@@ -16,7 +16,7 @@
         />
       </a-form-item>
       <a-form-item label="抓取源">
-        <a-select v-model:value="formData.source" placeholder="请选择抓取源"  style="width: 280px">
+        <a-select v-model:value="formData.source" placeholder="请选择抓取源" style="width: 280px">
           <a-select-option value="baidu">百度</a-select-option>
           <a-select-option value="google">谷歌</a-select-option>
           <a-select-option value="bing">必应</a-select-option>
@@ -35,22 +35,20 @@
       </a-form-item>
     </a-form>
   </div>
-
 </template>
-
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { uploadPictureByBatchUsingPost } from '@/api/tupianguanli.ts'
 import { Message } from '@arco-design/web-vue'
-const router = useRouter()
 
+const router = useRouter()
+const loading = ref(false)
 const formData = reactive<API.PictureUploadByBatchRequest>({
   count: 10,
-  source: 'baidu'
+  source: 'baidu',
 })
-const loading = ref(false)
 
 const handleSubmit = async (values: any) => {
   if (!formData.searchText) {
@@ -62,7 +60,7 @@ const handleSubmit = async (values: any) => {
     Message.error('请选择抓取源！')
     return
   }
-  loading.value = true;
+  loading.value = true
   const res = await uploadPictureByBatchUsingPost({
     ...formData,
   })
@@ -74,12 +72,9 @@ const handleSubmit = async (values: any) => {
   } else {
     Message.error('创建失败，' + res.data.message)
   }
-  loading.value = false;
+  loading.value = false
 }
-
-
 </script>
-
 
 <style scoped>
 #addPictureBatchPage {

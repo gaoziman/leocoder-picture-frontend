@@ -11,7 +11,8 @@
       />
     </div>
 
-    <a-button  v-if="loginUserStore.loginUser.userRole === 'admin'" type="primary" danger  @click="refreshCache" target="_blank">+ 手动刷新缓存</a-button>
+
+    <a-button  v-if="loginUserStore.loginUser.userRole === 'admin'" type="primary"  size="middle"   @click="refreshCache" target="_blank">+ 刷新缓存</a-button>
 
     <!-- 排序功能 -->
     <div class="sort-bar">
@@ -49,7 +50,7 @@
   </div>
 
   <!-- 图片列表 -->
-  <PictureList :dataList="dataList" :loading="loading"   style="margin-top: 20px"/>
+  <PictureList :dataList="dataList" :loading="loading"  source="public"   style="margin-top: 20px"/>
   <a-pagination
     style="text-align: right"
     v-model:pageNum="searchParams.pageNum"
@@ -151,12 +152,6 @@ const getTagCategoryOptions = async () => {
 }
 
 const router = useRouter()
-// 跳转至图片详情
-const doClickPicture = (picture) => {
-  router.push({
-    path: `/picture/${picture.id}`,
-  })
-}
 
 const refreshCache = async () =>{
   try {

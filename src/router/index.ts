@@ -120,13 +120,18 @@ const router = createRouter({
       path: '/user/profile',
       name: 'UserProfile',
       component: UserProfile,
-      meta: { title: '个人中心' },
+      meta: {
+        title: '个人中心' ,
+        hideSider: true,
+      },
     },
     {
       path: '/user/info',
       name: 'UserInfo',
       component: UserInfo,
-      meta: { title: '修改基本信息' },
+      meta: { title: '修改基本信息',
+        hideSider: true,
+      },
     },
     {
       path: '/noAuth',

@@ -23,7 +23,11 @@
             </a-button>
 
             <!-- 收藏按钮 -->
-            <a-button type="link" @click="handleFavorite" style="display: flex; align-items: center">
+            <a-button
+              type="link"
+              @click="handleFavorite"
+              style="display: flex; align-items: center"
+            >
               <component :is="isFavorited ? StarFilled : StarOutlined" />
               <span style="margin-left: 4px">{{ favoriteCount }}</span>
             </a-button>
@@ -88,7 +92,9 @@
             {{ formatSize(picture.picSize) }}
           </a-descriptions-item>
           <a-descriptions-item label="浏览量：">
-            <template v-if="picture.reviewStatus === 0 && picture.spaceId == null"> 图片待审核</template>
+            <template v-if="picture.reviewStatus === 0 && picture.spaceId == null">
+              图片待审核</template
+            >
             <template v-else> {{ picture.viewCount || 0 }} 次浏览</template>
           </a-descriptions-item>
         </a-descriptions>
@@ -116,7 +122,8 @@
       </a-card>
     </a-col>
 
-    <a-row :gutter="[16, 16]">
+    <!-- 评论系统-->
+    <a-row v-if="!isPersonalSpace && !isFromSpace" :gutter="[16, 16]">
       <a-col :span="24" class="comment-section">
         <div class="comment-input-wrapper">
           <h3>评论 {{ totalComments }}</h3>
@@ -205,12 +212,6 @@
         @input-update="updateInput"
         :resetInput="resetInput"
       />
-<!--      <comment-input-->
-<!--        :userAvatar="loginUserAvatar"-->
-<!--        :inputValue="parentInputValue"-->
-<!--        @submit="submitReply"-->
-<!--        @input-update="(value) => (parentInputValue.value = value)"-->
-<!--      />-->
     </a-modal>
   </a-row>
 </template>
@@ -253,10 +254,16 @@ import router from '@/router'
 import { downloadImage, formatSize } from '@/utils'
 import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
 import { usePictureStore } from '@/stores/picture'
-import { addCommentUsingPost, deleteCommentUsingPost, getCommentPageUsingPost } from '@/api/tupianpinglunguanli.ts'
+import {
+  addCommentUsingPost,
+  getCommentPageUsingPost,
+} from '@/api/tupianpinglunguanli.ts'
 import CommentItem from '@/components/CommentItem.vue'
 import CommentInput from '@/components/CommentInput.vue'
 import { Message } from '@arco-design/web-vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 const pictureStore = usePictureStore()
 
@@ -264,13 +271,19 @@ const props = defineProps<{
   id: string | number
 }>()
 
+
+// 是否为个人空间
+const isPersonalSpace = computed(() => route.query.from === 'space');
+// 检查是否从空间跳转
+const isFromSpace = computed(() => route.query?.fromSpace === 'true');
+
 // 主评论框内容
 const commentInput = ref('')
 
 // 回复框内容
 const replyInput = ref('')
 
-const resetInput = ref(false);
+const resetInput = ref(false)
 
 // 回复弹窗可见性
 const replyModalVisible = ref(false)
@@ -311,7 +324,6 @@ const isLiked = computed(() => pictureStore.pictureData[props.id]?.isLiked || fa
 // 从 Store 中获取当前图片的收藏数据
 const favoriteCount = computed(() => pictureStore.pictureData[props.id]?.favoriteCount || 0)
 const isFavorited = computed(() => pictureStore.pictureData[props.id]?.isFavorited || false)
-
 
 onMounted(() => {
   document.addEventListener('click', handleDocumentClick)
@@ -359,17 +371,17 @@ const handleCommentDelete = (id) => {
   const deleteFromTree = (comments, id) => {
     return comments.filter((comment) => {
       if (comment.id === id) {
-        return false; // 当前评论被移除
+        return false // 当前评论被移除
       }
       if (comment.children) {
-        comment.children = deleteFromTree(comment.children, id); // 递归处理子评论
+        comment.children = deleteFromTree(comment.children, id) // 递归处理子评论
       }
-      return true;
-    });
-  };
+      return true
+    })
+  }
 
-  comments.value = deleteFromTree(comments.value, id); // 更新评论树
-};
+  comments.value = deleteFromTree(comments.value, id) // 更新评论树
+}
 
 // 加载评论列表
 const loadComments = async () => {
@@ -438,7 +450,7 @@ const submitReply = async (content) => {
   if (res.data.code === 200) {
     Message.success('回复成功！')
     parentInputValue.value = ''
-    closeReplyModal(); // 关闭回复框
+    closeReplyModal() // 关闭回复框
     await loadComments() // 刷新评论列表
     // location.reload()
   } else {
@@ -448,16 +460,16 @@ const submitReply = async (content) => {
 
 // 打开回复框
 const openReplyModal = (comment) => {
-  currentCommentIndex.value = comment.id;
-  parentInputValue.value = ''; // 清空子评论框的内容
-  currentReplyUser.value = comment.userName;
-  replyModalVisible.value = true;
+  currentCommentIndex.value = comment.id
+  parentInputValue.value = '' // 清空子评论框的内容
+  currentReplyUser.value = comment.userName
+  replyModalVisible.value = true
 }
 
 // 关闭回复框
 const closeReplyModal = () => {
   replyModalVisible.value = false // 隐藏模态框
-  currentCommentIndex.value = null; // 重置当前回复的评论索引
+  currentCommentIndex.value = null // 重置当前回复的评论索引
 }
 
 // 点赞/取消点赞
@@ -508,7 +520,6 @@ const doDelete = async () => {
     Message.error('删除失败')
   }
 }
-
 
 // 处理下载
 const doDownload = () => {

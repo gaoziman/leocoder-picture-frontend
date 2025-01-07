@@ -7,47 +7,36 @@
 
       <a-layout>
         <!-- 固定侧边栏 -->
-        <a-layout-sider class="sider fixed-sider" width="200" breakpoint="lg" collapsed-width="0">
+        <a-layout-sider
+          v-if="!hideSider"
+          class="sider fixed-sider"
+          width="200"
+          breakpoint="lg"
+          collapsed-width="0"
+        >
           <GlobalSider />
         </a-layout-sider>
-        <a-layout-content class="content">
+        <a-layout-content :class="contentClass">
           <router-view />
         </a-layout-content>
       </a-layout>
-
-<!--      <a-layout-footer class="footer">-->
-<!--        <div class="footer-content">-->
-<!--          <div class="footer-links">-->
-<!--            <a href="https://space.bilibili.com/12890453" target="_blank" class="link-with-icon">-->
-<!--              <UserOutlined />-->
-<!--              站长：程序员Leo-->
-<!--            </a>-->
-
-<!--            <a href="https://leocoder.cn" target="_blank" class="link-with-icon">-->
-<!--              <GlobalOutlined />-->
-<!--              知识库</a-->
-<!--            >-->
-<!--          </div>-->
-<!--          <div class="footer-meta">-->
-<!--            <span>© 2025  智云库</span>-->
-<!--            <span>|</span>-->
-<!--            <a href="https://beian.miit.gov.cn/" target="_blank">鄂ICP备2025089543号-1</a>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </a-layout-footer>-->
 
       <!-- 动态显示的 footer -->
       <transition name="fade">
         <a-layout-footer v-if="showFooter" class="footer">
           <div class="footer-content">
             <div class="footer-links">
-              <a href="https://juejin.cn/user/2467719176022094/posts" target="_blank" class="link-with-icon">
-                <UserOutlined />
+              <a
+                href="https://juejin.cn/user/2467719176022094/posts"
+                target="_blank"
+                class="link-with-icon"
+              >
+                <icon-font type="icon-yonghu4" />
                 站长：程序员Leo
               </a>
 
               <a href="https://leocoder.cn" target="_blank" class="link-with-icon">
-                <GlobalOutlined />
+                <icon-font type="icon-zhishiku" />
                 知识库
               </a>
             </div>
@@ -67,15 +56,23 @@
 import GlobalHeader from '@/components/GlobalHeader.vue'
 import GlobalSider from '@/components/GlobalSider.vue'
 import { UserOutlined, GlobalOutlined } from '@ant-design/icons-vue'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
-
-import { createFromIconfontCN } from '@ant-design/icons-vue';
+import { createFromIconfontCN } from '@ant-design/icons-vue'
 import { SCRIPT_URL } from '@/constants/url.ts'
+import { useRoute } from 'vue-router'
 
 const IconFont = createFromIconfontCN({
   scriptUrl: SCRIPT_URL,
-});
+})
+
+// 是否隐藏侧边栏
+const route = useRoute()
+const hideSider = computed(() => route.meta.hideSider || false)
+
+// 根据是否显示侧边栏动态设置内容区域样式
+const contentClass = computed(() => (hideSider.value ? 'content no-sider' : 'content'))
+
 // 控制 footer 显示的状态
 const showFooter = ref(false)
 
@@ -148,7 +145,6 @@ onUnmounted(() => {
   color: #7d8185;
 }
 
-
 .footer-links span,
 .footer-meta span {
   color: #666;
@@ -219,10 +215,15 @@ onUnmounted(() => {
 
 /* 内容区域样式 */
 .content {
-  margin: 64px 0 0 200px; /* 顶部和左侧分别留出 header 和 sider 的空间 */
+  margin: 64px 0 0 200px; /* 默认情况下预留侧边栏宽度 */
   padding: 24px;
   background: #f0f2f5;
   min-height: calc(100vh - 64px); /* 减去 header 的高度 */
+}
+
+/* 当侧边栏隐藏时，内容区域占据全屏 */
+.no-sider {
+  margin: 64px 0 0 0; /* 取消左侧边距 */
 }
 
 /* 底部样式 */

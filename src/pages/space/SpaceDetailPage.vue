@@ -18,7 +18,7 @@
     </a-space>
   </a-flex>
   <!-- 图片列表 -->
-  <PictureList :dataList="dataList" :loading="loading" />
+  <PictureList :dataList="dataList" :loading="loading"  source="space" />
   <a-pagination
     style="text-align: right"
     v-model:pageNum="searchParams.pageNum"
@@ -27,23 +27,11 @@
     :show-total="() => `图片总数 ${total} / ${space.maxCount}`"
     @change="onPageChange"
   />
-
-<!--  <template #actions>-->
-<!--    <a-space @click="e => doEdit(picture, e)">-->
-<!--      <edit-outlined />-->
-<!--      编辑-->
-<!--    </a-space>-->
-<!--    <a-space @click="e => doDelete(picture, e)">-->
-<!--      <delete-outlined />-->
-<!--      删除-->
-<!--    </a-space>-->
-<!--  </template>-->
 </template>
 
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-// import { EditOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 
 import PictureList from '@/components/PictureList.vue'
 import { getSpaceVoByIdUsingGet } from '@/api/kongjianguanli.ts'

@@ -10,7 +10,10 @@
       <div v-else>
         <loading-outlined v-if="loading"></loading-outlined>
         <plus-outlined v-else></plus-outlined>
-        <div class="ant-upload-text">点击或拖拽上传图片</div>
+        <div class="ant-upload-text">
+          <icon-font type="icon-tupianshangchuan" />
+          点击或拖拽上传图片
+        </div>
       </div>
     </a-upload>
   </div>
@@ -21,6 +24,12 @@ import {type UploadProps } from 'ant-design-vue'
 import { ref } from 'vue'
 import { uploadPictureUsingPost } from '@/api/tupianguanli.ts'
 import { Message } from '@arco-design/web-vue'
+import { createFromIconfontCN } from '@ant-design/icons-vue'
+import { SCRIPT_URL } from '@/constants/url.ts'
+
+const IconFont = createFromIconfontCN({
+  scriptUrl: SCRIPT_URL,
+});
 
 interface Props {
   picture?: API.PictureVO

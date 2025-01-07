@@ -51,7 +51,6 @@
 <script lang="ts" setup>
 import { computed, h, ref } from 'vue'
 import {
-  CloudOutlined,
   createFromIconfontCN
 } from '@ant-design/icons-vue'
 import { MenuProps } from 'ant-design-vue'
@@ -71,7 +70,7 @@ const originItems = [
     key: '/',
     label: '主页',
     title: '主页',
-    icon: () => h(IconFont, { type: 'icon-shouye' }),
+    icon: () => h(IconFont, { type: 'icon-zhuye4' }),
   },
   {
     key: '/add_picture',
@@ -83,13 +82,13 @@ const originItems = [
     key: '/admin/userManage',
     label: '用户管理',
     title: '用户管理',
-    icon: () => h(IconFont, { type: 'icon-yonghu1' }),
+    icon: () => h(IconFont, { type: 'icon-yonghuguanli1' }),
   },
   {
     key: '/admin/pictureManage',
     label: '图片管理',
     title: '图片管理',
-    icon: ()=>h(CloudOutlined),
+    icon: () => h(IconFont, { type: 'icon-tupian1' }),
   },
   {
     key: '/admin/categoryManage',

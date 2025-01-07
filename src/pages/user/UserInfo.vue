@@ -260,10 +260,11 @@ onMounted(() => {
 
 <style scoped>
 .profile-page {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 920px;
   background-color: #f0f2f5;
   position: relative;
 }
@@ -317,7 +318,6 @@ onMounted(() => {
   object-fit: cover;
 }
 
-.info-section,
 .password-form {
   display: flex;
   flex-direction: column;

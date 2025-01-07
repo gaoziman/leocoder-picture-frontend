@@ -41,21 +41,26 @@
 import { useRouter } from 'vue-router'
 import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
 
+
 interface Props {
   dataList?: API.PictureVO[]
   loading?: boolean
+  source?: 'public' | 'space'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   dataList: () => [],
   loading: false,
+  source: 'public', // 默认值为公共图片
 })
 
 // 跳转至图片详情
 const router = useRouter()
 const doClickPicture = (picture) => {
+  const query = props.source === 'space' ? { from: 'space' } : {}
   router.push({
     path: `/picture/${picture.id}`,
+    query
   })
 }
 </script>

@@ -10,7 +10,7 @@
     <!-- 选择上传方式 -->
     <a-tabs v-model:activeKey="uploadType">
       <a-tab-pane key="file" tab="文件上传">
-          <PictureUpload :picture="picture" :spaceId="spaceId" :onSuccess="onSuccess" />
+        <PictureUpload :picture="picture" :spaceId="spaceId" :onSuccess="onSuccess" />
       </a-tab-pane>
       <a-tab-pane key="url" tab="URL 上传" force-render>
         <UrlPictureUpload :picture="picture" :spaceId="spaceId" :onSuccess="onSuccess" />
@@ -64,12 +64,9 @@ import PictureUpload from '@/components/PictureUpload.vue'
 import UrlPictureUpload from '@/components/UrlPictureUpload.vue'
 import { reactive, ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import {
-  editPictureUsingPost,
-  getPictureVoByIdUsingGet,
-} from '@/api/tupianguanli.ts'
+import { editPictureUsingPost, getPictureVoByIdUsingGet } from '@/api/tupianguanli.ts'
 import { addTagUsingPost, listTagsUsingPost } from '@/api/biaoqianguanli.ts'
-import {listCategoryUsingPost } from '@/api/fenleiguanli.ts'
+import { listCategoryUsingPost } from '@/api/fenleiguanli.ts'
 import { Message } from '@arco-design/web-vue'
 
 const uploadType = ref<'file' | 'url'>('file')
@@ -78,7 +75,7 @@ const pictureForm = reactive<API.PictureEditRequest>({})
 const categoryOptions = ref<any[]>([])
 const tagOptions = ref<any[]>([])
 // 保存新增的标签
-const newTags = ref<string[]>([]);
+const newTags = ref<string[]>([])
 const router = useRouter()
 const route = useRoute()
 
@@ -86,7 +83,6 @@ const route = useRoute()
 const spaceId = computed(() => {
   return route.query?.spaceId
 })
-
 
 const onSuccess = (newPicture: API.PictureVO) => {
   picture.value = newPicture
@@ -98,10 +94,10 @@ const handleTagChange = (tags: string[]) => {
   tags.forEach((tag) => {
     if (!tagOptions.value.some((option) => option.value === tag) && !newTags.value.includes(tag)) {
       // 将新增的标签保存到 newTags 中
-      newTags.value.push(tag);
+      newTags.value.push(tag)
     }
-  });
-};
+  })
+}
 // 提交表单
 const handleSubmit = async (values: any) => {
   if (!picture.value?.id) return
@@ -116,7 +112,10 @@ const handleSubmit = async (values: any) => {
   })
   if (res.data.code === 200) {
     Message.success('操作成功')
-    router.push({ path: `/picture/${picture.value.id}` })
+    router.push({
+      path: `/picture/${picture.value.id}` ,
+      query: { fromSpace: true }, // 添加 fromSpace 参数
+    })
   } else {
     Message.error('操作失败: ' + res.data.message)
   }
@@ -126,27 +125,29 @@ const handleSubmit = async (values: any) => {
 const syncNewTags = async () => {
   if (newTags.value.length > 0) {
     try {
-      const res = await addTagUsingPost({tags: newTags.value}); // 新增标签到数据库
+      const res = await addTagUsingPost({ tags: newTags.value }) // 新增标签到数据库
       if (res.data.code !== 200) {
-        Message.error('同步标签失败: ' + res.data.message);
+        Message.error('同步标签失败: ' + res.data.message)
       } else {
         // 成功后将新标签加入 tagOptions
-        newTags.value.forEach(tag => {
-          tagOptions.value.push({ label: tag, value: tag });
-        });
+        newTags.value.forEach((tag) => {
+          tagOptions.value.push({ label: tag, value: tag })
+        })
         // 清空 newTags
-        newTags.value = [];
+        newTags.value = []
       }
     } catch (error) {
-      Message.error('标签同步请求失败');
+      Message.error('标签同步请求失败')
     }
   }
-};
-
+}
 
 // 获取标签和分类选项
 const getTagCategoryOptions = async () => {
-  const [tagRes, categoryRes] = await Promise.all([listTagsUsingPost({}), listCategoryUsingPost({})])
+  const [tagRes, categoryRes] = await Promise.all([
+    listTagsUsingPost({}),
+    listCategoryUsingPost({}),
+  ])
 
   if (tagRes.data.code === 200) {
     tagOptions.value = tagRes.data.data.map((item: any) => ({

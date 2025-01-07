@@ -31,14 +31,14 @@
             <span v-if="index < stats.length - 1" class="divider">|</span>
           </a-col>
           <!-- 右侧修改资料按钮 -->
-          <a-col flex="640px" class="edit-profile-container">
+          <a-col class="edit-profile-container" style="text-align: right; flex: auto">
             <a-button type="primary" @click="goToEditProfile">修改资料</a-button>
           </a-col>
         </a-row>
       </a-card>
     </div>
 
-    <div class="profile-header" style="margin-top: 20px">
+    <div class="profile-header">
       <a-card class="profile-card2">
         <!-- Tab 栏 -->
         <a-tabs v-model:activeKey="activeTab" class="tab-section" @change="handleTabChange">
@@ -53,7 +53,11 @@
                   <!-- 单张图片 -->
                   <a-card hoverable @click="doClickPicture(picture.id)">
                     <template #cover>
-                      <img style="height: 180px; object-fit: cover" :alt="picture.name" :src="picture.url" />
+                      <img
+                        style="height: 180px; object-fit: cover"
+                        :alt="picture.name"
+                        :src="picture.url"
+                      />
                     </template>
                     <a-card-meta :title="picture.name">
                       <template #description>
@@ -91,19 +95,23 @@
                 </a-col>
                 <!-- 右侧编辑按钮 -->
                 <a-col>
-                  <a-button type="link" class="edit-button" @click="goToEditProfile">
-                    <EditOutlined />
-                    <a-icon type="edit" style="margin-right: 4px" />编辑
+                  <a-button class="edit-button" @click="goToEditProfile">
+                    <icon-font type="icon-km-edit" />
+                    编辑
                   </a-button>
                 </a-col>
               </a-row>
               <!-- 信息内容 -->
-              <div class="info-content">
-                <div class="info-item" v-for="item in infoItems" :key="item.label">
-                  <div class="info-label">{{ item.label }}</div>
-                  <div class="info-value">{{ item.value }}</div>
-                </div>
-              </div>
+              <a-card class="info-card">
+                <a-row :gutter="[16, 16]">
+                  <a-col :span="12" v-for="item in infoItems" :key="item.label">
+                    <div class="info-item">
+                      <div class="info-label">{{ item.label }}</div>
+                      <div class="info-value">{{ item.value }}</div>
+                    </div>
+                  </a-col>
+                </a-row>
+              </a-card>
             </div>
           </a-tab-pane>
           <a-tab-pane key="favorites" tab="收藏">
@@ -117,7 +125,11 @@
                   <!-- 单张图片 -->
                   <a-card hoverable @click="doClickPicture(picture.pictureId)">
                     <template #cover>
-                      <img style="height: 180px; object-fit: cover" :alt="picture.name" :src="picture.url" />
+                      <img
+                        style="height: 180px; object-fit: cover"
+                        :alt="picture.name"
+                        :src="picture.url"
+                      />
                     </template>
                     <a-card-meta :title="picture.name">
                       <template #description>
@@ -160,9 +172,12 @@ import { message } from 'ant-design-vue'
 import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
 import { useRouter } from 'vue-router'
 import { listPictureVoByUserUsingPost } from '@/api/tupianguanli.ts'
-import {
-  EditOutlined,
-} from '@ant-design/icons-vue'
+import { createFromIconfontCN } from '@ant-design/icons-vue'
+import { SCRIPT_URL } from '@/constants/url.ts'
+
+const IconFont = createFromIconfontCN({
+  scriptUrl: SCRIPT_URL,
+})
 
 const userInfo = ref({
   avatar: '',
@@ -175,16 +190,14 @@ const userPictures = ref([])
 const pagination = ref({
   total: 0,
   pageNum: 1,
-  pageSize: 4,
+  pageSize: 12,
 })
-
 
 const userPagination = ref({
   total: 0,
   pageNum: 1,
-  pageSize: 4,
+  pageSize: 8,
 })
-
 
 // 获取收藏数据
 const fetchFavorites = async () => {
@@ -192,47 +205,45 @@ const fetchFavorites = async () => {
     const params = {
       pageNum: pagination.value.pageNum,
       pageSize: pagination.value.pageSize,
-    };
-    const res = await favoriteListUsingPost(params);
+    }
+    const res = await favoriteListUsingPost(params)
     if (res.data.code === 200) {
-      favorites.value = res.data.data.records ?? [];
+      console.log(res.data.data)
+      favorites.value = res.data.data.records ?? []
       pagination.value.total = Number(res.data.data.total) ?? 0 // 确保是数字;
     } else {
-      message.error('获取收藏数据失败：' + res.data.message);
+      message.error('获取收藏数据失败：' + res.data.message)
     }
   } catch (error) {
-    console.error('获取收藏数据失败：', error);
-    message.error('系统异常，请稍后再试');
+    message.error('系统异常，请稍后再试')
   }
-};
+}
 
 // 获取用户上传的图片
-const  fetchUserPictures = async () => {
+const fetchUserPictures = async () => {
   try {
     const params = {
       pageNum: userPagination.value.pageNum,
       pageSize: userPagination.value.pageSize,
-    };
-    const res = await listPictureVoByUserUsingPost(params);
-    console.log("res:" + JSON.stringify(res.data))
+    }
+    const res = await listPictureVoByUserUsingPost(params)
     if (res.data.code === 200) {
-      userPictures.value = res.data.data.records ?? [];
+      userPictures.value = res.data.data.records ?? []
       userPagination.value.total = Number(res.data.data.total) ?? 0 // 确保是数字;
     } else {
-      message.error('获取已发布图片数据失败：' + res.data.message);
+      message.error('获取已发布图片数据失败：' + res.data.message)
     }
   } catch (error) {
-    console.error('获取已发布图片数据失败：', error);
-    message.error('系统异常，请稍后再试');
+    message.error('系统异常，请稍后再试')
   }
 }
 
 // 切换页码
 const handlePageChange = (page: number) => {
-  if (activeTab.value === 'favorites'){
+  if (activeTab.value === 'favorites') {
     pagination.value.pageNum = page
     fetchFavorites()
-  }else if(activeTab.value === 'userPictures'){
+  } else if (activeTab.value === 'userPictures') {
     userPagination.value.pageNum = page
     fetchUserPictures()
   }
@@ -240,22 +251,22 @@ const handlePageChange = (page: number) => {
 
 // 切换每页显示数量
 const handlePageSizeChange = (current: number, size: number) => {
-  if (activeTab.value === 'favorites'){
-    pagination.value.pageSize = size; // 更新每页显示数量
-    pagination.value.pageNum = 1; // 重置到第一页e
-    fetchFavorites(); // 重新请求数据
-  } else if (activeTab.value === 'userPictures'){
-    userPagination.value.pageSize = size;
-    userPagination.value.pageNum = 1; // 重置到第一页e
-    fetchUserPictures();
+  if (activeTab.value === 'favorites') {
+    pagination.value.pageSize = size // 更新每页显示数量
+    pagination.value.pageNum = 1 // 重置到第一页e
+    fetchFavorites() // 重新请求数据
+  } else if (activeTab.value === 'userPictures') {
+    userPagination.value.pageSize = size
+    userPagination.value.pageNum = 1 // 重置到第一页e
+    fetchUserPictures()
   }
-};
+}
 
 const handleTabChange = (key: string) => {
   activeTab.value = key
   if (key === 'favorites') {
     fetchFavorites()
-  }else if(key === 'userPictures') {
+  } else if (key === 'userPictures') {
     fetchUserPictures()
   }
 }
@@ -282,10 +293,8 @@ const infoItems = ref([
   { label: '手机', value: '199****3394' },
   { label: '邮箱', value: '暂无' },
   { label: '地区', value: '北京市' },
-  { label: '生日', value: '2001-04-19' },
   { label: '会员编号', value: '12644' },
 ])
-
 
 const loginUserStore = useLoginUserStore()
 
@@ -337,45 +346,42 @@ const goToEditProfile = () => {
   margin-top: 4px;
   word-break: break-word; /* 简介自动换行 */
 }
+
 .profile-page {
-  background: linear-gradient(180deg, #e0f7fa, #4f8ad6);
+  width: 100%; /* 确保页面内容占满全宽 */
   min-height: 100vh;
-  padding-top: 10px; /* 减小顶部间距 */
+  //background: linear-gradient(to bottom, #87cefa, #e0e7f7); /* 渐变背景 */
+  padding: 0; /* 移除多余的填充 */
+  margin: 0; /* 移除默认边距 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .profile-header {
-  padding: 0;
+  width: 100%;
+  padding: 0; /* 移除填充 */
+  margin: 0 auto;
+}
+
+.profile-card,
+.profile-card2 {
+  width: 100%; /* 让卡片宽度自适应父容器 */
+  max-width: none; /* 移除最大宽度限制 */
+}
+
+.pagination {
+  margin-top: 20px;
   text-align: center;
 }
 
-/*.profile-card {
-  margin: 0 auto;
-  max-width: 900px; !* 宽度调整为更宽 *!
-  background: #ffffff;
+a-card {
+  height: auto; /* 动态适应内容高度 */
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-}*/
-
-.profile-card {
-  margin: 0 auto;
-  max-width: 1100px; /* 调整宽度 */
-  height: 200px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 16px; /* 减少高度 */
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
-
-.profile-card2 {
-  margin: 0 auto;
-  max-width: 1100px; /* 调整宽度 */
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 16px; /* 减少高度 */
-}
-
 
 .profile-nickname {
   font-size: 24px;
@@ -434,10 +440,12 @@ const goToEditProfile = () => {
   align-items: center;
   justify-content: flex-end;
 }
+
 .pagination {
   margin-top: 16px;
   text-align: center;
 }
+
 a-card {
   height: auto; /* 动态适应内容高度 */
   border-radius: 12px;
@@ -445,56 +453,59 @@ a-card {
   margin-bottom: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
+
 .profile-info-section {
-  max-width: 700px;
+  max-width: 100%;
   margin: 20px auto;
+  height: 550px;
   padding: 0; /* 移除多余填充 */
 }
 
 .info-header {
   margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .info-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: bold;
   color: #333;
-  //margin: 0;
-  margin-left: -260px;
 }
 
+.info-card {
+  background: #f9f9f9;
+  border: none;
+  padding: 16px;
+}
 
 .info-item {
-  display: contents; /* 使每一项占据一行 */
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
 }
 
-.info-content {
-  display: grid;
-  grid-template-columns: 150px auto; /* 左边固定宽度，右边自动扩展 */
-  row-gap: 12px; /* 行间距 */
-  column-gap: 20px; /* 列间距 */
+.info-item:last-child {
+  border-bottom: none;
 }
 
 .info-label {
-  font-weight: bold;
-  color: #333;
-  text-align: left; /* 右对齐 */
-  margin-left: -160px;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
 }
 
 .info-value {
-  color: #555;
-  text-align: left; /* 左对齐 */
-  margin-left: -160px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
 }
+
 .edit-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 0px;
-  height: 32px;
-  font-size: 15px;
-  color: #1890ff;
-  padding: 0;
 }
 </style>

@@ -8,14 +8,21 @@
         danger
         @click="handleBatchDelete"
         :disabled="selectedRowKeys.length === 0"
+        :icon="h(DeleteOutlined)"
       >
         批量删除
       </a-button>
-      <a-button type="primary" href="/add_picture" target="_blank">+ 创建图片</a-button>
-      <a-button type="primary" href="/add_picture/batch" target="_blank" ghost
-        >+ 批量创建图片</a-button
-      >
-      <!--      <a-button type="primary" danger  @click="refreshCache" target="_blank">+ 手动刷新缓存</a-button>-->
+      <a-button type="primary" href="/add_picture" :icon="h(PlusOutlined)" target="_blank"
+        >创建图片
+      </a-button>
+      <a-button
+        type="primary"
+        href="/add_picture/batch"
+        :icon="h(PlusOutlined)"
+        target="_blank"
+        ghost
+        >批量创建图片
+      </a-button>
     </a-space>
   </a-flex>
   <a-form layout="inline" :model="searchParams" @finish="doSearch" style="margin-bottom: 20px">
@@ -45,7 +52,7 @@
     </a-form-item>
 
     <a-form-item>
-      <a-button type="primary" html-type="submit">搜索</a-button>
+      <a-button type="primary" html-type="submit" :icon="h(SearchOutlined)">搜索</a-button>
     </a-form-item>
   </a-form>
 
@@ -66,12 +73,9 @@
       <!-- 标签 -->
       <template v-if="column.dataIndex === 'tags'">
         <a-space wrap>
-          <a-tag
-            v-for="tag in JSON.parse(record.tags || '[]')"
-            :key="tag"
-            :color="getTagColor(tag)"
-            >{{ tag }}</a-tag
-          >
+          <a-tag v-for="tag in JSON.parse(record.tags || '[]')" :key="tag" :color="getTagColor(tag)"
+            >{{ tag }}
+          </a-tag>
         </a-space>
       </template>
       <!-- 图片信息 -->
@@ -97,35 +101,55 @@
       </template>
       <template v-else-if="column.key === 'action'">
         <a-space direction="vertical">
-          <a-button
-            v-if="record.reviewStatus !== PIC_REVIEW_STATUS_ENUM.PASS"
-            type="primary"
-            size="small"
-            @click="handleReview(record, PIC_REVIEW_STATUS_ENUM.PASS)"
-          >
-            通过
-          </a-button>
-          <a-button
-            v-if="record.reviewStatus !== PIC_REVIEW_STATUS_ENUM.REJECT"
-            type="primary"
-            size="small"
-            danger
-            @click="handleReview(record, PIC_REVIEW_STATUS_ENUM.REJECT)"
-          >
-            拒绝
-          </a-button>
-          <a-button size="small" :href="`/add_picture?id=${record.id}`" target="_blank"
-            >编辑
-          </a-button>
-          <a-popconfirm
-            title="你确定要删除这张图片吗?"
-            ok-text="确定"
-            cancel-text="取消"
-            @confirm="() => doDelete(record.id)"
-            @cancel="cancel"
-          >
-            <a-button type="primary" danger size="small">删除</a-button>
-          </a-popconfirm>
+          <!--  通过     -->
+          <a-tooltip placement="left" title="审核通过" color="geekblue">
+            <a-button
+              v-if="record.reviewStatus !== PIC_REVIEW_STATUS_ENUM.PASS"
+              size="large"
+              @click="handleReview(record, PIC_REVIEW_STATUS_ENUM.PASS)"
+            >
+              <template #icon>
+                <icon-font type="icon-pass-1-copy" />
+              </template>
+            </a-button>
+          </a-tooltip>
+
+          <!--  拒绝-->
+          <a-tooltip placement="left" title="审核拒绝" color="geekblue">
+            <a-button
+              v-if="record.reviewStatus !== PIC_REVIEW_STATUS_ENUM.REJECT"
+              size="large"
+              @click="handleReview(record, PIC_REVIEW_STATUS_ENUM.REJECT)"
+            >
+              <template #icon>
+                <icon-font type="icon-weitongguo" />
+              </template>
+            </a-button>
+          </a-tooltip>
+          <!--  编辑-->
+          <a-tooltip placement="left" title="编辑" color="geekblue">
+            <a-button size="large" :href="`/add_picture?id=${record.id}`" target="_blank">
+              <template #icon>
+                <icon-font type="icon-bianji4" />
+              </template>
+            </a-button>
+          </a-tooltip>
+          <!--  删除-->
+          <a-tooltip placement="left" title="删除" color="geekblue">
+            <a-popconfirm
+              title="你确定要删除这张图片吗?"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="() => doDelete(record.id)"
+              @cancel="cancel"
+            >
+              <a-button size="large">
+                <template #icon>
+                  <icon-font type="icon-a-shanchu1" />
+                </template>
+              </a-button>
+            </a-popconfirm>
+          </a-tooltip>
         </a-space>
       </template>
     </template>
@@ -133,14 +157,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, h } from 'vue'
 import {
   deleteBatchPictureUsingPost,
   deletePictureUsingPost,
   doPictureReviewUsingPost,
   listPictureByPageUsingPost,
-  refreshCacheUsingPost,
 } from '@/api/tupianguanli.ts'
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  CloseCircleOutlined,
+  CheckCircleOutlined,
+  createFromIconfontCN,
+} from '@ant-design/icons-vue'
 import { Modal } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import wrapperRaf from 'ant-design-vue/es/_util/raf'
@@ -152,7 +184,11 @@ import {
 } from '@/constants/picture.ts'
 import { getTagColor } from '@/utils/tagColorUtil.ts'
 import { Message } from '@arco-design/web-vue'
+import { SCRIPT_URL } from '@/constants/url.ts'
 
+const IconFont = createFromIconfontCN({
+  scriptUrl: SCRIPT_URL,
+})
 const columns = [
   {
     title: 'id',
@@ -310,7 +346,7 @@ const handleReview = async (record: API.Picture, reviewStatus: number) => {
     reviewMessage,
   })
   if (res.data.code === 200) {
-    Message.success('审核操作成功')
+    Message.success('审核操作成功'+ res.data.message)
     // 重新获取列表
     fetchData()
   } else {

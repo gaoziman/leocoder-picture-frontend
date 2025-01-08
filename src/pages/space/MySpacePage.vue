@@ -9,6 +9,7 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/user'
 import { listSpaceVoByPageUsingPost } from '@/api/kongjianguanli.ts'
+import { Message } from '@arco-design/web-vue'
 
 const router = useRouter()
 const loginUserStore = useLoginUserStore()

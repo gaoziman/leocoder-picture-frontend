@@ -66,7 +66,7 @@
           <a-image
             style="max-height: 600px; max-width: 100%; object-fit: contain"
             :src="picture.url"
-            alt="图片预览"
+            alt=""
           />
 
           <!-- 下一张图片按钮 -->
@@ -256,6 +256,7 @@ const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null)
 // 分享链接
 const shareLink = ref<string>('')
 
+// 分享按钮点击事件
 const doShare = (picture: API.PictureVO, e: Event) => {
   e.stopPropagation()
   shareLink.value = `${window.location.protocol}//${window.location.host}/picture/${picture.id}`
@@ -362,7 +363,8 @@ const searchParams = reactive({
 // 页面初始化触发
 onMounted(async () => {
   document.addEventListener('click', handleDocumentClick)
-  pictureStore.fetchPictureDetail(props.id) // 获取图片详情
+  // 获取图片详情
+  pictureStore.fetchPictureDetail(props.id)
   await getAdjacentPictures(props.id)
   loadComments()
 })
@@ -384,16 +386,18 @@ watch(
 
 // 获取上一张下一张图片
 const getAdjacentPictures = async (pictureId) => {
+  const from = isPersonalSpace.value ? 'space' : 'public';
   const adjacentRes = await getAdjacentPicturesUsingPost({
     pictureId,
     sortField: searchParams.sortField,
     sortOrder: searchParams.sortOrder,
+    from, // 传递来源
   })
   if (adjacentRes.data.code === 200) {
-    prevPictureId.value = adjacentRes.data.data.nextId
-    nextPictureId.value = adjacentRes.data.data.prevId
+    prevPictureId.value = adjacentRes.data.data.prevId
+    nextPictureId.value = adjacentRes.data.data.nextId
   } else {
-    console.error('获取相邻图片失败:', adjacentRes.data.message)
+    console.error('获取相邻图片失败:' + adjacentRes.data.message)
   }
 }
 
@@ -638,7 +642,7 @@ const navigateToPicture = (pictureId: number) => {
 }
 
 .comment-list {
-  width: 1200px;
+  width: 1100px;
   margin-top: 20px;
 }
 

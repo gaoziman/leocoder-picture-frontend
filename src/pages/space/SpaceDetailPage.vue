@@ -3,8 +3,8 @@
   <a-flex justify="space-between">
     <h2>{{ space.spaceName }}（私有空间）</h2>
     <a-space size="middle">
-      <a-button type="primary" :href="`/add_picture?spaceId=${id}`" target="_blank">
-        + 创建图片
+      <a-button type="primary" :href="`/add_picture?spaceId=${id}`" target="_blank"  :icon="h(PlusOutlined)">
+        创建图片
       </a-button>
       <a-tooltip :title="`占用空间 ${formatSize(space.totalSize)} / ${formatSize(space.maxSize)}`">
         <a-progress
@@ -28,13 +28,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { h, onMounted, reactive, ref } from 'vue'
 
 import PictureList from '@/components/PictureList.vue'
 import { getSpaceVoByIdUsingGet } from '@/api/kongjianguanli.ts'
 import { formatSize } from '@/utils'
 import { listPictureVoByPageUsingPost } from '@/api/tupianguanli.ts'
-import { message } from 'ant-design-vue'
+import { Message } from '@arco-design/web-vue'
+import { PlusOutlined } from '@ant-design/icons-vue'
 
 const props = defineProps<{
   id: string | number
@@ -68,12 +69,11 @@ const fetchSpaceDetail = async () => {
     })
     if (res.data.code === 200 && res.data.data) {
       space.value = res.data.data
-      console.log('space。vale：' + JSON.stringify(space.value))
     } else {
-      message.error('获取空间详情失败，' + res.data.message)
+      Message.error('获取空间详情失败，' + res.data.message)
     }
   } catch (e: any) {
-    message.error('获取空间详情失败：' + e.message)
+    Message.error('获取空间详情失败：' + e.message)
   }
 }
 
@@ -97,7 +97,7 @@ const fetchData = async () => {
     dataList.value = res.data.data.records ?? []
     total.value = Number(res.data.data.total) ?? 0 // 确保是数字
   } else {
-    message.error('获取数据失败，' + res.data.message)
+    Message.error('获取数据失败，' + res.data.message)
   }
   loading.value = false
 }

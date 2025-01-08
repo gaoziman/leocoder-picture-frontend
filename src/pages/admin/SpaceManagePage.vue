@@ -1,5 +1,5 @@
 <template>
-  <a-form layout="inline" :model="searchParams" @finish="doSearch">
+  <a-form layout="inline" :model="searchParams" @finish="doSearch"  style="margin-bottom: 20px">
     <a-form-item label="空间名称" name="spaceName">
       <a-input v-model:value="searchParams.spaceName" placeholder="请输入空间名称" allow-clear />
     </a-form-item>
@@ -16,7 +16,7 @@
       <a-input v-model:value="searchParams.userId" placeholder="请输入用户 id" allow-clear />
     </a-form-item>
     <a-form-item>
-      <a-button type="primary" html-type="submit">搜索</a-button>
+      <a-button type="primary" :icon="h(SearchOutlined)" html-type="submit">搜索</a-button>
     </a-form-item>
   </a-form>
 
@@ -44,26 +44,29 @@
       </template>
       <template v-else-if="column.key === 'action'">
         <a-space wrap>
-          <a-button :href="`/add_space?id=${record.id}`" target="_blank">
-            <template #icon>
-              <icon-font type="icon-bianji" />
-            </template>
-            编辑
-          </a-button>
-          <a-popconfirm
-            title="你确定要删除这个分类吗?"
-            ok-text="确定"
-            cancel-text="取消"
-            @confirm="() => doDelete(record.id)"
-            @cancel="cancel"
-          >
-            <a-button danger size="middle">
+          <a-tooltip placement="left" title="编辑" color="geekblue">
+            <a-button size="large" :href="`/add_space?id=${record.id}`" target="_blank">
               <template #icon>
-                <icon-font type="icon-a-shanchu1" />
+                <icon-font type="icon-bianji4" />
               </template>
-              删除
             </a-button>
-          </a-popconfirm>
+          </a-tooltip>
+
+          <a-tooltip placement="right" title="删除" color="geekblue">
+            <a-popconfirm
+              title="你确定要删除这个分类吗?"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="() => doDelete(record.id)"
+              @cancel="cancel"
+            >
+              <a-button size="large">
+                <template #icon>
+                  <icon-font type="icon-a-shanchu1" />
+                </template>
+              </a-button>
+            </a-popconfirm>
+          </a-tooltip>
         </a-space>
       </template>
     </template>
@@ -71,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, h, onMounted, reactive, ref } from 'vue'
 import dayjs from 'dayjs'
 import { formatSize } from '@/utils'
 import { SPACE_LEVEL_MAP, SPACE_LEVEL_OPTIONS } from '@/constants/space.ts'
@@ -79,7 +82,7 @@ import { listSpaceVoByPageUsingPost } from '@/api/kongjianguanli.ts'
 import wrapperRaf from 'ant-design-vue/es/_util/raf'
 import cancel = wrapperRaf.cancel
 import { SCRIPT_URL } from '@/constants/url.ts'
-import { createFromIconfontCN } from '@ant-design/icons-vue'
+import { createFromIconfontCN, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 
 const IconFont = createFromIconfontCN({

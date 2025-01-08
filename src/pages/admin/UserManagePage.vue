@@ -7,7 +7,7 @@
       <a-input v-model:value="searchParams.userName" placeholder="输入用户名" />
     </a-form-item>
     <a-form-item>
-      <a-button type="primary" html-type="submit">搜索</a-button>
+      <a-button type="primary" :icon="h(SearchOutlined)" html-type="submit">搜索</a-button>
     </a-form-item>
   </a-form>
 
@@ -34,20 +34,21 @@
       </template>
       <template v-else-if="column.key === 'action'">
         <div v-if="record.userRole !== 'admin'">
-          <a-popconfirm
-            title="你确定要删除这个用户吗?"
-            ok-text="确定"
-            cancel-text="取消"
-            @confirm="() => doDelete(record.id)"
-            @cancel="cancel"
-          >
-            <a-button danger size="middle">
-              <template #icon>
-                <icon-font type="icon-a-shanchu1" />
-              </template>
-              删除
-            </a-button>
-          </a-popconfirm>
+          <a-tooltip placement="left" title="删除" color="geekblue">
+            <a-popconfirm
+              title="你确定要删除这个用户吗?"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="() => doDelete(record.id)"
+              @cancel="cancel"
+            >
+              <a-button size="large">
+                <template #icon>
+                  <icon-font type="icon-a-shanchu1" />
+                </template>
+              </a-button>
+            </a-popconfirm>
+          </a-tooltip>
         </div>
       </template>
     </template>
@@ -57,8 +58,8 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { deleteUserUsingPost, listUserVoByPageUsingPost } from '@/api/yonghuguanli.ts'
-import { computed, onMounted, reactive, ref } from 'vue'
-import { createFromIconfontCN } from '@ant-design/icons-vue'
+import { computed, h, onMounted, reactive, ref } from 'vue'
+import { createFromIconfontCN, PlusOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import { SCRIPT_URL } from '@/constants/url.ts'
 import wrapperRaf from 'ant-design-vue/es/_util/raf'
 import cancel = wrapperRaf.cancel

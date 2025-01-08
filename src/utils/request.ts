@@ -35,6 +35,13 @@ myAxios.interceptors.response.use(
         window.location.href = `/user/login?redirect=${window.location.href}`
       }
     }
+    // 无权限
+    if (data.code === 40101) {
+      Message.error('您无权限访问该页面')
+      if (!window.location.pathname.includes('/noAuth')) {
+        window.location.href = '/noAuth'
+      }
+    }
     return response
   },
   function (error) {

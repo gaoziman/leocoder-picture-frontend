@@ -4,7 +4,8 @@ import UserLoginPage from '@/pages/user/UserLoginPage.vue'
 import UserRegisterPage from '@/pages/user/UserRegisterPage.vue'
 import UserManagePage from '@/pages/admin/UserManagePage.vue'
 import ACCESS_ENUM from '@/access/accessEnum.ts'
-import NoAuth from '@/pages/404/NoAuth.vue'
+import NotAuth from '@/pages/404/NoAuth.vue'
+import NotFound from '@/pages/404/NotFound.vue'
 import AddPicturePage from '@/pages/picture/AddPicturePage.vue'
 import PictureManagePage from '@/pages/admin/PictureManagePage.vue'
 import PictureDetailPage from '@/pages/picture/PictureDetailPage.vue'
@@ -135,8 +136,21 @@ const router = createRouter({
     },
     {
       path: '/noAuth',
-      name: '404',
-      component: NoAuth,
+      name: 'NotAuth',
+      component: NotAuth,
+      meta: {
+        title: '没有权限',
+        hideSider: true,
+      },
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: NotFound,
+      meta: {
+        title: '页面不存在',
+        hideSider: true,
+      },
     },
   ],
 })

@@ -65,50 +65,67 @@ const router = createRouter({
       path: '/admin/pictureManage',
       name: '图片管理',
       component: PictureManagePage,
-      meta: { title: '图片管理' },
+      meta: {
+        title: '图片管理',
+      },
     },
     {
       path: '/admin/categoryManage',
       name: '分类管理',
       component: CategoryManagePage,
-      meta: { title: '分类管理' },
+      meta: {
+        title: '分类管理',
+      },
     },
     {
       path: '/admin/taqManage',
       name: '标签管理',
       component: TagManagePage,
-      meta: { title: '标签管理' },
+      meta: {
+        title: '标签管理',
+      },
     },
     {
       path: '/admin/spaceManage',
       name: '空间管理',
       component: SpaceManagePage,
-      meta: { title: '空间管理' }
+      meta: {
+        title: '空间管理',
+      },
     },
     {
       path: '/add_space',
       name: '创建空间',
       component: AddSpacePage,
-      meta: { title: '创建空间' }
+      meta: {
+        title: '创建空间'
+      },
     },
     {
       path: '/my_space',
       name: '我的空间',
       component: MySpacePage,
-      meta: { title: '我的空间' }
+      meta: {
+        title: '我的空间',
+      },
     },
     {
       path: '/space/:id',
       name: '空间详情',
       component: SpaceDetailPage,
       props: true,
+      meta: {
+        title: '空间详情'
+      },
     },
 
     {
       path: '/picture/:id',
       name: '图片详情',
       component: PictureDetailPage,
-      meta: { title: '图片详情' },
+      meta: {
+        title: '图片详情'
+      },
       props: true,
     },
     {
@@ -122,7 +139,7 @@ const router = createRouter({
       name: 'UserProfile',
       component: UserProfile,
       meta: {
-        title: '个人中心' ,
+        title: '个人中心',
         hideSider: true,
       },
     },
@@ -130,7 +147,8 @@ const router = createRouter({
       path: '/user/info',
       name: 'UserInfo',
       component: UserInfo,
-      meta: { title: '修改基本信息',
+      meta: {
+        title: '修改基本信息',
         hideSider: true,
       },
     },

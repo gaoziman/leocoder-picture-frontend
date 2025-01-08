@@ -1,5 +1,11 @@
 <template>
-  <a-form layout="inline" :model="searchParams" @finish="doSearch"  style="margin-bottom: 20px">
+  <a-flex justify="space-between">
+    <h2>空间管理</h2>
+    <a-space>
+      <a-button type="primary" href="/add_space"  :icon="h(PlusOutlined)">创建空间</a-button>
+    </a-space>
+  </a-flex>
+  <a-form layout="inline" :model="searchParams" @finish="doSearch" style="margin-bottom: 20px">
     <a-form-item label="空间名称" name="spaceName">
       <a-input v-model:value="searchParams.spaceName" placeholder="请输入空间名称" allow-clear />
     </a-form-item>

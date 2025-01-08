@@ -46,7 +46,7 @@
         v-model:value="searchParams.reviewStatus"
         :options="PIC_REVIEW_STATUS_OPTIONS"
         placeholder="请输入审核状态"
-        style="min-width: 180px"
+        style="min-width: 140px"
         allow-clear
       />
     </a-form-item>
@@ -346,7 +346,7 @@ const handleReview = async (record: API.Picture, reviewStatus: number) => {
     reviewMessage,
   })
   if (res.data.code === 200) {
-    Message.success('审核操作成功'+ res.data.message)
+    Message.success('审核操作成功')
     // 重新获取列表
     fetchData()
   } else {

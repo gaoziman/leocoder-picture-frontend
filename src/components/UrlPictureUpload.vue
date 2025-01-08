@@ -36,6 +36,7 @@ const handleUpload = async () => {
   loading.value = true
   try {
     const params: API.PictureUploadRequest = { fileUrl: fileUrl.value }
+    params.spaceId = props.spaceId
     if (props.picture) {
       params.id = props.picture.id
     }
@@ -45,7 +46,7 @@ const handleUpload = async () => {
       // 将上传成功的图片信息传递给父组件
       props.onSuccess?.(res.data.data)
     } else {
-      Message.error('图片上传失败，' + res.data.message)
+      Message.error('图片上传失败，', res.data.message)
     }
   } finally {
     loading.value = false

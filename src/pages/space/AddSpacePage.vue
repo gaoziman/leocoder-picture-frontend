@@ -1,5 +1,5 @@
 <template>
-  <a-form layout="vertical" :model="formData" @finish="handleSubmit">
+  <a-form layout="vertical" :model="formData" @finish="handleSubmit" style="max-width: 1000px; margin: auto; padding: 20px;">
     <a-form-item label="空间名称" name="spaceName">
       <a-input v-model:value="formData.spaceName" placeholder="请输入空间名称" allow-clear />
     </a-form-item>
@@ -18,7 +18,7 @@
       </a-button>
     </a-form-item>
   </a-form>
-  <a-card title="空间级别介绍">
+  <a-card title="空间级别介绍" style="max-width: 1000px; margin: auto; padding: 20px;">
     <a-typography-paragraph>
       * 目前仅支持开通普通版，如需升级空间，请联系
       <a href="https://gaoziman.github.io/toLeoJavaer/" target="_blank">程序员Leo</a>。
@@ -64,6 +64,11 @@ onMounted(() => {
 
 // 提交表单
 const handleSubmit = async (values: any) => {
+  if (formData.spaceName.trim() === ''){
+    Message.error('空间名称不能为空')
+    return
+  }
+
   const spaceId = oldSpace.value?.id
   loading.value = true
   let res
@@ -80,13 +85,13 @@ const handleSubmit = async (values: any) => {
     })
   }
   if (res.data.code === 200 && res.data.data) {
-    Message.success('操作成功')
+    Message.success('创建成功')
     let path = `/space/${spaceId ?? res.data.data}`
     router.push({
       path,
     })
   } else {
-    Message.error('操作失败，' + res.data.message)
+    Message.error('创建失败，' + res.data.message)
   }
   loading.value = false
 }

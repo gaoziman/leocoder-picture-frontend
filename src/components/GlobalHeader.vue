@@ -3,7 +3,7 @@
     <a-col flex="200px">
       <RouterLink to="/">
         <div class="title-bar">
-          <img class="logo" src="../assets/logo.png" alt="logo" />
+          <img class="logo" src="../assets/logo1.png" alt="logo" />
           <div class="title">智存协作云图库</div>
         </div>
       </RouterLink>
@@ -49,7 +49,7 @@
   </a-row>
 </template>
 <script lang="ts" setup>
-import { computed, h, ref } from 'vue'
+import { computed, h, ref, watch } from 'vue'
 import { createFromIconfontCN } from '@ant-design/icons-vue'
 import { MenuProps } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
@@ -57,9 +57,16 @@ import { useLoginUserStore } from '@/stores/user'
 import { userLogoutUsingPost } from '@/api/dengluguanli.ts'
 import { SCRIPT_URL } from '@/constants/url.ts'
 import { Message } from '@arco-design/web-vue'
+import { useTabStore } from '@/stores/tab/useTabStore.ts'
 
 const loginUserStore = useLoginUserStore()
-const current = ref<string[]>(['home'])
+// 展示在菜单的路由数组
+const items = computed<MenuProps['items']>(() => filterMenus(originItems))
+
+const router = useRouter()
+
+const tabStore = useTabStore()
+
 const IconFont = createFromIconfontCN({
   scriptUrl: SCRIPT_URL,
 })
@@ -118,10 +125,8 @@ const originItems = [
   },
 ]
 
-// 展示在菜单的路由数组
-const items = computed<MenuProps['items']>(() => filterMenus(originItems))
 
-const router = useRouter()
+
 
 const goToLogin = () => {
   router.push('/user/login') // 跳转到登录页面的路由
@@ -140,16 +145,27 @@ const filterMenus = (menus = [] as MenuProps['items']) => {
   })
 }
 
+// 当前选中的菜单（从 Pinia 获取初始值）
+const current = ref<string[]>([tabStore.selectedTab || '/'])
+
+// 监听菜单变化，同步到 Pinia
+watch(
+  () => current.value[0],
+  (newKey) => {
+    tabStore.setTab(newKey) // 更新选中菜单到 Pinia
+  },
+)
+
 // 路由跳转事件
 const doMenuClick = ({ key }: { key: string }) => {
-  router.push({
-    path: key,
-  })
+  current.value = [key] // 更新当前选中菜单
+  router.push({ path: key })
 }
 
-// 监听路由变化，更新当前选中菜单
-router.afterEach((to, from, next) => {
+// 路由变化监听，确保菜单同步
+router.afterEach((to) => {
   current.value = [to.path]
+  tabStore.setTab(to.path) // 更新 Pinia 状态
 })
 
 // 用户注销
@@ -190,6 +206,6 @@ const goToMySpace = () => {
 }
 
 .logo {
-  height: 48px;
+  height: 38px;
 }
 </style>

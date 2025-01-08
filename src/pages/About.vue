@@ -1,7 +1,7 @@
 <template>
   <div id="homePage">
     <header class="header">
-      <img class="logo" src="../assets/logo.png" alt="Leo哥云图库" />
+      <img class="logo" src="../assets/logo2.png" alt="Leo哥云图库" />
       <h1>欢迎来到Leo智存协作云图库</h1>
       <p class="subtitle">打造专业的云端资源管理平台，轻松存储、分享与协作，让每一张图片创造更高价值！</p>
     </header>

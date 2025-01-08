@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { message } from 'ant-design-vue'
+import { Message } from '@arco-design/web-vue'
 
 // 创建 Axios 实例
 const myAxios = axios.create({
@@ -24,7 +24,6 @@ myAxios.interceptors.request.use(
 myAxios.interceptors.response.use(
   function (response) {
     const { data } = response
-    // console.log('data==' + JSON.stringify(data))
     // 未登录
     if (data.code === 40100) {
       // 不是获取用户信息的请求，并且用户目前不是已经在用户登录页面，则跳转到登录页面
@@ -32,7 +31,7 @@ myAxios.interceptors.response.use(
         !response.request.responseURL.includes('user/get/login') &&
         !window.location.pathname.includes('/user/login')
       ) {
-        message.warning('请先登录')
+        Message.warning('请先登录')
         window.location.href = `/user/login?redirect=${window.location.href}`
       }
     }

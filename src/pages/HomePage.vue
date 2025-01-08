@@ -65,14 +65,15 @@
 <script setup lang="ts">
 // 数据
 import { onMounted, reactive, ref } from 'vue'
-import { message } from 'ant-design-vue'
 import PictureList from '@/components/PictureList.vue'
 import { listPictureVoByPageWithCacheUsingPost, refreshCacheUsingPost } from '@/api/tupianguanli.ts'
 import { useRouter } from 'vue-router'
 import { listTagsUsingPost } from '@/api/biaoqianguanli.ts'
 import { listCategoryUsingPost } from '@/api/fenleiguanli.ts'
 import { useLoginUserStore } from '@/stores/user'
+import { Message } from '@arco-design/web-vue'
 
+const router = useRouter()
 const dataList = ref([])
 const total = ref(0)
 const loading = ref(true)
@@ -125,7 +126,7 @@ const fetchData = async () => {
     dataList.value = res.data.data.records ?? []
     total.value = Number(res.data.data.total) ?? 0 // 确保是数字
   } else {
-    message.error('获取数据失败，' + res.data.message)
+    Message.error('获取数据失败，' + res.data.message)
   }
   loading.value = false
 }
@@ -143,31 +144,30 @@ const getTagCategoryOptions = async () => {
     tagList.value = res.data.data.map((item) => item.name) ?? []
     selectedTagList.value = tagList.value.map(() => false) // 初始化标签选择状态
   } else {
-    message.error('加载分类标签失败，' + res.data.message)
+    Message.error('加载分类标签失败，' + res.data.message)
   }
   const response = await listCategoryUsingPost({})
   if (response.data.code === 200 && response.data.data) {
     categoryList.value = response.data.data.records.map((item) => item.name) ?? []
   } else {
-    message.error('加载分类标签失败，' + res.data.message)
+    Message.error('加载分类标签失败，' + res.data.message)
   }
 }
 
-const router = useRouter()
-
+// 刷新缓存
 const refreshCache = async () => {
   try {
     const res = await refreshCacheUsingPost({
       ...searchParams,
     })
     if (res.data.code === 200) {
-      message.success('刷新缓存成功')
+      Message.success('刷新缓存成功')
       fetchData() // 刷新数据
     } else {
-      message.error('刷新缓存失败：' + res.data.message)
+      Message.error('刷新缓存失败：' + res.data.Message)
     }
   } catch (error) {
-    message.error('刷新缓存失败，请重试')
+    Message.error('刷新缓存失败，请重试')
   }
 }
 </script>

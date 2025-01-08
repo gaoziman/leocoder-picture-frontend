@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { getPictureVoByIdUsingGet } from '@/api/tupianguanli.ts'
 import { likeUsingPost, cancelLikeUsingPost } from '@/api/yonghudianzan.ts'
 import { addFavoriteUsingPost, removeFavoriteUsingPost } from '@/api/yonghushoucang.ts'
+import { Message } from '@arco-design/web-vue'
 
 export const usePictureStore = defineStore('picture', () => {
   // 存储图片的完整信息（按图片ID存储）
@@ -26,17 +27,17 @@ export const usePictureStore = defineStore('picture', () => {
           isFavorited: data.isFavorited || false,
         }
       } else {
-        console.error('获取图片详情失败:', res.data.message)
+        Message.error('获取图片详情失败:' + res.data.message)
       }
     } catch (error) {
-      console.error('获取图片详情失败:', error)
+      Message.error('获取图片详情失败:' + error)
     }
   }
 
   // 点赞/取消点赞功能
   async function toggleLike(pictureId: number) {
     if (!pictureData.value[pictureId]) {
-      console.error('图片数据未初始化')
+      Message.error('图片数据未初始化')
       return
     }
 
@@ -50,7 +51,7 @@ export const usePictureStore = defineStore('picture', () => {
           current.likeCount++
           current.isLiked = true
         } else {
-          console.error('点赞失败:', res.data.message)
+          Message.error('点赞失败:', res.data.message)
         }
       } else {
         // 取消点赞
@@ -59,18 +60,18 @@ export const usePictureStore = defineStore('picture', () => {
           current.likeCount--
           current.isLiked = false
         } else {
-          console.error('取消点赞失败:', res.data.message)
+          Message.error('取消点赞失败:' + res.data.message)
         }
       }
     } catch (error) {
-      console.error('操作失败:', error)
+      Message.error('操作失败:' + error)
     }
   }
 
   // 收藏 /取消收藏功能
   async function toggleFavorite(pictureId: number) {
     if (!pictureData.value[pictureId]) {
-      console.error('图片数据未初始化')
+      Message.error('图片数据未初始化')
       return
     }
 
@@ -84,7 +85,7 @@ export const usePictureStore = defineStore('picture', () => {
           current.favoriteCount++
           current.isFavorited = true
         } else {
-          console.error('收藏失败:', res.data.message)
+          Message.error('收藏失败:' + res.data.message)
         }
       } else {
         // 取消点赞
@@ -93,11 +94,11 @@ export const usePictureStore = defineStore('picture', () => {
           current.favoriteCount--
           current.isFavorited = false
         } else {
-          console.error('取消收藏失败:', res.data.message)
+          Message.error('取消收藏失败:' +res.data.message)
         }
       }
     } catch (error) {
-      console.error('操作失败:', error)
+      Message.error('操作失败:' + error)
     }
   }
 

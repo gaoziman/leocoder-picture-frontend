@@ -11,7 +11,10 @@
     </div>
 <!--    <h2>{{ space.spaceName }}（私有空间）</h2>-->
     <a-space size="middle">
-      <a-button type="primary" :href="`/add_picture?spaceId=${id}`" target="_blank"  :icon="h(PlusOutlined)">
+      <a-button
+        type="primary"
+        @click="showCreatePictureModal"
+        :icon="h(PlusOutlined)">
         创建图片
       </a-button>
       <a-tooltip  placement="bottom" :title="`占用空间 ${formatSize(space.totalSize)} / ${formatSize(space.maxSize)}`">
@@ -34,6 +37,20 @@
     :show-total="() => `图片总数 ${total} / ${space.maxCount}`"
     @change="onPageChange"
   />
+
+  <!-- 创建图片的弹窗 -->
+  <a-modal
+    v-model:visible="isModalVisible"
+    title="创建图片"
+    :footer="null"
+    width="720px"
+    @cancel="closeCreatePictureModal"
+  >
+    <AddPictureForm
+      :spaceId="space.id"
+      @success="onPictureCreateSuccess"
+    />
+  </a-modal>
 </template>
 
 <script setup lang="ts">
@@ -45,6 +62,7 @@ import { formatSize } from '@/utils'
 import { listPictureVoByPageUsingPost } from '@/api/tupianguanli.ts'
 import { Message } from '@arco-design/web-vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
+import AddPictureForm from '@/components/AddPictureForm.vue'
 
 const props = defineProps<{
   id: string | number
@@ -55,6 +73,9 @@ const space = ref<API.SpaceVO>({})
 const dataList = ref([])
 const total = ref(0)
 const loading = ref(true)
+// 弹窗状态
+const isModalVisible = ref(false)
+
 
 // 搜索条件
 const searchParams = reactive<API.PictureQueryRequest>({
@@ -91,6 +112,25 @@ const onPageChange = (page, pageSize) => {
   searchParams.pageNum = page
   searchParams.pageSize = pageSize
   fetchData()
+}
+
+
+// 打开弹窗
+const showCreatePictureModal = () => {
+  isModalVisible.value = true
+}
+
+// 关闭弹窗
+const closeCreatePictureModal = () => {
+  isModalVisible.value = false
+}
+
+
+// 图片创建成功后的回调
+const onPictureCreateSuccess = () => {
+  Message.success('图片创建成功！')
+  closeCreatePictureModal()
+  fetchData() // 刷新图片列表
 }
 
 // 获取数据

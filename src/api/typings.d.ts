@@ -82,6 +82,8 @@ declare namespace API {
   }
 
   type getAdjacentPicturesUsingPOSTParams = {
+    /** from */
+    from: string
     /** pictureId */
     pictureId: number
     /** sortField */
@@ -345,6 +347,12 @@ declare namespace API {
   type ResultIPageCommentVO_ = {
     code?: number
     data?: IPageCommentVO_
+    message?: string
+  }
+
+  type ResultListCategory_ = {
+    code?: number
+    data?: Category[]
     message?: string
   }
 

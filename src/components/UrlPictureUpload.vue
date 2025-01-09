@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { uploadPictureByUrlUsingPost, uploadPictureUsingPost } from '@/api/tupianguanli.ts'
+import { uploadPictureByUrlUsingPost} from '@/api/tupianguanli.ts'
 import { Message } from '@arco-design/web-vue'
 
 const loading = ref<boolean>(false)
@@ -42,7 +42,7 @@ const handleUpload = async () => {
     }
     const res = await uploadPictureByUrlUsingPost(params)
     if (res.data.code === 200 && res.data.data) {
-      Message.success('图片上传成功')
+      Message.success('图片上传成功',)
       // 将上传成功的图片信息传递给父组件
       props.onSuccess?.(res.data.data)
     } else {

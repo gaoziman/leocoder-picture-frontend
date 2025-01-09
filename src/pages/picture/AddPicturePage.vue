@@ -164,7 +164,7 @@ const getTagCategoryOptions = async () => {
   }
 
   if (categoryRes.data.code === 200) {
-    categoryOptions.value = categoryRes.data.data.records.map((item: any) => ({
+    categoryOptions.value = categoryRes.data.data.map((item: any) => ({
       label: item.name,
       value: item.name,
     }))

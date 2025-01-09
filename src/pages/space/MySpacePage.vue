@@ -38,7 +38,7 @@ const checkUserSpace = async () => {
       router.replace(`/space/${space.id}`)
     } else {
       router.replace('/add_space')
-      Message.warn('请先创建空间')
+      Message.warning('请先创建空间')
     }
   } else {
     Message.error('加载我的空间失败，' + res.data.message)

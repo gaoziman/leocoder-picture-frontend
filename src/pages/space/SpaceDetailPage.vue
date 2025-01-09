@@ -4,7 +4,7 @@
     <div>
       <h2>
         {{ space.spaceName }}（{{ getSpaceLevelText(space.spaceLevel) }}）
-        <span v-if="space.spaceLevel" class="space-badge">
+        <span class="space-badge">
           {{ getSpaceBadge(space.spaceLevel) }}
         </span>
       </h2>
@@ -14,7 +14,7 @@
       <a-button type="primary" :href="`/add_picture?spaceId=${id}`" target="_blank"  :icon="h(PlusOutlined)">
         创建图片
       </a-button>
-      <a-tooltip :title="`占用空间 ${formatSize(space.totalSize)} / ${formatSize(space.maxSize)}`">
+      <a-tooltip  placement="bottom" :title="`占用空间 ${formatSize(space.totalSize)} / ${formatSize(space.maxSize)}`">
         <a-progress
           type="circle"
           :percent="((space.totalSize * 100) / space.maxSize).toFixed(1)"

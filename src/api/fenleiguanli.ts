@@ -32,12 +32,20 @@ export async function deleteCategoryUsingPost(
   })
 }
 
-/** 分页获取分类列表 POST /api/category/get/list */
-export async function listCategoryUsingPost(
+/** 获取分类列表 POST /api/category/get/list */
+export async function listCategoryUsingPost(options?: { [key: string]: any }) {
+  return request<API.ResultListCategory_>('/api/category/get/list', {
+    method: 'POST',
+    ...(options || {}),
+  })
+}
+
+/** 分页获取分类列表 POST /api/category/get/page/list */
+export async function listCategoryByPageUsingPost(
   body: API.CategoryRequest,
   options?: { [key: string]: any }
 ) {
-  return request<API.ResultPageCategory_>('/api/category/get/list', {
+  return request<API.ResultPageCategory_>('/api/category/get/page/list', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

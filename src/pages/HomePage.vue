@@ -155,7 +155,7 @@ const getTagCategoryOptions = async () => {
   }
   const response = await listCategoryUsingPost({})
   if (response.data.code === 200 && response.data.data) {
-    categoryList.value = response.data.data.records.map((item) => item.name) ?? []
+    categoryList.value = response.data.data.map((item) => item.name) ?? []
   } else {
     Message.error('加载分类标签失败，' + res.data.message)
   }

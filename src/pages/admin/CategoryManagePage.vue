@@ -94,7 +94,7 @@ import {
   deleteCategoryUsingPost,
   updateCategoryUsingPost,
   listCategoryUsingPost,
-  addCategoryUsingPost,
+  addCategoryUsingPost, listCategoryByPageUsingPost
 } from '@/api/fenleiguanli.ts'
 import { computed, h, onMounted, reactive, ref } from 'vue'
 import { type FormInstance } from 'ant-design-vue'
@@ -178,7 +178,7 @@ const formRules = {
 
 // 获取分类数据
 const fetchData = async () => {
-  const res = await listCategoryUsingPost({
+  const res = await listCategoryByPageUsingPost({
     ...searchParams,
   })
   if (res.data.data) {

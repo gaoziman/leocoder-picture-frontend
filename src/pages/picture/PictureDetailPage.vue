@@ -267,7 +267,7 @@ const doShare = (picture: API.PictureVO, e: Event) => {
   }
 }
 import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
-import { deletePictureUsingPost, getAdjacentPicturesUsingPost } from '@/api/tupianguanli.ts'
+import { deletePictureUsingPost, getAdjacentPicturesUsingPost, refreshCacheUsingPost } from '@/api/tupianguanli.ts'
 import {
   DeleteOutlined,
   EditOutlined,
@@ -293,6 +293,9 @@ import CommentInput from '@/components/CommentInput.vue'
 import { Message } from '@arco-design/web-vue'
 import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
+import { useCacheStore } from '@/stores/cache'
+
+const cacheStore = useCacheStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -386,7 +389,7 @@ watch(
 
 // 获取上一张下一张图片
 const getAdjacentPictures = async (pictureId) => {
-  const from = isPersonalSpace.value ? 'space' : 'public';
+  const from = isPersonalSpace.value ? 'space' : 'public'
   const adjacentRes = await getAdjacentPicturesUsingPost({
     pictureId,
     sortField: searchParams.sortField,
@@ -587,6 +590,7 @@ const doDelete = async () => {
   const res = await deletePictureUsingPost({ id })
   if (res.data.code === 200) {
     Message.success('删除成功')
+    cacheStore.refreshCacheList(searchParams)
     router.push('/')
   } else {
     Message.error('删除失败')

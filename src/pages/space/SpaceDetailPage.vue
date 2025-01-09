@@ -1,7 +1,15 @@
 <template>
   <!-- 空间信息 -->
-  <a-flex justify="space-between">
-    <h2>{{ space.spaceName }}（私有空间）</h2>
+  <a-flex justify="space-between" align="middle">
+    <div>
+      <h2>
+        {{ space.spaceName }}（{{ getSpaceLevelText(space.spaceLevel) }}）
+        <span v-if="space.spaceLevel" class="space-badge">
+          {{ getSpaceBadge(space.spaceLevel) }}
+        </span>
+      </h2>
+    </div>
+<!--    <h2>{{ space.spaceName }}（私有空间）</h2>-->
     <a-space size="middle">
       <a-button type="primary" :href="`/add_picture?spaceId=${id}`" target="_blank"  :icon="h(PlusOutlined)">
         创建图片
@@ -15,6 +23,7 @@
       </a-tooltip>
     </a-space>
   </a-flex>
+
   <!-- 图片列表 -->
   <PictureList :dataList="dataList" :loading="loading" source="space" />
   <a-pagination
@@ -100,6 +109,37 @@ const fetchData = async () => {
     Message.error('获取数据失败，' + res.data.message)
   }
   loading.value = false
+}
+
+
+
+// 根据空间级别返回标志
+const getSpaceBadge = (level: string | number) => {
+  switch (level) {
+    case 2:
+      return '💎'
+    case 1:
+      return '🌟'
+    case 0:
+      return '📦'
+    default:
+      return ''
+  }
+}
+
+
+// 根据空间级别返回文本
+const getSpaceLevelText = (level: string | number) => {
+  switch (level) {
+    case 2:
+      return '尊贵的旗舰版'
+    case 1:
+      return '优质的专业版'
+    case 0:
+      return '基础的普通版'
+    default:
+      return '未知级别'
+  }
 }
 </script>
 

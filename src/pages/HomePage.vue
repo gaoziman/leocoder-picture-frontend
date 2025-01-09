@@ -64,7 +64,7 @@
 
 <script setup lang="ts">
 // 数据
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import PictureList from '@/components/PictureList.vue'
 import { listPictureVoByPageWithCacheUsingPost, refreshCacheUsingPost } from '@/api/tupianguanli.ts'
 import { useRouter } from 'vue-router'
@@ -72,7 +72,9 @@ import { listTagsUsingPost } from '@/api/biaoqianguanli.ts'
 import { listCategoryUsingPost } from '@/api/fenleiguanli.ts'
 import { useLoginUserStore } from '@/stores/user'
 import { Message } from '@arco-design/web-vue'
+import { useCacheStore } from '@/stores/cache'
 
+const cacheStore = useCacheStore()
 const router = useRouter()
 const dataList = ref([])
 const total = ref(0)
@@ -102,6 +104,11 @@ const onPageChange = (page, pageSize) => {
 // 页面加载时请求一次
 onMounted(() => {
   getTagCategoryOptions()
+  // 检查是否需要刷新缓存
+  const { query } = router.currentRoute.value
+  if (query.refreshCache === 'true') {
+    refreshCache()
+  }
   fetchData()
 })
 
@@ -156,19 +163,26 @@ const getTagCategoryOptions = async () => {
 
 // 刷新缓存
 const refreshCache = async () => {
-  try {
-    const res = await refreshCacheUsingPost({
-      ...searchParams,
-    })
-    if (res.data.code === 200) {
-      Message.success('刷新缓存成功')
-      fetchData() // 刷新数据
-    } else {
-      Message.error('刷新缓存失败：' + res.data.Message)
-    }
-  } catch (error) {
-    Message.error('刷新缓存失败，请重试')
+  const success = await cacheStore.refreshCacheList(searchParams)
+  if (success) {
+    // 如果刷新成功，重新加载数据
+    fetchData()
   }
+  // try {
+  //   const res = await refreshCacheUsingPost({
+  //     ...searchParams,
+  //   })
+  //   if (res.data.code === 200) {
+  //     // 刷新数据
+  //     fetchData()
+  //     // 清理 query 参数
+  //     router.replace({ path: router.currentRoute.value.path, query: {} })
+  //   } else {
+  //     Message.error('刷新缓存失败：', res.data.Message)
+  //   }
+  // } catch (error) {
+  //   Message.error('刷新缓存失败，请重试')
+  // }
 }
 </script>
 

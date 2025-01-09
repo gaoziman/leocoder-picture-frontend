@@ -27,10 +27,20 @@
   </a-flex>
   <a-form layout="inline" :model="searchParams" @finish="doSearch" style="margin-bottom: 20px">
     <a-form-item label="关键词" name="searchText">
-      <a-input v-model:value="searchParams.searchText" placeholder="从名称和简介搜索" allow-clear />
+      <a-input
+        v-model:value="searchParams.searchText"
+        placeholder="从名称和简介搜索"
+        allow-clear
+        style="width: 160px"
+      />
     </a-form-item>
     <a-form-item label="类型" name="category">
-      <a-input v-model:value="searchParams.category" placeholder="请输入类型" allow-clear />
+      <a-input
+        v-model:value="searchParams.category"
+        placeholder="请输入类型"
+        allow-clear
+        style="width: 130px"
+      />
     </a-form-item>
     <a-form-item label="标签" name="tags">
       <a-select
@@ -53,6 +63,7 @@
 
     <a-form-item>
       <a-button type="primary" html-type="submit" :icon="h(SearchOutlined)">搜索</a-button>
+      <a-button type="primary" danger @click="refreshCache" style="margin-left: 10px">刷新缓存 </a-button>
     </a-form-item>
   </a-form>
 
@@ -163,14 +174,12 @@ import {
   deletePictureUsingPost,
   doPictureReviewUsingPost,
   listPictureByPageUsingPost,
+  refreshCacheUsingPost,
 } from '@/api/tupianguanli.ts'
 import {
   DeleteOutlined,
-  EditOutlined,
   PlusOutlined,
   SearchOutlined,
-  CloseCircleOutlined,
-  CheckCircleOutlined,
   createFromIconfontCN,
 } from '@ant-design/icons-vue'
 import { Modal } from 'ant-design-vue'
@@ -185,6 +194,9 @@ import {
 import { getTagColor } from '@/utils/tagColorUtil.ts'
 import { Message } from '@arco-design/web-vue'
 import { SCRIPT_URL } from '@/constants/url.ts'
+import { useCacheStore } from '@/stores/cache'
+
+const cacheStore = useCacheStore()
 
 const IconFont = createFromIconfontCN({
   scriptUrl: SCRIPT_URL,
@@ -317,6 +329,11 @@ const doTableChange = (page: any) => {
   fetchData()
 }
 
+// 刷新缓存方法
+const refreshCache = async() => {
+  cacheStore.refreshCacheList(searchParams)
+}
+
 // 删除图片
 const doDelete = async (id: string) => {
   if (!id) {
@@ -331,11 +348,12 @@ const doDelete = async (id: string) => {
     }
     // 刷新数据
     await fetchData()
+    // 缓存刷新
+    await refreshCache()
   } else {
     Message.error('删除失败')
   }
 }
-
 // 审核图片
 const handleReview = async (record: API.Picture, reviewStatus: number) => {
   const reviewMessage =
@@ -388,16 +406,22 @@ const handleBatchDelete = () => {
     onOk: async () => {
       try {
         const res = await deleteBatchPictureUsingPost({
-          ids: selectedRowKeys.value, // 传递选中的 ID 数组
+          // 传递选中的 ID 数组
+          ids: selectedRowKeys.value,
         })
         if (res.data.code === 200) {
           Message.success('批量删除成功')
           // 判断是否需要跳转到上一页
           if (dataList.value.length === selectedRowKeys.value.length && searchParams.pageNum > 1) {
-            searchParams.pageNum -= 1 // 跳转到上一页
+            // 跳转到上一页
+            searchParams.pageNum -= 1
           }
-          selectedRowKeys.value = [] // 清空选中状态
-          fetchData() // 刷新数据
+          // 清空选中状态
+          selectedRowKeys.value = []
+          // 刷新数据
+          await fetchData()
+          // 缓存刷新
+          await refreshCache()
         } else {
           Message.error('批量删除失败：' + res.data.message)
         }

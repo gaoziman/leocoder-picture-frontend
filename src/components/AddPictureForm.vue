@@ -1,10 +1,10 @@
 <template>
   <a-tabs v-model:activeKey="uploadType">
     <a-tab-pane key="file" tab="文件上传">
-      <PictureUpload :picture="picture" :spaceId="spaceId" :onSuccess="onSuccess" />
+      <PictureUpload :picture="picture" :spaceId="spaceId" :onSuccess="onSuccess"  ref="fileUploadRef"  />
     </a-tab-pane>
     <a-tab-pane key="url" tab="URL 上传" force-render>
-      <UrlPictureUpload :picture="picture" :spaceId="spaceId" :onSuccess="onSuccess" />
+      <UrlPictureUpload :picture="picture" :spaceId="spaceId" :onSuccess="onSuccess" ref="urlUploadRef" />
     </a-tab-pane>
   </a-tabs>
 
@@ -67,7 +67,8 @@ const tagOptions = ref<any[]>([])
 const newTags = ref<string[]>([])
 const router = useRouter()
 const route = useRoute()
-
+const urlUploadRef = ref();
+const fileUploadRef = ref();
 
 // 从路由中提取 spaceId
 const spaceId = ref<string | undefined>(route.params.id as string)
@@ -78,6 +79,23 @@ onMounted(() => {
 })
 const emit = defineEmits(['success'])
 
+
+// 清空表单状态
+const resetFormState = () => {
+  uploadType.value = 'file';
+  pictureForm.name = '';
+  pictureForm.introduction = '';
+  pictureForm.category = null;
+  pictureForm.tags = [];
+  picture.value = null;
+
+  urlUploadRef.value?.resetUploadState();
+  fileUploadRef.value?.resetUploadState();
+};
+
+defineExpose({
+  resetFormState,
+});
 
 
 // 上传成功回调
@@ -132,7 +150,7 @@ const getTagCategoryOptions = async () => {
   }
 
   if (categoryRes.data.code === 200) {
-    categoryOptions.value = categoryRes.data.data.records.map((item: any) => ({
+    categoryOptions.value = categoryRes.data.data.map((item: any) => ({
       label: item.name,
       value: item.name,
     }))

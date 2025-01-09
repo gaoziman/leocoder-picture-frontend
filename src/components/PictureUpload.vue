@@ -39,6 +39,15 @@ interface Props {
 
 const props = defineProps<Props>()
 
+// 清空状态
+const resetUploadState = () => {
+  // picture = null;
+};
+
+defineExpose({
+  resetUploadState,
+});
+
 const loading = ref<boolean>(false)
 // 图片上传的回调
 const beforeUpload = (file: UploadProps['fileList'][number]) => {

@@ -47,6 +47,7 @@
     @cancel="closeCreatePictureModal"
   >
     <AddPictureForm
+      ref="addPictureFormRef"
       :spaceId="space.id"
       @success="onPictureCreateSuccess"
     />
@@ -75,6 +76,7 @@ const total = ref(0)
 const loading = ref(true)
 // 弹窗状态
 const isModalVisible = ref(false)
+const addPictureFormRef = ref(); // 引用子组件
 
 
 // 搜索条件
@@ -123,6 +125,8 @@ const showCreatePictureModal = () => {
 // 关闭弹窗
 const closeCreatePictureModal = () => {
   isModalVisible.value = false
+  // 调用子组件方法，清空状态
+  addPictureFormRef.value?.resetFormState();
 }
 
 
@@ -130,6 +134,8 @@ const closeCreatePictureModal = () => {
 const onPictureCreateSuccess = () => {
   Message.success('图片创建成功！')
   closeCreatePictureModal()
+  // 重置到第一页
+  searchParams.pageNum = 1;
   fetchData() // 刷新图片列表
 }
 

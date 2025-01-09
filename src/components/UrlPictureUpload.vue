@@ -31,6 +31,16 @@ interface Props {
 // 上传时传递 spaceId
 const props = defineProps<Props>()
 
+
+// 清空状态
+const resetUploadState = () => {
+  fileUrl.value = '';
+};
+
+defineExpose({
+  resetUploadState,
+});
+
 // 上传成功的图片信息
 const handleUpload = async () => {
   loading.value = true

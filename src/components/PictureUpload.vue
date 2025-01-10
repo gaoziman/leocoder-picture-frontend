@@ -11,8 +11,8 @@
         <loading-outlined v-if="loading"></loading-outlined>
         <plus-outlined v-else></plus-outlined>
         <div class="ant-upload-text">
-          <icon-font type="icon-tupianshangchuan" />
-          点击或拖拽上传图片
+          <icon-font type="icon-shangchuan6" class="custom-icon" />
+          <span class="upload-text">点击或拖拽上传图片</span>
         </div>
       </div>
     </a-upload>
@@ -117,7 +117,23 @@ const handleUpload = async ({ file }: any) => {
 }
 
 .ant-upload-select-picture-card .ant-upload-text {
+  display: flex; /* 使用 flexbox 布局 */
+  flex-direction: column; /* 垂直排列图标和文字 */
+  align-items: center; /* 水平居中对齐 */
+  justify-content: center; /* 垂直居中对齐 */
   margin-top: 8px;
+  color: #666;
+  text-align: center; /* 确保文字居中 */
+}
+/* 自定义图标样式 */
+.custom-icon {
+  font-size: 22px; /* 调整图标大小 */
+  color: #1890ff; /* 可选，设置图标颜色 */
+  margin-bottom: 5px; /* 调整与文字的间距 */
+}
+
+.upload-text {
+  font-size: 14px; /* 设置文字大小 */
   color: #666;
 }
 </style>

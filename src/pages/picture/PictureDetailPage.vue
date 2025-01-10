@@ -267,7 +267,10 @@ const doShare = (picture: API.PictureVO, e: Event) => {
   }
 }
 import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
-import { deletePictureUsingPost, getAdjacentPicturesUsingPost, refreshCacheUsingPost } from '@/api/tupianguanli.ts'
+import {
+  deletePictureUsingPost,
+  getAdjacentPicturesUsingPost,
+} from '@/api/tupianguanli.ts'
 import {
   DeleteOutlined,
   EditOutlined,
@@ -318,7 +321,7 @@ const nextPictureId = ref<number | null>(null)
 const commentInput = ref('')
 
 // 回复框内容
-const replyInput = ref('')
+// const replyInput = ref('')
 
 const resetInput = ref(false)
 
@@ -591,7 +594,19 @@ const doDelete = async () => {
   if (res.data.code === 200) {
     Message.success('删除成功')
     cacheStore.refreshCacheList(searchParams)
-    router.push('/')
+    // 根据图片来源决定跳转路径
+    if (isPersonalSpace.value) {
+      // 确保从正确的数据源中获取 spaceId
+      const spaceId = route.query.spaceId || picture.value.spaceId
+      if (spaceId) {
+        router.push(`/space/${spaceId}`)
+      } else {
+        console.error('spaceId is undefined')
+        router.push('/') // 如果 spaceId 未定义，跳转到主页
+      }
+    } else {
+      router.push('/') // 跳转到主页
+    }
   } else {
     Message.error('删除失败')
   }

@@ -48,6 +48,7 @@
   >
     <AddPictureForm
       ref="addPictureFormRef"
+      :space="space"
       :spaceId="space.id"
       @success="onPictureCreateSuccess"
     />

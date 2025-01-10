@@ -1,4 +1,19 @@
 <template>
+<div  class="add-picture-form">
+  <!-- 空间信息展示 -->
+  <div class="space-info">
+    <h3>{{ space.spaceName }}</h3>
+    <p>
+      空间容量：{{ formatSize(space.totalSize) }} / {{ formatSize(space.maxSize) }}
+    </p>
+    <a-progress
+      type="line"
+      :percent="((space.totalSize * 100) / space.maxSize).toFixed(1)"
+      :strokeWidth="8"
+      show-info
+    />
+  </div>
+
   <a-tabs v-model:activeKey="uploadType">
     <a-tab-pane key="file" tab="文件上传">
       <PictureUpload :picture="picture" :spaceId="spaceId" :onSuccess="onSuccess"  ref="fileUploadRef"  />
@@ -45,10 +60,11 @@
       <a-button type="primary" html-type="submit" style="width: 100%">提交</a-button>
     </a-form-item>
   </a-form>
+</div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import PictureUpload from '@/components/PictureUpload.vue'
 import UrlPictureUpload from '@/components/UrlPictureUpload.vue'
@@ -56,6 +72,11 @@ import { editPictureUsingPost } from '@/api/tupianguanli.ts'
 import { Message } from '@arco-design/web-vue'
 import { addTagUsingPost, listTagsUsingPost } from '@/api/biaoqianguanli.ts'
 import { listCategoryUsingPost } from '@/api/fenleiguanli.ts'
+import { formatSize } from '@/utils'
+
+const props = defineProps<{
+  space: API.SpaceVO; // 接收来自父组件的 space 数据
+}>()
 
 const uploadType = ref<'file' | 'url'>('file')
 const picture = ref<API.PictureVO>()
@@ -181,5 +202,7 @@ const handleSubmit = async (values: any) => {
 </script>
 
 <style scoped>
-
+.space-info {
+  margin-bottom: 16px;
+}
 </style>

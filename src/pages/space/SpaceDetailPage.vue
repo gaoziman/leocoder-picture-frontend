@@ -142,8 +142,9 @@ const onPictureCreateSuccess = () => {
   });
   closeCreatePictureModal()
   // 重置到第一页
-  searchParams.pageNum = 1
-  fetchData() // 刷新图片列表
+  searchParams.pageNum = 1;
+  fetchData(); // 刷新图片列表
+  fetchSpaceDetail(); // 重新获取空间详情，更新容量和进度条
 }
 
 // 获取数据

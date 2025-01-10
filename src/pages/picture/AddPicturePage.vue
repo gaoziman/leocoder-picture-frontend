@@ -124,7 +124,10 @@ const handleSubmit = async (values: any) => {
       query: { fromSpace: true }, // 添加 fromSpace 参数
     })
   } else {
-    Message.error('操作失败: ' + res.data.message)
+    Message.error({
+      content: '操作失败: ' + res.data.message,
+      closable: true,
+    })
   }
 }
 
@@ -134,7 +137,10 @@ const syncNewTags = async () => {
     try {
       const res = await addTagUsingPost({ tags: newTags.value }) // 新增标签到数据库
       if (res.data.code !== 200) {
-        Message.error('同步标签失败: ' + res.data.message)
+        Message.error({
+          content: '同步标签失败: ' + res.data.message,
+          closable: true,
+        })
       } else {
         // 成功后将新标签加入 tagOptions
         newTags.value.forEach((tag) => {
@@ -144,7 +150,10 @@ const syncNewTags = async () => {
         newTags.value = []
       }
     } catch (error) {
-      Message.error('标签同步请求失败')
+      Message.error({
+        content: '标签同步请求失败: ',
+        closable: true,
+      })
     }
   }
 }

@@ -9,15 +9,15 @@
         </span>
       </h2>
     </div>
-<!--    <h2>{{ space.spaceName }}（私有空间）</h2>-->
+    <!--    <h2>{{ space.spaceName }}（私有空间）</h2>-->
     <a-space size="middle">
-      <a-button
-        type="primary"
-        @click="showCreatePictureModal"
-        :icon="h(PlusOutlined)">
+      <a-button type="primary" @click="showCreatePictureModal" :icon="h(PlusOutlined)">
         创建图片
       </a-button>
-      <a-tooltip  placement="bottom" :title="`占用空间 ${formatSize(space.totalSize)} / ${formatSize(space.maxSize)}`">
+      <a-tooltip
+        placement="bottom"
+        :title="`占用空间 ${formatSize(space.totalSize)} / ${formatSize(space.maxSize)}`"
+      >
         <a-progress
           type="circle"
           :percent="((space.totalSize * 100) / space.maxSize).toFixed(1)"
@@ -77,8 +77,7 @@ const total = ref(0)
 const loading = ref(true)
 // 弹窗状态
 const isModalVisible = ref(false)
-const addPictureFormRef = ref(); // 引用子组件
-
+const addPictureFormRef = ref() // 引用子组件
 
 // 搜索条件
 const searchParams = reactive<API.PictureQueryRequest>({
@@ -103,10 +102,16 @@ const fetchSpaceDetail = async () => {
     if (res.data.code === 200 && res.data.data) {
       space.value = res.data.data
     } else {
-      Message.error('获取空间详情失败，' + res.data.message)
+      Message.error({
+        content: '获取空间详情失败，' + res.data.message,
+        closable: true,
+      });
     }
   } catch (e: any) {
-    Message.error('获取空间详情失败：' + e.message)
+    Message.error({
+      content: '获取空间详情失败，' + e.message,
+      closable: true,
+    });
   }
 }
 
@@ -117,7 +122,6 @@ const onPageChange = (page, pageSize) => {
   fetchData()
 }
 
-
 // 打开弹窗
 const showCreatePictureModal = () => {
   isModalVisible.value = true
@@ -127,16 +131,18 @@ const showCreatePictureModal = () => {
 const closeCreatePictureModal = () => {
   isModalVisible.value = false
   // 调用子组件方法，清空状态
-  addPictureFormRef.value?.resetFormState();
+  addPictureFormRef.value?.resetFormState()
 }
-
 
 // 图片创建成功后的回调
 const onPictureCreateSuccess = () => {
-  Message.success('图片创建成功！')
+  Message.success({
+    content: '图片创建成功！',
+    closable: true,
+  });
   closeCreatePictureModal()
   // 重置到第一页
-  searchParams.pageNum = 1;
+  searchParams.pageNum = 1
   fetchData() // 刷新图片列表
 }
 
@@ -153,12 +159,13 @@ const fetchData = async () => {
     dataList.value = res.data.data.records ?? []
     total.value = Number(res.data.data.total) ?? 0 // 确保是数字
   } else {
-    Message.error('获取数据失败，' + res.data.message)
+    Message.error({
+      content: '获取数据失败' + res.data.message,
+      closable: true,
+    })
   }
   loading.value = false
 }
-
-
 
 // 根据空间级别返回标志
 const getSpaceBadge = (level: string | number) => {
@@ -173,7 +180,6 @@ const getSpaceBadge = (level: string | number) => {
       return ''
   }
 }
-
 
 // 根据空间级别返回文本
 const getSpaceLevelText = (level: string | number) => {

@@ -52,7 +52,10 @@ const handleUpload = async () => {
     }
     const res = await uploadPictureByUrlUsingPost(params)
     if (res.data.code === 200 && res.data.data) {
-      Message.success('图片上传成功',)
+      Message.success({
+        content: '图片上传成功',
+        closable: true,
+      });
       // 将上传成功的图片信息传递给父组件
       props.onSuccess?.(res.data.data)
     } else {

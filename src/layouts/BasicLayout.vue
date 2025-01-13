@@ -35,7 +35,7 @@
                 站长：程序员Leo
               </a>
 
-              <a href="https://leocoder.cn" target="_blank" class="link-with-icon">
+              <a href="http://leocoder.cn" target="_blank" class="link-with-icon">
                 <icon-font type="icon-zhishiku" />
                 知识库
               </a>
@@ -55,7 +55,6 @@
 <script setup lang="ts">
 import GlobalHeader from '@/components/GlobalHeader.vue'
 import GlobalSider from '@/components/GlobalSider.vue'
-import { UserOutlined, GlobalOutlined } from '@ant-design/icons-vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import { createFromIconfontCN } from '@ant-design/icons-vue'

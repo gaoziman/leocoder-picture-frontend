@@ -118,7 +118,7 @@ const originItems = [
     icon: () => h(IconFont, { type: 'icon-icon_zhishiku' }),
     label: h(
       'a',
-      { href: 'https://gaoziman.github.io/toLeoJavaer/', target: '_blank' },
+      { href: 'http:/www.leocoder.cn/', target: '_blank' },
       '知识导航',
     ),
     title: '知识导航',
@@ -158,8 +158,12 @@ watch(
 
 // 路由跳转事件
 const doMenuClick = ({ key }: { key: string }) => {
-  current.value = [key] // 更新当前选中菜单
-  router.push({ path: key })
+  if (key === 'others') {
+    window.open('http://www.leocoder.cn/', '_blank') // 打开外链
+  } else {
+    current.value = [key] // 更新当前选中菜单
+    router.push({ path: key })
+  }
 }
 
 // 路由变化监听，确保菜单同步

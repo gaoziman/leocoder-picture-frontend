@@ -9,8 +9,9 @@ export default defineConfig({
   server: {
     port: 80, // 如果你需要修改端口，可以直接在这里设置
     host: '0.0.0.0', // 确保外部可以访问
+    open: 'http://myserver.coder',
     proxy: {
-      '/api': 'http://localhost:18888',
+      '/api': process.env.VITE_API_URL || 'http://myserver.coder:18888', // 使用环境变量来设置代理地址
     }
   },
   plugins: [

@@ -37,8 +37,8 @@ const router = useRouter()
 const loginUserStore = useLoginUserStore()
 
 const formState = reactive<API.UserLoginRequest>({
-  userAccount: 'leocoder',
-  userPassword: '12345678',
+  userAccount: '',
+  userPassword: '',
 })
 
 /**

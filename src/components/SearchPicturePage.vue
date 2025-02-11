@@ -12,6 +12,10 @@
       </template>
     </a-card>
     <h3 style="margin: 16px 0">识图结果</h3>
+
+    <!-- 显示加载图标，直到所有图片加载完成 -->
+    <a-spin v-if="loading" style="display: block; margin: 0 auto" />
+
     <!-- 图片列表 -->
     <a-list
       :grid="{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4, xl: 5, xxl: 6 }"
@@ -22,7 +26,7 @@
           <a :href="item.fromUrl" target="_blank">
             <a-card>
               <template #cover>
-                <img style="height: 180px; object-fit: cover" :src="item.thumbUrl" />
+                <img style="height: 180px; object-fit: cover" :src="item.thumbUrl"  @load="onImageLoad" />
               </template>
             </a-card>
           </a>
@@ -48,6 +52,10 @@ const pictureId = computed(() => {
 const picture = ref<API.PictureVO>({})
 
 const dataList = ref<API.ImageSearchResult[]>([])
+
+// 用于控制加载状态
+const loading = ref(true)
+
 
 // 页面加载时请求一次
 onMounted(() => {
@@ -81,6 +89,25 @@ const fetchData = async () => {
     dataList.value = res.data.data ?? []
   } else {
     Message.error('获取数据失败，' + res.data.message)
+  }
+}
+
+// 每个图片加载完成后，检查是否所有图片都已加载完成
+const onImageLoad = () => {
+  // 检查所有图片是否都已加载
+  const images = document.querySelectorAll('img')
+  const totalImages = images.length
+  let loadedImages = 0
+
+  images.forEach((image: HTMLImageElement) => {
+    if (image.complete) {
+      loadedImages++
+    }
+  })
+
+  // 如果所有图片都加载完成，隐藏加载图标
+  if (loadedImages === totalImages) {
+    loading.value = false
   }
 }
 

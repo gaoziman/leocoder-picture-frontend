@@ -28,7 +28,11 @@
   </a-flex>
 
   <!-- 搜索表单 -->
-  <PictureSearchForm  :onSearch="onSearch" :spaceId="space.id"  />
+  <PictureSearchForm  :onSearch="onSearch"/>
+  <!-- 按颜色搜索，跟其他搜索条件独立 -->
+  <a-form-item label="按颜色搜索" style="margin-top: 20px">
+    <color-picker format="hex" @pureColorChange="onColorChange" />
+  </a-form-item>
 
   <div style="margin-top: 15px"></div>
 
@@ -66,11 +70,13 @@ import { h, onMounted, reactive, ref } from 'vue'
 import PictureList from '@/components/PictureList.vue'
 import { getSpaceVoByIdUsingGet } from '@/api/kongjianguanli.ts'
 import { formatSize } from '@/utils'
-import { listPictureVoByPageUsingPost } from '@/api/tupianguanli.ts'
+import { listPictureVoByPageUsingPost, searchPictureByColorUsingPost } from '@/api/tupianguanli.ts'
 import { Message } from '@arco-design/web-vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import AddPictureForm from '@/components/AddPictureForm.vue'
 import PictureSearchForm from '@/components/PictureSearchForm.vue'
+import { ColorPicker } from 'vue3-colorpicker'
+import 'vue3-colorpicker/style.css'
 
 const props = defineProps<{
   id: string | number
@@ -211,6 +217,21 @@ const getSpaceLevelText = (level: string | number) => {
       return '未知级别'
   }
 }
+
+const onColorChange = async (color: string) => {
+  const res = await searchPictureByColorUsingPost({
+    picColor: color,
+    spaceId: props.id,
+  })
+  if (res.data.code === 200 && res.data.data) {
+    const data = res.data.data ?? [];
+    dataList.value = data;
+    total.value = data.length;
+  } else {
+    Message.error('获取数据失败，' + res.data.message)
+  }
+}
+
 </script>
 
 <style scoped>

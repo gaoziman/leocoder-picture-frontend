@@ -27,6 +27,11 @@
     </a-space>
   </a-flex>
 
+  <!-- 搜索表单 -->
+  <PictureSearchForm  :onSearch="onSearch" :spaceId="space.id"  />
+
+  <div style="margin-top: 15px"></div>
+
   <!-- 图片列表 -->
   <PictureList :dataList="dataList" :loading="loading" source="space" />
   <a-pagination
@@ -65,6 +70,7 @@ import { listPictureVoByPageUsingPost } from '@/api/tupianguanli.ts'
 import { Message } from '@arco-design/web-vue'
 import { PlusOutlined } from '@ant-design/icons-vue'
 import AddPictureForm from '@/components/AddPictureForm.vue'
+import PictureSearchForm from '@/components/PictureSearchForm.vue'
 
 const props = defineProps<{
   id: string | number
@@ -80,7 +86,7 @@ const isModalVisible = ref(false)
 const addPictureFormRef = ref() // 引用子组件
 
 // 搜索条件
-const searchParams = reactive<API.PictureQueryRequest>({
+const searchParams = ref<API.PictureQueryRequest>({
   pageNum: 1,
   pageSize: 12,
   sortField: 'createTime',
@@ -105,20 +111,30 @@ const fetchSpaceDetail = async () => {
       Message.error({
         content: '获取空间详情失败，' + res.data.message,
         closable: true,
-      });
+      })
     }
   } catch (e: any) {
     Message.error({
       content: '获取空间详情失败，' + e.message,
       closable: true,
-    });
+    })
   }
 }
 
 // 分页参数
 const onPageChange = (page, pageSize) => {
-  searchParams.pageNum = page
-  searchParams.pageSize = pageSize
+  searchParams.value.pageNum = page
+  searchParams.value.pageSize = pageSize
+  fetchData()
+}
+
+// 搜索
+const onSearch = (newSearchParams: API.PictureQueryRequest) => {
+  searchParams.value = {
+    ...searchParams.value,
+    ...newSearchParams,
+    pageNum: 1,
+  }
   fetchData()
 }
 
@@ -139,12 +155,12 @@ const onPictureCreateSuccess = () => {
   Message.success({
     content: '图片创建成功！',
     closable: true,
-  });
+  })
   closeCreatePictureModal()
   // 重置到第一页
-  searchParams.pageNum = 1;
-  fetchData(); // 刷新图片列表
-  fetchSpaceDetail(); // 重新获取空间详情，更新容量和进度条
+  searchParams.pageNum = 1
+  fetchData() // 刷新图片列表
+  fetchSpaceDetail() // 重新获取空间详情，更新容量和进度条
 }
 
 // 获取数据
@@ -153,7 +169,7 @@ const fetchData = async () => {
   // 转换搜索参数
   const params = {
     spaceId: props.id,
-    ...searchParams,
+    ...searchParams.value,
   }
   const res = await listPictureVoByPageUsingPost(params)
   if (res.data.data) {
@@ -197,4 +213,6 @@ const getSpaceLevelText = (level: string | number) => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>

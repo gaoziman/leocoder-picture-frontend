@@ -30,16 +30,45 @@
                 </a-flex>
               </template>
             </a-card-meta>
+            <template v-if="showOp" #actions>
+              <a-space @click="(e) => doShare(picture, e)">
+                <ShareAltOutlined />
+              </a-space>
+              <a-space @click="(e) => doSearch(picture, e)">
+                <SearchOutlined />
+                搜索
+              </a-space>
+              <a-space @click="(e) => doEdit(picture, e)">
+                <EditOutlined />
+                编辑
+              </a-space>
+              <a-space @click="(e) => doDelete(picture, e)">
+                <DeleteOutlined />
+                删除
+              </a-space>
+            </template>
           </a-card>
         </a-list-item>
       </template>
     </a-list>
+    <ShareModal ref="shareModalRef" :link="shareLink" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
+import { SearchOutlined, EditOutlined, DeleteOutlined,ShareAltOutlined } from '@ant-design/icons-vue'
+import { ref } from 'vue'
+import { deletePictureUsingPost } from '@/api/tupianguanli.ts'
+import { Message } from '@arco-design/web-vue'
+import ShareModal from '@/components/ShareModal.vue'
+// 分享弹窗引用
+const shareModalRef = ref<InstanceType<typeof ShareModal> | null>(null)
+// 分享链接
+const shareLink = ref<string>('')
+const showOp = ref(true)
+
 const router = useRouter()
 
 interface Props {
@@ -60,8 +89,55 @@ const doClickPicture = (picture) => {
   const query = props.source === 'space' ? { from: 'space' } : {}
   router.push({
     path: `/picture/${picture.id}`,
-    query
+    query,
   })
+}
+
+// 搜索
+const doSearch = (picture, e) => {
+  e.stopPropagation()
+  window.open(`/search_picture?pictureId=${picture.id}`)
+}
+
+// 编辑
+const doEdit = (picture, e) => {
+  // 阻止冒泡
+  e.stopPropagation()
+  // 跳转时一定要携带 spaceId
+  router.push({
+    path: '/add_picture',
+    query: {
+      id: picture.id,
+      spaceId: picture.spaceId,
+    },
+  })
+}
+
+// 删除数据
+const doDelete = async (picture, e) => {
+  // 阻止冒泡
+  e.stopPropagation()
+  const id = picture.id
+  if (!id) {
+    return
+  }
+  const res = await deletePictureUsingPost({ id })
+  if (res.data.code === 200) {
+    Message.success('删除成功')
+    props.onReload?.()
+  } else {
+    Message.error('删除失败')
+  }
+}
+// 分享按钮点击事件
+const doShare = (picture: API.PictureVO, e: Event) => {
+  e.stopPropagation()
+  shareLink.value = `${window.location.protocol}//${window.location.host}/picture/${picture.id}`
+  if (shareModalRef.value) {
+    shareModalRef.value.openModal()
+  } else {
+    console.error('shareModalRef is not initialized')
+  }
 }
 </script>
 

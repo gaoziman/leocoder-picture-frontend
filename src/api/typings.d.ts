@@ -127,6 +127,11 @@ declare namespace API {
     id?: number
   }
 
+  type ImageSearchResult = {
+    fromUrl?: string
+    thumbUrl?: string
+  }
+
   type IPageCommentVO_ = {
     current?: number
     pages?: number
@@ -221,6 +226,7 @@ declare namespace API {
     isDelete?: number
     likeCount?: number
     name?: string
+    picColor?: string
     picFormat?: string
     picHeight?: number
     picScale?: number
@@ -249,6 +255,7 @@ declare namespace API {
 
   type PictureQueryRequest = {
     category?: string
+    endEditTime?: string
     favoriteCount?: number
     id?: number
     introduction?: string
@@ -269,6 +276,7 @@ declare namespace API {
     sortField?: string
     sortOrder?: string
     spaceId?: number
+    startEditTime?: string
     tags?: string[]
     userId?: number
     viewCount?: number
@@ -313,6 +321,7 @@ declare namespace API {
     isLiked?: number
     likeCount?: number
     name?: string
+    picColor?: string
     picFormat?: string
     picHeight?: number
     picScale?: number
@@ -353,6 +362,18 @@ declare namespace API {
   type ResultListCategory_ = {
     code?: number
     data?: Category[]
+    message?: string
+  }
+
+  type ResultListImageSearchResult_ = {
+    code?: number
+    data?: ImageSearchResult[]
+    message?: string
+  }
+
+  type ResultListPictureVO_ = {
+    code?: number
+    data?: PictureVO[]
     message?: string
   }
 
@@ -468,6 +489,15 @@ declare namespace API {
     code?: number
     data?: UserVO
     message?: string
+  }
+
+  type SearchPictureByColorRequest = {
+    picColor?: string
+    spaceId?: number
+  }
+
+  type SearchPictureByPictureRequest = {
+    pictureId?: number
   }
 
   type Space = {

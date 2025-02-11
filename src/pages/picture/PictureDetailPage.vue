@@ -124,6 +124,20 @@
           <a-descriptions-item label="大小">
             {{ formatSize(picture.picSize) }}
           </a-descriptions-item>
+          <a-descriptions-item label="主色调">
+            <a-space>
+              {{ picture.picColor ?? '-' }}
+              <div
+                v-if="picture.picColor"
+                :style="{
+                  backgroundColor: toHexColor(picture.picColor),
+                  width: '16px',
+                  height: '16px',
+                }"
+              />
+            </a-space>
+          </a-descriptions-item>
+
           <a-descriptions-item label="浏览量：">
             <template v-if="picture.reviewStatus === 0 && picture.spaceId == null">
               图片待审核
@@ -267,10 +281,7 @@ const doShare = (picture: API.PictureVO, e: Event) => {
   }
 }
 import { LeftOutlined, RightOutlined } from '@ant-design/icons-vue'
-import {
-  deletePictureUsingPost,
-  getAdjacentPicturesUsingPost,
-} from '@/api/tupianguanli.ts'
+import { deletePictureUsingPost, getAdjacentPicturesUsingPost } from '@/api/tupianguanli.ts'
 import {
   DeleteOutlined,
   EditOutlined,
@@ -297,6 +308,7 @@ import { Message } from '@arco-design/web-vue'
 import { useRoute } from 'vue-router'
 import { useRouter } from 'vue-router'
 import { useCacheStore } from '@/stores/cache'
+import { toHexColor } from '@/utils/hex.ts'
 
 const cacheStore = useCacheStore()
 

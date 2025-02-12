@@ -31,20 +31,17 @@
               </template>
             </a-card-meta>
             <template v-if="showOp" #actions>
+              <a-space @click="(e) => doSearch(picture, e)">
+                <SearchOutlined />
+              </a-space>
               <a-space @click="(e) => doShare(picture, e)">
                 <ShareAltOutlined />
               </a-space>
-              <a-space @click="(e) => doSearch(picture, e)">
-                <SearchOutlined />
-                搜索
-              </a-space>
-              <a-space @click="(e) => doEdit(picture, e)">
+              <a-space v-if="canEdit" @click="(e) => doEdit(picture, e)">
                 <EditOutlined />
-                编辑
               </a-space>
-              <a-space @click="(e) => doDelete(picture, e)">
+              <a-space v-if="canDelete" @click="(e) => doDelete(picture, e)">
                 <DeleteOutlined />
-                删除
               </a-space>
             </template>
           </a-card>
@@ -58,7 +55,12 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { getCategoryColor, getTagColor } from '@/utils/tagColorUtil.ts'
-import { SearchOutlined, EditOutlined, DeleteOutlined,ShareAltOutlined } from '@ant-design/icons-vue'
+import {
+  SearchOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ShareAltOutlined,
+} from '@ant-design/icons-vue'
 import { ref } from 'vue'
 import { deletePictureUsingPost } from '@/api/tupianguanli.ts'
 import { Message } from '@arco-design/web-vue'
@@ -74,13 +76,20 @@ const router = useRouter()
 interface Props {
   dataList?: API.PictureVO[]
   loading?: boolean
-  source?: 'public' | 'space'
+  source?: 'public' | 'space',
+  howOp?: boolean
+  canEdit?: boolean
+  canDelete?: boolean
+  onReload?: () => void
 }
 
 const props = withDefaults(defineProps<Props>(), {
   dataList: () => [],
   loading: false,
   source: 'public', // 默认值为公共图片
+  showOp: false,
+  canEdit: false,
+  canDelete: false
 })
 
 // 跳转至图片详情

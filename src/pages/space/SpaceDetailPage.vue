@@ -14,6 +14,7 @@
       <a-button type="primary" @click="showCreatePictureModal" :icon="h(PlusOutlined)">
         创建图片
       </a-button>
+      <a-button :icon="h(EditOutlined)" @click="doBatchEdit"> 批量编辑</a-button>
       <a-tooltip
         placement="bottom"
         :title="`占用空间 ${formatSize(space.totalSize)} / ${formatSize(space.maxSize)}`"
@@ -66,6 +67,15 @@
       @success="onPictureCreateSuccess"
     />
   </a-modal>
+
+
+  <!--  批量编辑图片  -->
+  <BatchEditPictureModal
+    ref="batchEditPictureModalRef"
+    :spaceId="id"
+    :pictureList="dataList"
+    :onSuccess="onBatchEditPictureSuccess"
+  />
 </template>
 
 <script setup lang="ts">
@@ -76,16 +86,17 @@ import { getSpaceVoByIdUsingGet } from '@/api/kongjianguanli.ts'
 import { formatSize } from '@/utils'
 import { listPictureVoByPageUsingPost, searchPictureByColorUsingPost } from '@/api/tupianguanli.ts'
 import { Message } from '@arco-design/web-vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
+import { EditOutlined, PlusOutlined } from '@ant-design/icons-vue'
 import AddPictureForm from '@/components/AddPictureForm.vue'
 import PictureSearchForm from '@/components/PictureSearchForm.vue'
 import { ColorPicker } from 'vue3-colorpicker'
 import 'vue3-colorpicker/style.css'
-import { SPACE_PERMISSION_ENUM } from '@/constants/space.ts'
+import BatchEditPictureModal from '@/components/BatchEditPictureModal.vue'
 
 const props = defineProps<{
   id: string | number
 }>()
+
 const space = ref<API.SpaceVO>({})
 
 // 数据
@@ -95,6 +106,12 @@ const loading = ref(true)
 // 弹窗状态
 const isModalVisible = ref(false)
 const addPictureFormRef = ref() // 引用子组件
+
+// 分享弹窗引用
+const batchEditPictureModalRef = ref()
+
+
+
 
 // 搜索条件
 const searchParams = ref<API.PictureQueryRequest>({
@@ -122,6 +139,18 @@ const canManageSpaceUser = createPermissionChecker(SPACE_PERMISSION_ENUM.SPACE_U
 const canUploadPicture = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_UPLOAD)
 const canEditPicture = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_EDIT)
 const canDeletePicture = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_DELETE)*/
+
+// 打开批量编辑弹窗
+const doBatchEdit = () => {
+  if (batchEditPictureModalRef.value) {
+    batchEditPictureModalRef.value.openModal()
+  }
+}
+
+// 批量编辑成功后，刷新数据
+const onBatchEditPictureSuccess = () => {
+  fetchData()
+}
 
 // 获取空间详情
 const fetchSpaceDetail = async () => {

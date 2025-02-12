@@ -28,7 +28,7 @@
   </a-flex>
 
   <!-- 搜索表单 -->
-  <PictureSearchForm  :onSearch="onSearch"/>
+  <PictureSearchForm :onSearch="onSearch" />
   <!-- 按颜色搜索，跟其他搜索条件独立 -->
   <a-form-item label="按颜色搜索" style="margin-top: 20px">
     <color-picker format="hex" @pureColorChange="onColorChange" />
@@ -37,7 +37,11 @@
   <div style="margin-top: 15px"></div>
 
   <!-- 图片列表 -->
-  <PictureList :dataList="dataList" :loading="loading" source="space" />
+  <PictureList
+      :dataList="dataList"
+      :loading="loading"
+      source="space"
+  />
   <a-pagination
     style="text-align: right"
     v-model:pageNum="searchParams.pageNum"
@@ -65,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { h, onMounted, reactive, ref } from 'vue'
+import { computed, h, onMounted, reactive, ref } from 'vue'
 
 import PictureList from '@/components/PictureList.vue'
 import { getSpaceVoByIdUsingGet } from '@/api/kongjianguanli.ts'
@@ -77,6 +81,7 @@ import AddPictureForm from '@/components/AddPictureForm.vue'
 import PictureSearchForm from '@/components/PictureSearchForm.vue'
 import { ColorPicker } from 'vue3-colorpicker'
 import 'vue3-colorpicker/style.css'
+import { SPACE_PERMISSION_ENUM } from '@/constants/space.ts'
 
 const props = defineProps<{
   id: string | number
@@ -104,6 +109,19 @@ onMounted(() => {
   fetchData()
   fetchSpaceDetail()
 })
+
+// 通用权限检查函数
+/*function createPermissionChecker(permission: string) {
+  return computed(() => {
+    return (space.value.permissionList ?? []).includes(permission)
+  })
+}
+
+// 定义权限检查
+const canManageSpaceUser = createPermissionChecker(SPACE_PERMISSION_ENUM.SPACE_USER_MANAGE)
+const canUploadPicture = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_UPLOAD)
+const canEditPicture = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_EDIT)
+const canDeletePicture = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_DELETE)*/
 
 // 获取空间详情
 const fetchSpaceDetail = async () => {
@@ -224,16 +242,13 @@ const onColorChange = async (color: string) => {
     spaceId: props.id,
   })
   if (res.data.code === 200 && res.data.data) {
-    const data = res.data.data ?? [];
-    dataList.value = data;
-    total.value = data.length;
+    const data = res.data.data ?? []
+    dataList.value = data
+    total.value = data.length
   } else {
     Message.error('获取数据失败，' + res.data.message)
   }
 }
-
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

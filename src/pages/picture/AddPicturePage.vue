@@ -17,6 +17,17 @@
       </a-tab-pane>
     </a-tabs>
 
+    <div v-if="picture" class="edit-bar">
+      <a-button :icon="h(EditOutlined)" @click="doEditPicture">编辑图片</a-button>
+      <ImageCropper
+        ref="imageCropperRef"
+        :imageUrl="picture?.url"
+        :picture="picture"
+        :spaceId="spaceId"
+        :onSuccess="onCropSuccess"
+      />
+    </div>
+
     <a-form v-if="picture" layout="vertical" :model="pictureForm" @finish="handleSubmit">
       <a-form-item label="名称" name="name">
         <a-input v-model:value="pictureForm.name" placeholder="请输入名称" />
@@ -62,12 +73,14 @@
 <script setup lang="ts">
 import PictureUpload from '@/components/PictureUpload.vue'
 import UrlPictureUpload from '@/components/UrlPictureUpload.vue'
-import { reactive, ref, onMounted, computed } from 'vue'
+import { reactive, ref, onMounted, computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { editPictureUsingPost, getPictureVoByIdUsingGet } from '@/api/tupianguanli.ts'
 import { addTagUsingPost, listTagsUsingPost } from '@/api/biaoqianguanli.ts'
 import { listCategoryUsingPost } from '@/api/fenleiguanli.ts'
 import { Message } from '@arco-design/web-vue'
+import ImageCropper from '@/components/ImageCropper.vue'
+import { EditOutlined } from '@ant-design/icons-vue'
 
 const uploadType = ref<'file' | 'url'>('file')
 const picture = ref<API.PictureVO>()
@@ -83,6 +96,21 @@ const route = useRoute()
 const spaceId = computed(() => {
   return route.query?.spaceId
 })
+
+// 图片编辑弹窗引用
+const imageCropperRef = ref()
+
+// 编辑图片
+const doEditPicture = () => {
+  if (imageCropperRef.value) {
+    imageCropperRef.value.openModal()
+  }
+}
+
+// 编辑成功事件
+const onCropSuccess = (newPicture: API.PictureVO) => {
+  picture.value = newPicture
+}
 
 onMounted(() => {
   getTagCategoryOptions()
@@ -197,5 +225,10 @@ const getOldPicture = async () => {
 #addPicturePage {
   max-width: 720px;
   margin: 0 auto;
+}
+
+#addPicturePage .edit-bar {
+  text-align: center;
+  margin: 16px 0;
 }
 </style>

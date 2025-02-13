@@ -196,6 +196,39 @@ export async function listPictureVoByPageWithCacheUsingPost(
   })
 }
 
+/** 创建 AI 扩图任务 POST /api/picture/out_painting/create_task */
+export async function createPictureOutPaintingTaskUsingPost(
+  body: API.CreatePictureOutPaintingTaskRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.ResultCreateOutPaintingTaskResponse_>(
+    '/api/picture/out_painting/create_task',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: body,
+      ...(options || {}),
+    }
+  )
+}
+
+/** 查询 AI 扩图任务 GET /api/picture/out_painting/get_task */
+export async function getPictureOutPaintingTaskUsingGet(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getPictureOutPaintingTaskUsingGETParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.ResultGetOutPaintingTaskResponse_>('/api/picture/out_painting/get_task', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  })
+}
+
 /** 刷新缓存（仅管理员可用） POST /api/picture/refreshCache */
 export async function refreshCacheUsingPost(
   body: API.PictureQueryRequest,

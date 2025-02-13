@@ -51,6 +51,18 @@ declare namespace API {
     userName?: string
   }
 
+  type CreateOutPaintingTaskResponse = {
+    code?: string
+    message?: string
+    output?: Output
+    requestId?: string
+  }
+
+  type CreatePictureOutPaintingTaskRequest = {
+    parameters?: Parameters
+    pictureId?: number
+  }
+
   type DeleteBatchRequest = {
     ids?: number[]
   }
@@ -92,9 +104,19 @@ declare namespace API {
     sortOrder: string
   }
 
+  type GetOutPaintingTaskResponse = {
+    output?: Output1
+    requestId?: string
+  }
+
   type getPictureByIdUsingGETParams = {
     /** id */
     id?: number
+  }
+
+  type getPictureOutPaintingTaskUsingGETParams = {
+    /** taskId */
+    taskId?: string
   }
 
   type getPictureViewCountUsingGETParams = {
@@ -160,6 +182,23 @@ declare namespace API {
 
   type MapStringLong_ = true
 
+  type Output = {
+    taskId?: string
+    taskStatus?: string
+  }
+
+  type Output1 = {
+    code?: string
+    endTime?: string
+    message?: string
+    outputImageUrl?: string
+    scheduledTime?: string
+    submitTime?: string
+    taskId?: string
+    taskMetrics?: TaskMetrics
+    taskStatus?: string
+  }
+
   type PageCategory_ = {
     current?: number
     pages?: number
@@ -214,6 +253,20 @@ declare namespace API {
     records?: UserVO[]
     size?: number
     total?: number
+  }
+
+  type Parameters = {
+    addWatermark?: boolean
+    angle?: number
+    bestQuality?: boolean
+    bottomOffset?: number
+    leftOffset?: number
+    limitImageSize?: boolean
+    outputRatio?: string
+    rightOffset?: number
+    topOffset?: number
+    xScale?: number
+    yScale?: number
   }
 
   type Picture = {
@@ -352,6 +405,18 @@ declare namespace API {
   type ResultBoolean_ = {
     code?: number
     data?: boolean
+    message?: string
+  }
+
+  type ResultCreateOutPaintingTaskResponse_ = {
+    code?: number
+    data?: CreateOutPaintingTaskResponse
+    message?: string
+  }
+
+  type ResultGetOutPaintingTaskResponse_ = {
+    code?: number
+    data?: GetOutPaintingTaskResponse
     message?: string
   }
 
@@ -586,6 +651,12 @@ declare namespace API {
     sortField?: string
     sortOrder?: string
     tags?: string[]
+  }
+
+  type TaskMetrics = {
+    failed?: number
+    succeeded?: number
+    total?: number
   }
 
   type testDownloadFileUsingGETParams = {

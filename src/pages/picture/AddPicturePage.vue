@@ -18,14 +18,25 @@
     </a-tabs>
 
     <div v-if="picture" class="edit-bar">
-      <a-button :icon="h(EditOutlined)" @click="doEditPicture">编辑图片</a-button>
-      <ImageCropper
-        ref="imageCropperRef"
-        :imageUrl="picture?.url"
-        :picture="picture"
-        :spaceId="spaceId"
-        :onSuccess="onCropSuccess"
-      />
+      <a-space size="middle">
+        <a-button :icon="h(EditOutlined)" @click="doEditPicture">编辑图片</a-button>
+        <a-button type="primary" ghost :icon="h(FullscreenOutlined)" @click="doImagePainting">
+          AI 扩图
+        </a-button>
+        <ImageCropper
+          ref="imageCropperRef"
+          :imageUrl="picture?.url"
+          :picture="picture"
+          :spaceId="spaceId"
+          :onSuccess="onCropSuccess"
+        />
+        <ImageOutPainting
+          ref="imageOutPaintingRef"
+          :picture="picture"
+          :spaceId="spaceId"
+          :onSuccess="onImageOutPaintingSuccess"
+        />
+      </a-space>
     </div>
 
     <a-form v-if="picture" layout="vertical" :model="pictureForm" @finish="handleSubmit">
@@ -80,7 +91,8 @@ import { addTagUsingPost, listTagsUsingPost } from '@/api/biaoqianguanli.ts'
 import { listCategoryUsingPost } from '@/api/fenleiguanli.ts'
 import { Message } from '@arco-design/web-vue'
 import ImageCropper from '@/components/ImageCropper.vue'
-import { EditOutlined } from '@ant-design/icons-vue'
+import { EditOutlined, FullscreenOutlined } from '@ant-design/icons-vue'
+import ImageOutPainting from '@/components/ImageOutPainting.vue'
 
 const uploadType = ref<'file' | 'url'>('file')
 const picture = ref<API.PictureVO>()
@@ -100,6 +112,14 @@ const spaceId = computed(() => {
 // 图片编辑弹窗引用
 const imageCropperRef = ref()
 
+// AI 扩图弹窗引用
+const imageOutPaintingRef = ref()
+
+onMounted(() => {
+  getTagCategoryOptions()
+  getOldPicture()
+})
+
 // 编辑图片
 const doEditPicture = () => {
   if (imageCropperRef.value) {
@@ -112,10 +132,17 @@ const onCropSuccess = (newPicture: API.PictureVO) => {
   picture.value = newPicture
 }
 
-onMounted(() => {
-  getTagCategoryOptions()
-  getOldPicture()
-})
+// AI 扩图
+const doImagePainting = () => {
+  if (imageOutPaintingRef.value) {
+    imageOutPaintingRef.value.openModal()
+  }
+}
+
+// 编辑成功事件
+const onImageOutPaintingSuccess = (newPicture: API.PictureVO) => {
+  picture.value = newPicture
+}
 
 // 上传成功回调
 const onSuccess = (newPicture: API.PictureVO) => {

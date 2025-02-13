@@ -25,6 +25,11 @@
           v-model:value="formData.nameRule"
           placeholder="请输入命名规则，输入 {序号} 可动态生成"
         />
+        <div class="dynamic-buttons">
+          <a-button @click="insertDynamicVariable('{序号}')">序号</a-button>
+          <a-button @click="insertDynamicVariable('{图片名称}')">图片名称</a-button>
+          <a-button @click="insertDynamicVariable('{上传时间}')">上传时间</a-button>
+        </div>
       </a-form-item>
       <a-form-item>
         <a-button type="primary" html-type="submit">提交</a-button>
@@ -100,6 +105,11 @@ const getTagCategoryOptions = async () => {
   }
 }
 
+// 动态插入变量
+const insertDynamicVariable = (variable: string) => {
+  formData.nameRule += variable;
+}
+
 // 提交表单时处理
 const handleSubmit = async (values: any) => {
   if (!props.pictureList) {
@@ -124,4 +134,12 @@ onMounted(() => {
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+.dynamic-buttons {
+  margin-top: 10px;
+}
+
+.dynamic-buttons a-button {
+  margin-right: 8px;
+}
+</style>

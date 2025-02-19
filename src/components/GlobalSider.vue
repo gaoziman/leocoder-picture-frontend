@@ -9,9 +9,9 @@
     >
       <a-menu
         mode="inline"
-        v-model:selectedKeys="current"
+        v-model:selectedKeys="currentLeftMenu"
         :items="menuItems"
-        @click="doMenuClick"
+        @click="doLeftMenuClick"
       />
     </a-layout-sider>
   </div>
@@ -24,6 +24,19 @@ import { useLoginUserStore } from '@/stores/user'
 
 import { createFromIconfontCN } from '@ant-design/icons-vue'
 import { SCRIPT_URL } from '@/constants/url.ts'
+import { useTabStore } from '@/stores/tab/useTabStore.ts'
+
+const tabStore = useTabStore()
+
+const loginUserStore = useLoginUserStore()
+
+const router = useRouter()
+
+// 当前选中菜单
+const current = ref<string[]>([])
+
+// 当前左侧菜单选中项
+const currentLeftMenu = ref<string[]>([tabStore.selectedLeftMenu || '/'])
 
 // 菜单列表
 const menuItems = [
@@ -43,23 +56,20 @@ const IconFont = createFromIconfontCN({
   scriptUrl: SCRIPT_URL,
 })
 
-const loginUserStore = useLoginUserStore()
 
-const router = useRouter()
 
-// 当前选中菜单
-const current = ref<string[]>([])
-
-// 监听路由变化，更新当前选中菜单
-router.afterEach((to, from, failure) => {
-  current.value = [to.path]
+// 监听路由变化，更新当前左侧菜单选中状态
+router.afterEach((to) => {
+  // 只需要更新左侧菜单选中状态，顶部菜单已经在上面的逻辑中同步处理
+  currentLeftMenu.value = [to.path]
+  tabStore.setLeftMenu(to.path)  // 更新左侧菜单选中状态
 })
 
-// 路由跳转事件
-const doMenuClick = ({ key }: { key: string }) => {
-  router.push({
-    path: key,
-  })
+// 点击左侧菜单时
+const doLeftMenuClick = ({ key }: { key: string }) => {
+  currentLeftMenu.value = [key]
+  tabStore.setLeftMenu(key) // 同步更新顶部和左侧菜单选中状态
+  router.push({ path: key })  // 路由跳转
 }
 </script>
 

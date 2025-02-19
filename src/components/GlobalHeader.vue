@@ -10,10 +10,10 @@
     </a-col>
     <a-col flex="auto">
       <a-menu
-        v-model:selectedKeys="current"
+        v-model:selectedKeys="currentTopMenu"
         mode="horizontal"
         :items="items"
-        @click="doMenuClick"
+        @click="doTopMenuClick"
       />
     </a-col>
     <a-col flex="120px">
@@ -61,11 +61,14 @@ import { useTabStore } from '@/stores/tab/useTabStore.ts'
 
 const loginUserStore = useLoginUserStore()
 // 展示在菜单的路由数组
-const items = computed<MenuProps['items']>(() => filterMenus(originItems))
+const items = computed(() => filterMenus(originItems))
 
 const router = useRouter()
 
 const tabStore = useTabStore()
+
+// 当前顶部菜单选中项
+const currentTopMenu = ref<string[]>([tabStore.selectedTopMenu || '/'])
 
 const IconFont = createFromIconfontCN({
   scriptUrl: SCRIPT_URL,
@@ -146,31 +149,22 @@ const filterMenus = (menus = [] as MenuProps['items']) => {
 }
 
 // 当前选中的菜单（从 Pinia 获取初始值）
-const current = ref<string[]>([tabStore.selectedTab || '/'])
+// const current = ref<string[]>([tabStore.selectedTab || '/'])
 
-// 监听菜单变化，同步到 Pinia
+// 监听顶部菜单变化
 watch(
-  () => current.value[0],
+  () => currentTopMenu.value[0],
   (newKey) => {
-    tabStore.setTab(newKey) // 更新选中菜单到 Pinia
+    tabStore.setTopMenu(newKey) // 更新顶部菜单选中状态并清除左侧菜单选中状态
   },
 )
 
-// 路由跳转事件
-const doMenuClick = ({ key }: { key: string }) => {
-  if (key === 'others') {
-    window.open('http://www.leocoder.cn/', '_blank') // 打开外链
-  } else {
-    current.value = [key] // 更新当前选中菜单
-    router.push({ path: key })
-  }
+// 在顶部菜单点击时同步更新选中状态
+const doTopMenuClick = ({ key }: { key: string }) => {
+  currentTopMenu.value = [key]
+  tabStore.setTopMenu(key)  // 同步更新顶部和左侧菜单选中状态
+  router.push({ path: key })
 }
-
-// 路由变化监听，确保菜单同步
-router.afterEach((to) => {
-  current.value = [to.path]
-  tabStore.setTab(to.path) // 更新 Pinia 状态
-})
 
 // 用户注销
 const doLogout = async () => {

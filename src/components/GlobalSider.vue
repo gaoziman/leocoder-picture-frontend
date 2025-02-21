@@ -48,7 +48,7 @@ const menuItems = [
   {
     key: '/my_space',
     label: '我的空间',
-    icon: () => h(IconFont, { type: 'icon-kongjian' }),
+    icon: () => h(IconFont, { type: 'icon-wodekongjian' }),
   },
 ]
 

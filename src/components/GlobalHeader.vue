@@ -30,7 +30,7 @@
                 个人中心
               </a-menu-item>
               <a-menu-item @click="goToMySpace">
-                <IconFont type="icon-kongjian" />
+                <IconFont type="icon-wodekongjian" />
                 我的空间
               </a-menu-item>
               <a-menu-item @click="doLogout">
@@ -121,14 +121,12 @@ const originItems = [
     icon: () => h(IconFont, { type: 'icon-icon_zhishiku' }),
     label: h(
       'a',
-      { href: 'http:/www.leocoder.cn/', target: '_blank' },
+      { href: 'https:/www.leocoder.cn/', target: '_blank' },
       '知识导航',
     ),
     title: '知识导航',
   },
 ]
-
-
 
 
 const goToLogin = () => {

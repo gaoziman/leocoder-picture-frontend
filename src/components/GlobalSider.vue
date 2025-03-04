@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { h, ref } from 'vue'
+import { h, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/user'
 
@@ -57,18 +57,41 @@ const IconFont = createFromIconfontCN({
 })
 
 
+// 监听左侧菜单选中状态变化
+watch(
+  () => tabStore.selectedLeftMenu,
+  (newMenu) => {
+    if (newMenu) {
+      currentLeftMenu.value = [newMenu]
+    } else {
+      currentLeftMenu.value = []
+    }
+  }
+)
+
 
 // 监听路由变化，更新当前左侧菜单选中状态
 router.afterEach((to) => {
-  // 只需要更新左侧菜单选中状态，顶部菜单已经在上面的逻辑中同步处理
-  currentLeftMenu.value = [to.path]
-  tabStore.setLeftMenu(to.path)  // 更新左侧菜单选中状态
+  // 检查路径是否匹配左侧菜单项
+  const isLeftMenuItem = menuItems.some(item => item.key === to.path)
+
+  if (isLeftMenuItem) {
+    // 如果是左侧菜单项，更新选中状态
+    currentLeftMenu.value = [to.path]
+    tabStore.setLeftMenu(to.path)  // 更新左侧菜单选中状态
+  } else if (tabStore.selectedLeftMenu) {
+    // 否则使用存储的值
+    currentLeftMenu.value = [tabStore.selectedLeftMenu]
+  } else {
+    // 清除左侧菜单选中
+    currentLeftMenu.value = []
+  }
 })
 
 // 点击左侧菜单时
 const doLeftMenuClick = ({ key }: { key: string }) => {
   currentLeftMenu.value = [key]
-  tabStore.setLeftMenu(key) // 同步更新顶部和左侧菜单选中状态
+  tabStore.setLeftMenu(key) // 更新左侧菜单选中状态
   router.push({ path: key })  // 路由跳转
 }
 </script>

@@ -141,23 +141,40 @@ const filterMenus = (menus = [] as MenuProps['items']) => {
   })
 }
 
-// 当前选中的菜单（从 Pinia 获取初始值）
-// const current = ref<string[]>([tabStore.selectedTab || '/'])
-
 // 监听顶部菜单变化
 watch(
-  () => currentTopMenu.value[0],
-  (newKey) => {
-    tabStore.setTopMenu(newKey) // 更新顶部菜单选中状态并清除左侧菜单选中状态
+  () => tabStore.selectedTopMenu,
+  (newMenu) => {
+    if (newMenu) {
+      currentTopMenu.value = [newMenu]
+    } else {
+      // 当 selectedTopMenu 为空时，清除选中状态
+      currentTopMenu.value = []
+    }
   },
 )
 
 // 在顶部菜单点击时同步更新选中状态
 const doTopMenuClick = ({ key }: { key: string }) => {
   currentTopMenu.value = [key]
-  tabStore.setTopMenu(key) // 同步更新顶部和左侧菜单选中状态
+  tabStore.setTopMenu(key) // 更新菜单选中状态
   router.push({ path: key })
 }
+
+// 路由变化监听器 - 修改这个以响应路由变化
+router.afterEach((to) => {
+  // 检查当前路径是否与左侧菜单匹配
+  if (to.path === '/' || to.path === '/my_space') {
+    // 如果匹配左侧菜单项，同步更新顶部菜单
+    currentTopMenu.value = [to.path]
+  } else if (tabStore.selectedTopMenu && tabStore.selectedTopMenu !== '') {
+    // 否则使用存储的顶部菜单（确保不是空字符串）
+    currentTopMenu.value = [tabStore.selectedTopMenu]
+  } else {
+    // 清除顶部菜单选中
+    currentTopMenu.value = []
+  }
+})
 
 // 用户注销
 const doLogout = async () => {

@@ -119,15 +119,10 @@ const originItems = [
   {
     key: 'others',
     icon: () => h(IconFont, { type: 'icon-icon_zhishiku' }),
-    label: h(
-      'a',
-      { href: 'https:/www.leocoder.cn/', target: '_blank' },
-      '知识导航',
-    ),
+    label: h('a', { href: 'https:/www.leocoder.cn/', target: '_blank' }, '知识导航'),
     title: '知识导航',
   },
 ]
-
 
 const goToLogin = () => {
   router.push('/user/login') // 跳转到登录页面的路由
@@ -160,7 +155,7 @@ watch(
 // 在顶部菜单点击时同步更新选中状态
 const doTopMenuClick = ({ key }: { key: string }) => {
   currentTopMenu.value = [key]
-  tabStore.setTopMenu(key)  // 同步更新顶部和左侧菜单选中状态
+  tabStore.setTopMenu(key) // 同步更新顶部和左侧菜单选中状态
   router.push({ path: key })
 }
 
